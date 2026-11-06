@@ -38,6 +38,19 @@ class ContentCompletenessTest {
     }
 
     @Test
+    void everyItemHasNameTooltipRecipeAndModel() throws IOException {
+        String lang = Files.readString(ASSETS.resolve("lang/en_us.json"));
+        List<String> missing = new ArrayList<>();
+        for (String item : List.of("decal_stencil")) {
+            requireKey(lang, "item.createdecals." + item, missing);
+            requireKey(lang, "item.createdecals." + item + ".tooltip.summary", missing);
+            requireFile(DATA.resolve("recipe/" + item + ".json"), missing);
+            requireFile(ASSETS.resolve("models/item/" + item + ".json"), missing);
+        }
+        assertTrue(missing.isEmpty(), "missing: " + missing);
+    }
+
+    @Test
     void everyDecalHasSpriteAndDefinition() throws IOException {
         List<String> definitions = names(OWN_ASSETS.resolve("decals"), ".json");
         List<String> sprites = names(OWN_ASSETS.resolve("textures/decal"), ".png");

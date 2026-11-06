@@ -4,6 +4,7 @@ import com.goldskinmc.createdecals.decal.DecalFrame;
 import com.goldskinmc.createdecals.decal.DecalState;
 import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.decoration.copycat.CopycatBlockEntity;
+import com.simibubi.create.content.equipment.clipboard.ClipboardCloneable;
 import com.simibubi.create.content.decoration.copycat.CopycatModel;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelBlock;
 import java.util.Collections;
@@ -14,6 +15,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -27,7 +29,7 @@ import org.jetbrains.annotations.Nullable;
  * six. Decals are saved with the block (so contraptions, Sable vehicles and schematics carry them like the material)
  * and handed to the model as model data; nothing ticks and nothing renders here.
  */
-public class DecalCopycatBlockEntity extends CopycatBlockEntity {
+public class DecalCopycatBlockEntity extends CopycatBlockEntity implements ClipboardCloneable {
     public static final ModelProperty<Map<Direction, DecalState>> DECALS = new ModelProperty<>();
 
     private final EnumMap<Direction, DecalState> decals = new EnumMap<>(Direction.class);
@@ -109,6 +111,33 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity {
     private static Direction turn(StructureTransform transform, Direction direction) {
         Direction mirrored = transform.mirrorFacing(direction);
         return transform.rotationAxis == null ? mirrored : transform.rotateFacing(mirrored);
+    }
+
+    /** Create's Clipboard: R-click copies the decal on the clicked face, L-click pastes it onto another face. */
+    @Override
+    public String getClipboardKey() {
+        return "createdecals_decal";
+    }
+
+    @Override
+    public boolean writeToClipboard(HolderLookup.Provider registries, CompoundTag tag, Direction side) {
+        DecalState decal = decals.get(side);
+        if (decal == null) {
+            return false;
+        }
+        tag.put("Decal", decal.save());
+        return true;
+    }
+
+    @Override
+    public boolean readFromClipboard(HolderLookup.Provider registries, CompoundTag tag, Player player, Direction side, boolean simulate) {
+        if (!tag.contains("Decal") || !acceptsDecalOn(side)) {
+            return false;
+        }
+        if (!simulate) {
+            setDecal(side, DecalState.load(tag.getCompound("Decal")));
+        }
+        return true;
     }
 
     @Override

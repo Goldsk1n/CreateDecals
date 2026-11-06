@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "createdecals:item/decal_stencil",
+    "layer1": "createdecals:item/decal_stencil_mark"
+  }
+}

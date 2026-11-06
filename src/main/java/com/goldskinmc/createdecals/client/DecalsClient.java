@@ -2,6 +2,9 @@ package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.CreateDecals;
 import com.goldskinmc.createdecals.registry.DecalsBlocks;
+import com.goldskinmc.createdecals.registry.DecalsItems;
+import com.goldskinmc.createdecals.stencil.DecalStencilItem;
+import com.goldskinmc.createdecals.stencil.StencilData;
 import com.simibubi.create.content.decoration.copycat.CopycatBlock;
 import java.util.function.Function;
 import net.minecraft.client.color.block.BlockColor;
@@ -18,7 +21,7 @@ import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 
-/** Puts the decal models round both blocks' (empty) block models, tints decals, and loads the decal library. */
+/** Puts the decal models round both blocks' (empty) block models, tints decals and the stencil, loads the decal library. */
 @EventBusSubscriber(modid = CreateDecals.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class DecalsClient {
     private DecalsClient() {
@@ -48,6 +51,18 @@ public final class DecalsClient {
     @SubscribeEvent
     public static void onAtlasStitched(TextureAtlasStitchedEvent event) {
         DecalQuads.clearCache();
+    }
+
+    /** The stencil's icon: its second layer shows the chosen colour (grey with nothing chosen, red for the eraser). */
+    @SubscribeEvent
+    public static void registerItemColours(RegisterColorHandlersEvent.Item event) {
+        event.register((stack, layer) -> {
+            if (layer != 1) {
+                return -1;
+            }
+            StencilData data = DecalStencilItem.data(stack);
+            return 0xFF000000 | (data.erase() ? 0xD03030 : data.decal().isPresent() ? data.rgb() : 0x8D939B);
+        }, DecalsItems.DECAL_STENCIL.get());
     }
 
     /** Decal quads carry their colour in the tint index; everything else is the copied material's tint (grass, leaves). */

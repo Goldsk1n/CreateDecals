@@ -21,9 +21,14 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   `assets/minecraft/atlases/blocks.json`), `DecalQuads` (one quad per decal, coplanar with the material's face, cutout
   layer, colour in the tint index, cached), `DecalPanelModel` and `DecalBlockModel` (Create's copycat models plus decal
   quads), `DecalsClient` (wraps the models, tints, loads the library).
-- `registry/`: Registrate entries, lang, recipes, creative tab. `command/DecalsCommand`: `/decals decal <pos> <face>
-  <decal|none> [colour] [rotation] [flip]` and `/decals fill <from> <to> <face> <decal|none> [colour]` (debug and
-  admins; players get the Decal Stencil at M2).
+- `stencil/`: `DecalStencilItem` (used in the air it opens its screen; on a face it puts its decal there or erases it;
+  sneaking it picks the face's decal up), `StencilData` (its data component: decal, colour, turns, flip, eraser),
+  `StencilPayload` (the screen's choice, client to server, only onto a stencil in that hand). The screen is
+  `client/StencilScreen`, opened by `client/StencilClientEvents`. Create's Clipboard copies decals too
+  (`ClipboardCloneable` on the block entity).
+- `registry/`: Registrate entries, data components, lang, recipes, creative tab. `command/DecalsCommand`:
+  `/decals decal <pos> <face> <decal|none> [colour] [rotation] [flip]` and `/decals fill <from> <to> <face> <decal|none>
+  [colour]` (debug and admins).
 
 ## Build and check
 

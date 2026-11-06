@@ -6,7 +6,7 @@ import net.minecraft.world.item.DyeColor;
 
 /**
  * One decal on one face: which decal ({@link Decals}), its colour (0xRRGGBB), how it lies on the face
- * ({@code rotation} quarter turns clockwise, then {@code flip} mirrors it left to right), and for decals larger than
+ * ({@code flip} mirrors it left to right, then it is turned {@code rotation} quarter turns clockwise), and for decals larger than
  * one block which tile of it this face shows ({@code tileX} from the left, {@code tileY} from the top, before turning).
  */
 public record DecalState(ResourceLocation id, int rgb, int rotation, boolean flip, int tileX, int tileY) {
