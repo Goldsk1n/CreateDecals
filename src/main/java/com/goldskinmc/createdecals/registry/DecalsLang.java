@@ -32,7 +32,7 @@ public final class DecalsLang {
         add("createdecals.stencil.tooltip.empty", "No decal chosen");
         add("createdecals.stencil.tooltip.erase", "Eraser");
         add("createdecals.stencil.tooltip.decal", "%s, %s");
-        for (String category : new String[] {"shapes", "digits", "letters", "emblems", "misc"}) {
+        for (String category : new String[] {"letters", "digits", "signs", "lines", "markers", "emblems", "misc"}) {
             add("createdecals.category." + category, Character.toUpperCase(category.charAt(0)) + category.substring(1));
         }
         tooltip("block", "decal_panel", "A _copycat panel_ that shows a _decal_ on its front: stripes, numbers, letters, emblems. Keeps it on contraptions, trains and Sable vehicles.",

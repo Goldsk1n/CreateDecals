@@ -29,7 +29,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * serverbound payload). Placeholder look until M4/M6 give it Create's style.
  */
 public class StencilScreen extends Screen {
-    private static final List<String> CATEGORY_ORDER = List.of("shapes", "digits", "letters", "emblems");
+    private static final List<String> CATEGORY_ORDER = List.of("letters", "digits", "signs", "lines", "markers", "emblems");
     private static final int COLUMNS = 9;
     private static final int ROWS = 4;
     private static final int CELL = 22;

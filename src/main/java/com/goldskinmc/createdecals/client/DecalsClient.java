@@ -31,6 +31,11 @@ public final class DecalsClient {
     public static void wrapModels(ModelEvent.ModifyBakingResult event) {
         wrap(event, DecalsBlocks.DECAL_PANEL.get(), DecalPanelModel::new);
         wrap(event, DecalsBlocks.DECAL_BLOCK.get(), DecalBlockModel::new);
+        ModelResourceLocation stencil = ModelResourceLocation.inventory(DecalsItems.DECAL_STENCIL.getId());
+        BakedModel stencilModel = event.getModels().get(stencil);
+        if (stencilModel != null) {
+            event.getModels().put(stencil, new StencilItemModel(stencilModel));
+        }
     }
 
     private static void wrap(ModelEvent.ModifyBakingResult event, Block block, Function<BakedModel, BakedModel> wrapper) {
@@ -51,17 +56,24 @@ public final class DecalsClient {
     @SubscribeEvent
     public static void onAtlasStitched(TextureAtlasStitchedEvent event) {
         DecalQuads.clearCache();
+        StencilItemModel.clearCache();
     }
 
-    /** The stencil's icon: its second layer shows the chosen colour (grey with nothing chosen, red for the eraser). */
+    /**
+     * The stencil's icon: its chevron layer is dark like a cut-out (red as the eraser); a chosen decal replaces it
+     * ({@link StencilItemModel}) and carries its colour in the tint index, as on blocks.
+     */
     @SubscribeEvent
     public static void registerItemColours(RegisterColorHandlersEvent.Item event) {
         event.register((stack, layer) -> {
+            if (layer >= DecalQuads.TINT_FLAG) {
+                return 0xFF000000 | layer & 0xFFFFFF;
+            }
             if (layer != 1) {
                 return -1;
             }
             StencilData data = DecalStencilItem.data(stack);
-            return 0xFF000000 | (data.erase() ? 0xD03030 : data.decal().isPresent() ? data.rgb() : 0x8D939B);
+            return 0xFF000000 | (data.erase() ? 0xD03030 : 0x282B30);
         }, DecalsItems.DECAL_STENCIL.get());
     }
 

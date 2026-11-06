@@ -27,7 +27,8 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
 - `stencil/`: `DecalStencilItem` (used in the air it opens its screen; on a face it puts its decal there or erases it;
   sneaking it picks the face's decal up), `StencilData` (its data component: decal, colour, turns, flip, eraser),
   `StencilPayload` (the screen's choice, client to server, only onto a stencil in that hand). The screen is
-  `client/StencilScreen`, opened by `client/StencilClientEvents`; `client/StencilOutline` outlines the faces a held
+  `client/StencilScreen`, opened by `client/StencilClientEvents`; `client/StencilItemModel` puts the chosen decal on the
+  stencil's icon; `client/StencilOutline` outlines the faces a held
   stencil's decal would cover (green where a tile lands, red where it cannot). Create's Clipboard copies decals too
   (`ClipboardCloneable` on the block entity).
 - `registry/`: Registrate entries, data components, lang, recipes, creative tab. `command/DecalsCommand`:
