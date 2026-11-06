@@ -42,7 +42,8 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   client) and `ContentCompletenessTest` (every block has a name, tooltip, recipe, loot and item model; every decal a
   sprite and a definition).
 - `./gradlew runGameTestServer` (and with `-Prun_profile=floor`): game tests in `gametest/` (saving, schematics,
-  contraption turns, dye, stencil, Clipboard, large decals), ending "All N required tests passed".
+  contraption turns, dye, stencil, Clipboard, large decals, the Schematicannon placing both blocks), ending "All N required tests passed".
 - `-Pdev_perf=true` adds Sodium 0.8.13, Iris 1.8.14-beta.1 and spark (`-Pdev_iris=false`: Sodium alone).
   `./gradlew installShaderpack` puts Complementary Reimagined into `run/shaderpacks/` (personal-use licence: never
   bundle it); shaders on/off is `enableShaders` in `run/config/iris.properties`.
+- `-Pdev_copycats=true` adds Copycats+ (pinned by Modrinth version id, as in Lightworks) to check both run side by side.
