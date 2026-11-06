@@ -70,6 +70,8 @@ def runDir = floorRun ? 'run-floor' : 'run'
 // -Pdev_perf=true adds Sodium, Iris and spark (shader and frame-cost checks); -Pdev_iris=false leaves Iris out
 def devPerf = providers.gradleProperty('dev_perf').map { it.toBoolean() }.getOrElse(false)
 def devIris = providers.gradleProperty('dev_iris').map { it.toBoolean() }.getOrElse(true)
+// -Pdev_copycats=true adds Copycats+ (the most used copycat add-on) to check both run side by side: dev only, never shipped
+def devCopycats = providers.gradleProperty('dev_copycats').map { it.toBoolean() }.getOrElse(false)
 
 neoForge {
     version = floorRun ? project.neo_floor_version : project.neo_version
@@ -138,6 +140,9 @@ dependencies {
         localRuntime "dev.ryanhcode.sable-companion:sable-companion-common-${minecraft_version}:${sable_companion_version}"
         localRuntime "foundry.veil:veil-neoforge-${minecraft_version}:${veil_version}"
 
+        if (devCopycats) {
+            localRuntime("maven.modrinth:copycats:${copycats_version}") { transitive = false }
+        }
         if (devPerf) {
             if (devIris) {
                 localRuntime("maven.modrinth:iris:${iris_version}") { transitive = false }

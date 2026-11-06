@@ -29,6 +29,10 @@ import org.jetbrains.annotations.Nullable;
 public class DecalBlockModel extends CopycatModel {
     private static final ModelProperty<Integer> HIDDEN_FACES = new ModelProperty<>();
 
+    /** Time spent in this model while meshing, for the frame-cost checks. */
+    public static final java.util.concurrent.atomic.AtomicLong totalNanos = new java.util.concurrent.atomic.AtomicLong();
+    public static final java.util.concurrent.atomic.AtomicLong calls = new java.util.concurrent.atomic.AtomicLong();
+
     public DecalBlockModel(BakedModel originalModel) {
         super(originalModel);
     }
@@ -76,7 +80,16 @@ public class DecalBlockModel extends CopycatModel {
     @Override
     public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource rand, ModelData data,
             @Nullable RenderType renderType) {
-        List<BakedQuad> quads = super.getQuads(state, side, rand, data, renderType);
+        long total = System.nanoTime();
+        try {
+            return withDecal(super.getQuads(state, side, rand, data, renderType), side, data, renderType);
+        } finally {
+            totalNanos.addAndGet(System.nanoTime() - total);
+            calls.incrementAndGet();
+        }
+    }
+
+    private List<BakedQuad> withDecal(List<BakedQuad> quads, @Nullable Direction side, ModelData data, @Nullable RenderType renderType) {
         Map<Direction, DecalState> decals = data.get(DecalCopycatBlockEntity.DECALS);
         if (decals == null || side == null || renderType != DecalQuads.layer()) {
             return quads;
