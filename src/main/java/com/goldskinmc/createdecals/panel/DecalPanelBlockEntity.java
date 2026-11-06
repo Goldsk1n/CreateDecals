@@ -1,7 +1,7 @@
-package com.goldskinmc.livery.panel;
+package com.goldskinmc.createdecals.panel;
 
-import com.goldskinmc.livery.decal.DecalFrame;
-import com.goldskinmc.livery.decal.DecalState;
+import com.goldskinmc.createdecals.decal.DecalFrame;
+import com.goldskinmc.createdecals.decal.DecalState;
 import com.simibubi.create.content.contraptions.StructureTransform;
 import com.simibubi.create.content.decoration.copycat.CopycatBlockEntity;
 import com.simibubi.create.content.decoration.copycat.CopycatModel;

@@ -1,6 +1,6 @@
-package com.goldskinmc.livery.client;
+package com.goldskinmc.createdecals.client;
 
-import com.goldskinmc.livery.Livery;
+import com.goldskinmc.createdecals.CreateDecals;
 import com.simibubi.create.content.decoration.copycat.CopycatBlock;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.renderer.block.BlockModelShaper;
@@ -15,14 +15,14 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 
 /** Puts {@link DecalPanelModel} round the panel's (empty) block model and tints decal quads by their tint index. */
-@EventBusSubscriber(modid = Livery.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
-public final class LiveryClient {
-    private LiveryClient() {
+@EventBusSubscriber(modid = CreateDecals.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
+public final class DecalsClient {
+    private DecalsClient() {
     }
 
     @SubscribeEvent
     public static void wrapModels(ModelEvent.ModifyBakingResult event) {
-        for (BlockState state : Livery.DECAL_PANEL.get().getStateDefinition().getPossibleStates()) {
+        for (BlockState state : CreateDecals.DECAL_PANEL.get().getStateDefinition().getPossibleStates()) {
             ModelResourceLocation location = BlockModelShaper.stateToModelLocation(state);
             BakedModel model = event.getModels().get(location);
             if (model != null && !(model instanceof DecalPanelModel)) {
@@ -41,6 +41,6 @@ public final class LiveryClient {
         BlockColor material = CopycatBlock.wrappedColor();
         event.register((state, level, pos, tintIndex) -> tintIndex >= DecalPanelModel.TINT_FLAG
                 ? tintIndex & 0xFFFFFF
-                : material.getColor(state, level, pos, tintIndex), Livery.DECAL_PANEL.get());
+                : material.getColor(state, level, pos, tintIndex), CreateDecals.DECAL_PANEL.get());
     }
 }

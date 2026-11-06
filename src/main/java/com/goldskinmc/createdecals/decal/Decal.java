@@ -1,13 +1,13 @@
-package com.goldskinmc.livery.decal;
+package com.goldskinmc.createdecals.decal;
 
-import com.goldskinmc.livery.Livery;
+import com.goldskinmc.createdecals.CreateDecals;
 import java.util.Locale;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * The fixed decal library. Each decal is one white 16x16 sprite on the block atlas
- * ({@code assets/livery/textures/block/decal/<name>.png}), tinted with the
+ * ({@code assets/createdecals/textures/block/decal/<name>.png}), tinted with the
  * panel's colour when it is baked into the panel's model.
  */
 public enum Decal {
@@ -31,7 +31,7 @@ public enum Decal {
     }
 
     public ResourceLocation texture() {
-        return ResourceLocation.fromNamespaceAndPath(Livery.MOD_ID, "block/decal/" + id());
+        return ResourceLocation.fromNamespaceAndPath(CreateDecals.MOD_ID, "block/decal/" + id());
     }
 
     public static Decal byIndex(int index) {

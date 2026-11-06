@@ -1,4 +1,4 @@
-package com.goldskinmc.livery;
+package com.goldskinmc.createdecals;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
@@ -16,7 +16,7 @@ class ArchitectureTest {
     static void importModClasses() {
         mod = new ClassFileImporter()
                 .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
-                .importPackages("com.goldskinmc.livery");
+                .importPackages("com.goldskinmc.createdecals");
     }
 
     @Test
@@ -29,8 +29,8 @@ class ArchitectureTest {
 
     @Test
     void commonCodeStaysOffTheClient() {
-        noClasses().that().resideInAnyPackage("..livery.decal..", "..livery.panel..", "..livery.command..")
-                .should().dependOnClassesThat().resideInAnyPackage("net.minecraft.client..", "..livery.client..")
+        noClasses().that().resideInAnyPackage("..createdecals.decal..", "..createdecals.panel..", "..createdecals.command..")
+                .should().dependOnClassesThat().resideInAnyPackage("net.minecraft.client..", "..createdecals.client..")
                 .check(mod);
     }
 }

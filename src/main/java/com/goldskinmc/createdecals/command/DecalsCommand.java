@@ -1,8 +1,8 @@
-package com.goldskinmc.livery.command;
+package com.goldskinmc.createdecals.command;
 
-import com.goldskinmc.livery.decal.Decal;
-import com.goldskinmc.livery.decal.DecalState;
-import com.goldskinmc.livery.panel.DecalPanelBlockEntity;
+import com.goldskinmc.createdecals.decal.Decal;
+import com.goldskinmc.createdecals.decal.DecalState;
+import com.goldskinmc.createdecals.panel.DecalPanelBlockEntity;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -23,20 +23,20 @@ import net.minecraft.world.item.DyeColor;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Prototype stand-in for a decal picker: {@code /livery decal <pos> <decal|none> [colour] [rotation] [flip]} and
- * {@code /livery fill <from> <to> <decal|none> [colour]}. A colour is a dye name or {@code RRGGBB} in hex.
+ * Prototype stand-in for a decal picker: {@code /decals decal <pos> <decal|none> [colour] [rotation] [flip]} and
+ * {@code /decals fill <from> <to> <decal|none> [colour]}. A colour is a dye name or {@code RRGGBB} in hex.
  */
-public final class LiveryCommand {
+public final class DecalsCommand {
     private static final DynamicCommandExceptionType UNKNOWN_DECAL =
             new DynamicCommandExceptionType(id -> Component.literal("Unknown decal: " + id));
     private static final DynamicCommandExceptionType UNKNOWN_COLOUR =
             new DynamicCommandExceptionType(id -> Component.literal("Unknown colour: " + id));
 
-    private LiveryCommand() {
+    private DecalsCommand() {
     }
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("livery")
+        dispatcher.register(Commands.literal("decals")
                 .requires(source -> source.hasPermission(2))
                 .then(Commands.literal("decal")
                         .then(Commands.argument("pos", BlockPosArgument.blockPos())

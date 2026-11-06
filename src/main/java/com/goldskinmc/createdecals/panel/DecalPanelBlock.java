@@ -1,7 +1,7 @@
-package com.goldskinmc.livery.panel;
+package com.goldskinmc.createdecals.panel;
 
-import com.goldskinmc.livery.Livery;
-import com.goldskinmc.livery.decal.DecalState;
+import com.goldskinmc.createdecals.CreateDecals;
+import com.goldskinmc.createdecals.decal.DecalState;
 import com.simibubi.create.content.decoration.copycat.CopycatBlockEntity;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelBlock;
 import net.minecraft.core.BlockPos;
@@ -17,7 +17,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * Create's copycat panel with a decal on its front face. Everything about the material is Create's; a dye
- * recolours the decal. Which decal it shows is set with {@code /livery decal} for now.
+ * recolours the decal. Which decal it shows is set with {@code /decals decal} for now.
  */
 public class DecalPanelBlock extends CopycatPanelBlock {
     public DecalPanelBlock(Properties properties) {
@@ -26,7 +26,7 @@ public class DecalPanelBlock extends CopycatPanelBlock {
 
     @Override
     public BlockEntityType<? extends CopycatBlockEntity> getBlockEntityType() {
-        return Livery.DECAL_PANEL_ENTITY.get();
+        return CreateDecals.DECAL_PANEL_ENTITY.get();
     }
 
     @Override

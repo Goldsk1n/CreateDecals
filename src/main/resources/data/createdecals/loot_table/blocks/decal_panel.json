@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "livery:decal_panel"
+          "name": "createdecals:decal_panel"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "livery:blocks/decal_panel"
+  "random_sequence": "createdecals:blocks/decal_panel"
 }

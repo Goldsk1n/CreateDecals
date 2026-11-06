@@ -1,8 +1,8 @@
-package com.goldskinmc.livery.client;
+package com.goldskinmc.createdecals.client;
 
-import com.goldskinmc.livery.decal.DecalFrame;
-import com.goldskinmc.livery.decal.DecalState;
-import com.goldskinmc.livery.panel.DecalPanelBlockEntity;
+import com.goldskinmc.createdecals.decal.DecalFrame;
+import com.goldskinmc.createdecals.decal.DecalState;
+import com.goldskinmc.createdecals.panel.DecalPanelBlockEntity;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelBlock;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelModel;
 import java.util.ArrayList;
@@ -45,9 +45,9 @@ public class DecalPanelModel extends CopycatPanelModel {
     private static final float PANEL_DEPTH = 3 / 16f;
 
     /** How far the decal stands off the face, in blocks (a tuning knob for checks; 0 = coplanar). */
-    public static volatile float lift = Float.parseFloat(System.getProperty("livery.decalLift", "0"));
+    public static volatile float lift = Float.parseFloat(System.getProperty("createdecals.decalLift", "0"));
     /** The layer decal quads go into: {@code cutout} or {@code cutout_mipped} (a tuning knob for checks). */
-    public static volatile boolean mipped = Boolean.parseBoolean(System.getProperty("livery.decalMipped", "true"));
+    public static volatile boolean mipped = Boolean.parseBoolean(System.getProperty("createdecals.decalMipped", "true"));
 
     /** Time spent baking chunks in this model, all of it and the decal part alone, for the frame-cost check. */
     public static final AtomicLong totalNanos = new AtomicLong();

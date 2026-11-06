@@ -1,4 +1,4 @@
-package com.goldskinmc.livery.decal;
+package com.goldskinmc.createdecals.decal;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.DyeColor;

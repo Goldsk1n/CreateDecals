@@ -1,4 +1,4 @@
-package com.goldskinmc.livery.decal;
+package com.goldskinmc.createdecals.decal;
 
 import net.minecraft.core.Direction;
 import org.jetbrains.annotations.Nullable;
