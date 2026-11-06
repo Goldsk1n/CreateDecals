@@ -13,6 +13,20 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
+// Blockstates, item models, lang, recipes, loot and tags come from datagen: run `runData` and commit src/generated
+sourceSets.main.resources {
+    srcDir('src/generated/resources')
+    // Patterns are relative to each resource folder; datagen's cache sits at the top of src/generated/resources
+    exclude('.cache/**')
+}
+
+// Dev runs load the build folders, so the game tests and their template stay out of the jar and work as before in
+// runGameTestServer
+tasks.named('jar', Jar) {
+    exclude('com/goldskinmc/createdecals/gametest/**')
+    exclude('data/createdecals/structure/**')
+}
+
 repositories {
     mavenCentral()
     // Create, Ponder, Flywheel
@@ -73,6 +87,17 @@ neoForge {
             def window = providers.gradleProperty('window').getOrElse('1280x720')
             def (width, height) = window.tokenize('x')
             programArguments.addAll '--width', width, '--height', height
+        }
+        // Headless check: boots every mod, runs the game tests, exits
+        gameTestServer {
+            type = 'gameTestServer'
+            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+        }
+        data {
+            data()
+            programArguments.addAll '--mod', project.mod_id, '--all',
+                    '--output', file('src/generated/resources/').getAbsolutePath(),
+                    '--existing', file('src/main/resources/').getAbsolutePath()
         }
         configureEach {
             gameDirectory = file(runDir)

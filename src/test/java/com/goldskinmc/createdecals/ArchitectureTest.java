@@ -29,7 +29,8 @@ class ArchitectureTest {
 
     @Test
     void commonCodeStaysOffTheClient() {
-        noClasses().that().resideInAnyPackage("..createdecals.decal..", "..createdecals.panel..", "..createdecals.command..")
+        noClasses().that().resideInAnyPackage("..createdecals.decal..", "..createdecals.block..", "..createdecals.command..",
+                        "..createdecals.registry..")
                 .should().dependOnClassesThat().resideInAnyPackage("net.minecraft.client..", "..createdecals.client..")
                 .check(mod);
     }

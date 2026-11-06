@@ -1,62 +1,44 @@
 package com.goldskinmc.createdecals;
 
 import com.goldskinmc.createdecals.command.DecalsCommand;
-import com.goldskinmc.createdecals.panel.DecalPanelBlock;
-import com.goldskinmc.createdecals.panel.DecalPanelBlockEntity;
+import com.goldskinmc.createdecals.registry.DecalsBlockEntities;
+import com.goldskinmc.createdecals.registry.DecalsBlocks;
+import com.goldskinmc.createdecals.registry.DecalsCreativeTab;
+import com.goldskinmc.createdecals.registry.DecalsLang;
+import com.goldskinmc.createdecals.registry.DecalsRecipes;
 import com.mojang.logging.LogUtils;
-import java.util.function.Supplier;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
+import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.simibubi.create.foundation.item.ItemDescription;
+import net.createmod.catnip.lang.FontHelper;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
 import org.slf4j.Logger;
 
 @Mod(CreateDecals.MOD_ID)
 public final class CreateDecals {
     public static final String MOD_ID = "createdecals";
     public static final Logger LOGGER = LogUtils.getLogger();
-
-    private static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MOD_ID);
-    private static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MOD_ID);
-    private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MOD_ID);
-
-    /** Properties as Create gives its copycats (soft metal, no occlusion, nothing spawns on it). */
-    public static final DeferredBlock<DecalPanelBlock> DECAL_PANEL = BLOCKS.register("decal_panel",
-            () -> new DecalPanelBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.NONE)
-                    .sound(SoundType.NETHERITE_BLOCK)
-                    .strength(2f, 5f)
-                    .noOcclusion()
-                    .isValidSpawn((state, level, pos, type) -> false)));
-    public static final DeferredItem<BlockItem> DECAL_PANEL_ITEM = ITEMS.registerSimpleBlockItem(DECAL_PANEL);
-    public static final Supplier<BlockEntityType<DecalPanelBlockEntity>> DECAL_PANEL_ENTITY = BLOCK_ENTITIES.register("decal_panel",
-            () -> BlockEntityType.Builder.of(
-                    (pos, state) -> new DecalPanelBlockEntity(CreateDecals.DECAL_PANEL_ENTITY.get(), pos, state),
-                    DECAL_PANEL.get()).build(null));
+    // No default tab: DecalsCreativeTab lists our items itself (Registrate would add them a second time)
+    public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MOD_ID)
+            .defaultCreativeTab((ResourceKey<CreativeModeTab>) null)
+            .setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE));
 
     public CreateDecals(IEventBus modBus) {
-        BLOCKS.register(modBus);
-        ITEMS.register(modBus);
-        BLOCK_ENTITIES.register(modBus);
-        modBus.addListener(CreateDecals::addToCreativeTab);
+        REGISTRATE.registerEventListeners(modBus);
+        DecalsBlocks.register();
+        DecalsBlockEntities.register();
+        DecalsRecipes.register();
+        DecalsCreativeTab.register(modBus);
+        DecalsLang.register();
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> DecalsCommand.register(event.getDispatcher()));
     }
 
-    private static void addToCreativeTab(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.BUILDING_BLOCKS) {
-            event.accept(DECAL_PANEL_ITEM.get());
-        }
+    public static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 }

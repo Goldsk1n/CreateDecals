@@ -1,20 +1,24 @@
 package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.CreateDecals;
+import com.goldskinmc.createdecals.registry.DecalsBlocks;
 import com.simibubi.create.content.decoration.copycat.CopycatBlock;
+import java.util.function.Function;
 import net.minecraft.client.color.block.BlockColor;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 
-/** Puts {@link DecalPanelModel} round the panel's (empty) block model and tints decal quads by their tint index. */
+/** Puts the decal models round both blocks' (empty) block models, tints decals, and loads the decal library. */
 @EventBusSubscriber(modid = CreateDecals.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class DecalsClient {
     private DecalsClient() {
@@ -22,25 +26,36 @@ public final class DecalsClient {
 
     @SubscribeEvent
     public static void wrapModels(ModelEvent.ModifyBakingResult event) {
-        for (BlockState state : CreateDecals.DECAL_PANEL.get().getStateDefinition().getPossibleStates()) {
+        wrap(event, DecalsBlocks.DECAL_PANEL.get(), DecalPanelModel::new);
+        wrap(event, DecalsBlocks.DECAL_BLOCK.get(), DecalBlockModel::new);
+    }
+
+    private static void wrap(ModelEvent.ModifyBakingResult event, Block block, Function<BakedModel, BakedModel> wrapper) {
+        for (BlockState state : block.getStateDefinition().getPossibleStates()) {
             ModelResourceLocation location = BlockModelShaper.stateToModelLocation(state);
             BakedModel model = event.getModels().get(location);
-            if (model != null && !(model instanceof DecalPanelModel)) {
-                event.getModels().put(location, new DecalPanelModel(model));
+            if (model != null) {
+                event.getModels().put(location, wrapper.apply(model));
             }
         }
     }
 
     @SubscribeEvent
-    public static void onAtlasStitched(TextureAtlasStitchedEvent event) {
-        DecalPanelModel.clearCache();
+    public static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener(DecalLibrary.INSTANCE);
     }
 
     @SubscribeEvent
+    public static void onAtlasStitched(TextureAtlasStitchedEvent event) {
+        DecalQuads.clearCache();
+    }
+
+    /** Decal quads carry their colour in the tint index; everything else is the copied material's tint (grass, leaves). */
+    @SubscribeEvent
     public static void registerColours(RegisterColorHandlersEvent.Block event) {
         BlockColor material = CopycatBlock.wrappedColor();
-        event.register((state, level, pos, tintIndex) -> tintIndex >= DecalPanelModel.TINT_FLAG
+        event.register((state, level, pos, tintIndex) -> tintIndex >= DecalQuads.TINT_FLAG
                 ? tintIndex & 0xFFFFFF
-                : material.getColor(state, level, pos, tintIndex), CreateDecals.DECAL_PANEL.get());
+                : material.getColor(state, level, pos, tintIndex), DecalsBlocks.DECAL_PANEL.get(), DecalsBlocks.DECAL_BLOCK.get());
     }
 }

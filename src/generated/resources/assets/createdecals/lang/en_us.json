@@ -1,0 +1,15 @@
+{
+  "block.createdecals.decal_block": "Decal Block",
+  "block.createdecals.decal_block.tooltip.action1": "Recolours the decal on that face.",
+  "block.createdecals.decal_block.tooltip.behaviour1": "Copies that block's look.",
+  "block.createdecals.decal_block.tooltip.condition1": "When R-clicked with a block",
+  "block.createdecals.decal_block.tooltip.control1": "When R-clicked with Dye",
+  "block.createdecals.decal_block.tooltip.summary": "A full _copycat block_ with a _decal_ on any of its faces, for hulls built of whole blocks.",
+  "block.createdecals.decal_panel": "Decal Panel",
+  "block.createdecals.decal_panel.tooltip.action1": "Recolours its decal.",
+  "block.createdecals.decal_panel.tooltip.behaviour1": "Copies that block's look, as Create's Copycat Panel does.",
+  "block.createdecals.decal_panel.tooltip.condition1": "When R-clicked with a block",
+  "block.createdecals.decal_panel.tooltip.control1": "When R-clicked with Dye",
+  "block.createdecals.decal_panel.tooltip.summary": "A _copycat panel_ that shows a _decal_ on its front: stripes, numbers, letters, emblems. Keeps it on contraptions, trains and Sable vehicles.",
+  "itemGroup.createdecals": "Create: Decals"
+}

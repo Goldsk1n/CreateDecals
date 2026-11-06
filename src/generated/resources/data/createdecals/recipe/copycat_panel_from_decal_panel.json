@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "createdecals:decal_panel"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "create:copycat_panel"
+  }
+}
