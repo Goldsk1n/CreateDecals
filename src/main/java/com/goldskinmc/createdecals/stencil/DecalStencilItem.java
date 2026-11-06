@@ -1,6 +1,7 @@
 package com.goldskinmc.createdecals.stencil;
 
 import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
+import com.goldskinmc.createdecals.block.DecalTiles;
 import com.goldskinmc.createdecals.decal.DecalState;
 import com.goldskinmc.createdecals.registry.DecalsComponents;
 import java.util.List;
@@ -21,8 +22,9 @@ import net.minecraft.world.level.Level;
 
 /**
  * The Decal Stencil: used in the air it opens its screen (on the client, {@code client/StencilScreen}), where the decal,
- * colour, turns and flip are chosen; used on a face of a decal block it puts that decal there (or erases it); used
- * while sneaking it picks the face's decal up. Decals cost nothing to apply (plan Decision 8).
+ * colour, turns and flip are chosen; used on a face of a decal block it puts that decal there, a large one spreading
+ * right and down from the clicked face over the faces next to it on the same plane (or erases the whole decal there);
+ * used while sneaking it picks the face's decal up. Decals cost nothing to apply (plan Decision 8).
  */
 public class DecalStencilItem extends Item {
     public DecalStencilItem(Properties properties) {
@@ -62,7 +64,7 @@ public class DecalStencilItem extends Item {
             return InteractionResult.CONSUME;
         }
         if (data.erase()) {
-            be.setDecal(face, null);
+            DecalTiles.changeWhole(level, context.getClickedPos(), face, tile -> null);
             return InteractionResult.CONSUME;
         }
         Optional<DecalState> decal = data.toDecal();
@@ -70,7 +72,12 @@ public class DecalStencilItem extends Item {
             message(player, "no_decal");
             return InteractionResult.CONSUME;
         }
-        be.setDecal(face, decal.get());
+        // The clicked face takes the decal's top-left tile; the rest go right and down from it on the same plane
+        int tiles = decal.get().width() * decal.get().height();
+        int placed = DecalTiles.place(level, context.getClickedPos(), face, decal.get());
+        if (placed < tiles && player != null) {
+            player.displayClientMessage(Component.translatable("createdecals.stencil.partly", placed, tiles), true);
+        }
         return InteractionResult.CONSUME;
     }
 

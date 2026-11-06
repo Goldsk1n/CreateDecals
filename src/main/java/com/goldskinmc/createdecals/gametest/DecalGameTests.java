@@ -38,7 +38,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 public final class DecalGameTests {
     private static final String EMPTY = "empty";
     private static final DecalState R = new DecalState(Decals.id("letter_r"), DyeColor.RED.getTextureDiffuseColor(), 1, true);
-    private static final DecalState SEVEN = new DecalState(Decals.id("digit_7"), DyeColor.BLUE.getTextureDiffuseColor(), 0, false, 1, 2);
+    private static final DecalState SEVEN = new DecalState(Decals.id("digit_7"), DyeColor.BLUE.getTextureDiffuseColor(), 0, false, 1, 2, 2, 3);
 
     private DecalGameTests() {
     }

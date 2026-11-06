@@ -1,6 +1,5 @@
 package com.goldskinmc.createdecals.block;
 
-import com.goldskinmc.createdecals.decal.DecalState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.ItemInteractionResult;
@@ -15,7 +14,8 @@ final class DecalClicks {
     }
 
     /**
-     * A dye on a face with a decal recolours that decal (the dye is not used up, as Decision 8 of the plan has it).
+     * A dye on a face with a decal recolours that decal, every tile of a large one (the dye is not used up, as Decision 8
+     * of the plan has it).
      * Null when the click is not for us, so the copycat handles it.
      */
     @Nullable
@@ -23,12 +23,12 @@ final class DecalClicks {
         if (!(stack.getItem() instanceof DyeItem dye) || !(level.getBlockEntity(pos) instanceof DecalCopycatBlockEntity be)) {
             return null;
         }
-        DecalState decal = be.getDecal(face);
-        if (decal == null) {
+        if (be.getDecal(face) == null) {
             return null;
         }
         if (!level.isClientSide()) {
-            be.setDecal(face, decal.withRgb(dye.getDyeColor().getTextureDiffuseColor()));
+            int rgb = dye.getDyeColor().getTextureDiffuseColor();
+            DecalTiles.changeWhole(level, pos, face, tile -> tile.withRgb(rgb));
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
     }

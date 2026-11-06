@@ -28,6 +28,7 @@ public final class DecalsLang {
         add("createdecals.stencil.no_decal", "Choose a decal first: use the stencil in the air");
         add("createdecals.stencil.nothing_to_pick", "No decal on that face");
         add("createdecals.stencil.picked", "Decal picked up");
+        add("createdecals.stencil.partly", "Only %s of its %s tiles found a decal block face");
         add("createdecals.stencil.tooltip.empty", "No decal chosen");
         add("createdecals.stencil.tooltip.erase", "Eraser");
         add("createdecals.stencil.tooltip.decal", "%s, %s");

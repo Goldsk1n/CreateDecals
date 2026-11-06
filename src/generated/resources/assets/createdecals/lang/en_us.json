@@ -27,6 +27,7 @@
   "createdecals.stencil.front_only": "A Decal Panel takes a decal on its front only",
   "createdecals.stencil.no_decal": "Choose a decal first: use the stencil in the air",
   "createdecals.stencil.nothing_to_pick": "No decal on that face",
+  "createdecals.stencil.partly": "Only %s of its %s tiles found a decal block face",
   "createdecals.stencil.picked": "Decal picked up",
   "createdecals.stencil.rotate": "Turn",
   "createdecals.stencil.title": "Decal Stencil",

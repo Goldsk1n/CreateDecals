@@ -30,7 +30,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 @GameTestHolder(CreateDecals.MOD_ID)
 @PrefixGameTestTemplate(false)
 public final class StencilGameTests {
-    private static final StencilData SEVEN = new StencilData(Optional.of(Decals.id("digit_7")), 0xB02E26, 1, false, false);
+    private static final StencilData SEVEN = new StencilData(Optional.of(Decals.id("digit_7")), 0xB02E26, 1, false, false, 1, 1);
 
     private StencilGameTests() {
     }

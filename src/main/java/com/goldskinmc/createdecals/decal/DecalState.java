@@ -6,19 +6,24 @@ import net.minecraft.world.item.DyeColor;
 
 /**
  * One decal on one face: which decal ({@link Decals}), its colour (0xRRGGBB), how it lies on the face
- * ({@code flip} mirrors it left to right, then it is turned {@code rotation} quarter turns clockwise), and for decals larger than
- * one block which tile of it this face shows ({@code tileX} from the left, {@code tileY} from the top, before turning).
+ * ({@code flip} mirrors it left to right, then it is turned {@code rotation} quarter turns clockwise), and for decals larger
+ * than one block, its size in tiles ({@code width} x {@code height}, as drawn) and which tile this face shows
+ * ({@code tileX} from the left, {@code tileY} from the top, as drawn). The size is kept here because only clients know
+ * the decal library: the server needs it to find the other tiles (erasing, recolouring).
  */
-public record DecalState(ResourceLocation id, int rgb, int rotation, boolean flip, int tileX, int tileY) {
+public record DecalState(ResourceLocation id, int rgb, int rotation, boolean flip, int tileX, int tileY, int width, int height) {
     public DecalState {
         rgb &= 0xFFFFFF;
         rotation = Math.floorMod(rotation, 4);
-        tileX = Math.max(0, tileX);
-        tileY = Math.max(0, tileY);
+        width = Math.max(1, Math.min(DecalPlacement.MAX_SIZE, width));
+        height = Math.max(1, Math.min(DecalPlacement.MAX_SIZE, height));
+        tileX = Math.max(0, Math.min(width - 1, tileX));
+        tileY = Math.max(0, Math.min(height - 1, tileY));
     }
 
+    /** A one-block decal. */
     public DecalState(ResourceLocation id, int rgb, int rotation, boolean flip) {
-        this(id, rgb, rotation, flip, 0, 0);
+        this(id, rgb, rotation, flip, 0, 0, 1, 1);
     }
 
     public static DecalState of(ResourceLocation id, DyeColor dye) {
@@ -26,11 +31,20 @@ public record DecalState(ResourceLocation id, int rgb, int rotation, boolean fli
     }
 
     public DecalState withRgb(int newRgb) {
-        return new DecalState(id, newRgb, rotation, flip, tileX, tileY);
+        return new DecalState(id, newRgb, rotation, flip, tileX, tileY, width, height);
     }
 
     public DecalState withTurn(int newRotation, boolean newFlip) {
-        return new DecalState(id, rgb, newRotation, newFlip, tileX, tileY);
+        return new DecalState(id, rgb, newRotation, newFlip, tileX, tileY, width, height);
+    }
+
+    public DecalState withTile(int newTileX, int newTileY) {
+        return new DecalState(id, rgb, rotation, flip, newTileX, newTileY, width, height);
+    }
+
+    /** Whether this face shows part of the same decal as {@code other} (same decal, size, turn and flip), any tile. */
+    public boolean sameDecalAs(DecalState other) {
+        return id.equals(other.id) && rotation == other.rotation && flip == other.flip && width == other.width && height == other.height;
     }
 
     public CompoundTag save() {
@@ -39,7 +53,9 @@ public record DecalState(ResourceLocation id, int rgb, int rotation, boolean fli
         tag.putInt("Rgb", rgb);
         tag.putByte("Rot", (byte) rotation);
         tag.putBoolean("Flip", flip);
-        if (tileX != 0 || tileY != 0) {
+        if (width != 1 || height != 1) {
+            tag.putByte("W", (byte) width);
+            tag.putByte("H", (byte) height);
             tag.putByte("TileX", (byte) tileX);
             tag.putByte("TileY", (byte) tileY);
         }
@@ -48,6 +64,6 @@ public record DecalState(ResourceLocation id, int rgb, int rotation, boolean fli
 
     public static DecalState load(CompoundTag tag) {
         return new DecalState(Decals.parse(tag.getString("Id")), tag.getInt("Rgb"), tag.getByte("Rot"), tag.getBoolean("Flip"),
-                tag.getByte("TileX"), tag.getByte("TileY"));
+                tag.getByte("TileX"), tag.getByte("TileY"), Math.max(1, tag.getByte("W")), Math.max(1, tag.getByte("H")));
     }
 }

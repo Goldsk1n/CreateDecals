@@ -148,8 +148,14 @@ public class StencilScreen extends Screen {
         if (data.erase()) {
             graphics.drawCenteredString(font, Component.translatable("createdecals.stencil.erase"), previewX + 26, previewY + 22, 0xFFFFFF);
         } else {
-            data.decal().map(DecalLibrary.INSTANCE::get).ifPresent(entry ->
-                    drawDecal(graphics, entry, previewX + 4, previewY + 4, 44, data.rotation(), data.flip()));
+            data.decal().map(DecalLibrary.INSTANCE::get).ifPresent(entry -> {
+                drawDecal(graphics, entry, previewX + 4, previewY + 4, 44, data.rotation(), data.flip());
+                if (data.width() > 1 || data.height() > 1) {
+                    boolean across = data.rotation() % 2 == 0;
+                    graphics.drawString(font, (across ? data.width() : data.height()) + " x " + (across ? data.height() : data.width()),
+                            previewX + 2, previewY + 54, 0xFFFFFF);
+                }
+            });
         }
     }
 
@@ -177,7 +183,8 @@ public class StencilScreen extends Screen {
             int x = left + 6 + (i % COLUMNS) * CELL;
             int y = gridTop + (i / COLUMNS) * CELL;
             if (mouseX >= x && mouseX < x + CELL - 2 && mouseY >= y && mouseY < y + CELL - 2) {
-                data = data.withDecal(entries.get(i).id());
+                DecalLibrary.Entry entry = entries.get(i);
+                data = data.withDecal(entry.id(), entry.width(), entry.height());
                 return true;
             }
         }

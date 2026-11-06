@@ -88,8 +88,8 @@ public final class DecalQuads {
         };
         float[][] uvs = {{0, 0}, {0, 1}, {1, 1}, {1, 0}};
         // This face shows one tile of a decal that may span several blocks
-        int tileX = Math.min(decal.tileX(), entry.width() - 1);
-        int tileY = Math.min(decal.tileY(), entry.height() - 1);
+        int tileX = decal.tileX();
+        int tileY = decal.tileY();
 
         QuadBakingVertexConsumer builder = new QuadBakingVertexConsumer();
         builder.setSprite(sprite);
@@ -104,7 +104,7 @@ public final class DecalQuads {
             Vec3 c = corners[i];
             builder.addVertex((float) c.x, (float) c.y, (float) c.z)
                     .setColor(-1)
-                    .setUv(sprite.getU((tileX + u) / entry.width()), sprite.getV((tileY + uv[1]) / entry.height()))
+                    .setUv(sprite.getU((tileX + u) / decal.width()), sprite.getV((tileY + uv[1]) / decal.height()))
                     .setNormal((float) normal.x, (float) normal.y, (float) normal.z);
         }
         return builder.bakeQuad();
