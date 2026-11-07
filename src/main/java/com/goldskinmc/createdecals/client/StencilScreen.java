@@ -4,6 +4,7 @@ import com.goldskinmc.createdecals.CreateDecals;
 import com.goldskinmc.createdecals.stencil.DecalStencilItem;
 import com.goldskinmc.createdecals.stencil.StencilData;
 import com.goldskinmc.createdecals.stencil.StencilPayload;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.widget.IconButton;
@@ -207,8 +208,13 @@ public class StencilScreen extends Screen {
         graphics.pose().mulPose(Axis.ZP.rotationDegrees(90 * rotation));
         if (flip) {
             graphics.pose().scale(-1, 1, 1);
+            // A mirrored quad winds the other way, and the GUI culls back faces: without this it vanished
+            RenderSystem.disableCull();
         }
         graphics.blit(-size / 2, -size / 2, 0, size, size, sprite, r, g, b, 1f);
+        if (flip) {
+            RenderSystem.enableCull();
+        }
         graphics.pose().popPose();
     }
 
