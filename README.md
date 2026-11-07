@@ -41,6 +41,13 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   stencil's icon; `client/StencilOutline` outlines the faces a held
   stencil's decal would cover (green where a tile lands, red where it cannot). Create's Clipboard copies decals too
   (`ClipboardCloneable` on the block entity).
+- `contraption/DecalMovement` (a `MovementBehaviour` for both blocks; does nothing while moving) and
+  `client/ContraptionGlow`: on a Create contraption or train, glowing decals are drawn a second time at full light from
+  `renderInContraption`, in vanilla's sign-text layer (`RenderType.textPolygonOffset`, so it wins over the mesh's copy
+  of the same face without flicker), a front decal over a glowing back one too. Needed for Sodium: Create meshes
+  contraptions into a `BufferBuilder`, whose `putBulkData` Sodium replaces with a fast path that keeps the light the
+  block renderer worked out and drops the quad's baked full light (its own terrain pipeline keeps it, so placed blocks and
+  Sable vehicles glow without this).
 - `ponder/`: Ponder scenes (`DecalsScenes`: the Decal Panel, the Decal Block, the Decal Stencil with large decals; tag
   "Decals"), laid out in `Layouts`, whose schematics `PonderSchematics` writes at datagen (copycat material and decals
   in the block entity data). Ponder's world hands models no block-entity data, so the copycat models fall back to the

@@ -29,7 +29,8 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
   the eraser peels the front decal off first.
 - Type a word (up to 16 letters, digits, spaces and & - . # + /) in the stencil's screen and one click lays it along
   the hull, one letter per block, turned and flipped as a whole.
-- A Glow Ink Sac clicked on a decal makes it glow, full-bright at night; an Ink Sac stops it. The stencil's screen can
+- A Glow Ink Sac clicked on a decal makes it glow, full-bright at night, also on contraptions, trains and Sable
+  vehicles, with Sodium and with shader packs; an Ink Sac stops it. The stencil's screen can
   set glow too.
 - A dye clicked on a decal recolours it. Create's Clipboard copies a face's decals (both layers) to another.
 - Resource packs can add decals: a definition at `assets/<namespace>/decals/<name>.json` (size in blocks and a

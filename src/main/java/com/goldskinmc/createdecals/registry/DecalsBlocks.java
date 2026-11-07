@@ -4,6 +4,8 @@ import static com.goldskinmc.createdecals.CreateDecals.REGISTRATE;
 
 import com.goldskinmc.createdecals.block.DecalBlock;
 import com.goldskinmc.createdecals.block.DecalPanelBlock;
+import com.goldskinmc.createdecals.contraption.DecalMovement;
+import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.decoration.copycat.CopycatBlock;
 import com.simibubi.create.foundation.data.SharedProperties;
 import com.tterrag.registrate.builders.BlockBuilder;
@@ -23,12 +25,14 @@ public final class DecalsBlocks {
             .block("decal_panel", DecalPanelBlock::new)
             .transform(copycat("panel"))
             .lang("Decal Panel")
+            .onRegister(MovementBehaviour.movementBehaviour(new DecalMovement()))
             .register();
 
     public static final BlockEntry<DecalBlock> DECAL_BLOCK = REGISTRATE
             .block("decal_block", DecalBlock::new)
             .transform(copycat("block"))
             .lang("Decal Block")
+            .onRegister(MovementBehaviour.movementBehaviour(new DecalMovement()))
             .register();
 
     private DecalsBlocks() {
