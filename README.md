@@ -27,6 +27,10 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   back one wins over the material; a glowing decal is unshaded, without ambient occlusion and baked at full light,
   NeoForge's `QuadTransformers.settingMaxEmissivity`), `DecalPanelModel`, `DecalBlockModel` and `DecalStepModel` (Create's copycat models plus decal
   quads), `DecalsClient` (wraps the models, tints, loads the library).
+- `block/DecalEdits`: whether a player may change a block's decals, asked for every block a click reaches (large
+  decals, words, eraser, dye, glow, Create copycats converting): `mayInteract` (spawn protection, world border),
+  `mayUseItemAt` (adventure mode) and NeoForge's `BlockEvent.EntityPlaceEvent`, which claim mods cancel; refused tiles
+  are left out like missing ones (game test `claimedBlocksAreLeftAlone`).
 - `block/CreateCopycats`: a decal placed on Create's own Copycat Panel (that block exactly, on its front) or Copycat
   Step (any face) turns it into a Decal Panel or Decal Step in place: block-state properties copied, the block entity's
   saved data loaded into ours (Create's `setMaterial` may take a neighbour's material state instead), the old block's

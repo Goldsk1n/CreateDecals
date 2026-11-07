@@ -38,7 +38,10 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
   set glow too.
 - A dye clicked on a decal recolours it. Create's Clipboard copies a face's decals (both layers) to another.
 - Resource packs can add decals: a definition at `assets/<namespace>/decals/<name>.json` (size in blocks and a
-  category) and its picture at `textures/decal/<name>.png`. A client without that pack shows nothing there.
+  category) and its picture at `textures/decal/<name>.png`. A client without that pack shows nothing there. When packs
+  bring more categories than fit, the stencil screen's tab row scrolls.
+- Large decals, words, the eraser, dye and glow change only blocks the player may build on: spawn protection, adventure
+  mode and claim mods are respected for every block a click reaches, not only the one clicked.
 
 ### Where decals work
 

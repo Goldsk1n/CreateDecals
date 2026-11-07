@@ -49,6 +49,7 @@ public class StencilScreen extends Screen {
     private static final int GRID_Y = 42;
     private static final int TABS_Y = 22;
     private static final int TAB_HEIGHT = 14;
+    private static final int TAB_ARROW = 11;
     private static final int PREVIEW_X = 215;
     private static final int PREVIEW_Y = 42;
     private static final int PREVIEW_SIZE = 54;
@@ -62,8 +63,12 @@ public class StencilScreen extends Screen {
     private StencilData data;
     private final Map<String, List<DecalLibrary.Entry>> categories = new LinkedHashMap<>();
     private final List<String> categoryNames = new ArrayList<>();
+    /** The tabs shown now: x, y, width, height, category index. */
     private final List<int[]> tabBounds = new ArrayList<>();
     private int category;
+    /** The first tab shown, when resource packs bring more categories than fit the panel. */
+    private int firstTab;
+    private boolean tabsOverflow;
     private int page;
     private EditBox hex;
     private EditBox text;
@@ -95,13 +100,7 @@ public class StencilScreen extends Screen {
     protected void init() {
         left = (width - PANEL_WIDTH) / 2;
         top = (height - PANEL_HEIGHT) / 2;
-        tabBounds.clear();
-        int x = left + 6;
-        for (String name : categoryNames) {
-            int w = font.width(categoryLabel(name)) + 8;
-            tabBounds.add(new int[] {x, top + TABS_Y, w, TAB_HEIGHT});
-            x += w + 2;
-        }
+        layoutTabs();
         int buttonsY = top + PREVIEW_Y + PREVIEW_SIZE + 8;
         button(left + PREVIEW_X, buttonsY, AllIcons.I_TOOL_ROTATE, "rotate", () -> data = data.withTurn(data.rotation() + 1, data.flip()));
         button(left + PREVIEW_X + 20, buttonsY, AllIcons.I_TOOL_MIRROR, "flip", () -> data = data.withTurn(data.rotation(), !data.flip()));
@@ -163,6 +162,52 @@ public class StencilScreen extends Screen {
         addRenderableWidget(button);
     }
 
+    /**
+     * Lays the tabs out from {@link #firstTab}. When they do not all fit, the row scrolls: two arrow buttons at its end,
+     * the mouse wheel over it, and the chosen category kept in view.
+     */
+    private void layoutTabs() {
+        int rowEnd = left + PANEL_WIDTH - 6;
+        int total = -2;
+        for (String name : categoryNames) {
+            total += font.width(categoryLabel(name)) + 10;
+        }
+        tabsOverflow = total > rowEnd - (left + 6);
+        int limit = tabsOverflow ? rowEnd - 2 * TAB_ARROW - 2 : rowEnd;
+        firstTab = Math.max(0, Math.min(firstTab, categoryNames.size() - 1));
+        if (category < firstTab) {
+            firstTab = category;
+        }
+        while (true) {
+            tabBounds.clear();
+            int x = left + 6;
+            for (int i = firstTab; i < categoryNames.size(); i++) {
+                int w = font.width(categoryLabel(categoryNames.get(i))) + 8;
+                if (x + w > limit) {
+                    break;
+                }
+                tabBounds.add(new int[] {x, top + TABS_Y, w, TAB_HEIGHT, i});
+                x += w + 2;
+            }
+            boolean chosenShown = tabBounds.stream().anyMatch(b -> b[4] == category);
+            if (chosenShown || firstTab >= category || tabBounds.isEmpty()) {
+                return;
+            }
+            firstTab++;
+        }
+    }
+
+    private void scrollTabs(int by) {
+        firstTab = Math.max(0, Math.min(categoryNames.size() - 1, firstTab + by));
+        int keep = firstTab;
+        // Scrolling moves the row, not the choice: lay out without pulling the chosen tab back into view
+        int chosen = category;
+        category = firstTab;
+        layoutTabs();
+        category = chosen;
+        firstTab = keep;
+    }
+
     private static Component categoryLabel(String name) {
         return Component.translatableWithFallback("createdecals.category." + name, name);
     }
@@ -191,12 +236,20 @@ public class StencilScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
         graphics.drawString(font, title, left + 9, top + 7, 0xFFFFFF);
-        for (int i = 0; i < tabBounds.size(); i++) {
-            int[] b = tabBounds.get(i);
-            boolean selected = i == category;
+        for (int[] b : tabBounds) {
+            boolean selected = b[4] == category;
             graphics.fill(b[0], b[1], b[0] + b[2], b[1] + b[3], selected ? 0xFF724731 : 0xFF353B39);
             graphics.fill(b[0] + 1, b[1] + 1, b[0] + b[2] - 1, b[1] + b[3] - 1, selected ? 0xFFCEA05A : 0xFF505351);
-            graphics.drawString(font, categoryLabel(categoryNames.get(i)), b[0] + 4, b[1] + 3, selected ? 0x2A1A0E : 0xE0E0E0, false);
+            graphics.drawString(font, categoryLabel(categoryNames.get(b[4])), b[0] + 4, b[1] + 3, selected ? 0x2A1A0E : 0xE0E0E0, false);
+        }
+        if (tabsOverflow) {
+            for (int arrow = 0; arrow < 2; arrow++) {
+                int ax = tabArrowX(arrow);
+                boolean hovered = mouseX >= ax && mouseX < ax + TAB_ARROW && mouseY >= top + TABS_Y && mouseY < top + TABS_Y + TAB_HEIGHT;
+                graphics.fill(ax, top + TABS_Y, ax + TAB_ARROW, top + TABS_Y + TAB_HEIGHT, 0xFF353B39);
+                graphics.fill(ax + 1, top + TABS_Y + 1, ax + TAB_ARROW - 1, top + TABS_Y + TAB_HEIGHT - 1, hovered ? 0xFF6B7078 : 0xFF505351);
+                graphics.drawCenteredString(font, arrow == 0 ? "<" : ">", ax + TAB_ARROW / 2, top + TABS_Y + 3, 0xE0E0E0);
+            }
         }
         List<DecalLibrary.Entry> entries = shown();
         for (int i = 0; i < entries.size(); i++) {
@@ -287,12 +340,19 @@ public class StencilScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        for (int i = 0; i < tabBounds.size(); i++) {
-            int[] b = tabBounds.get(i);
+        for (int[] b : tabBounds) {
             if (mouseX >= b[0] && mouseX < b[0] + b[2] && mouseY >= b[1] && mouseY < b[1] + b[3]) {
-                category = i;
+                category = b[4];
                 page = 0;
                 return true;
+            }
+        }
+        if (tabsOverflow && mouseY >= top + TABS_Y && mouseY < top + TABS_Y + TAB_HEIGHT) {
+            for (int arrow = 0; arrow < 2; arrow++) {
+                if (mouseX >= tabArrowX(arrow) && mouseX < tabArrowX(arrow) + TAB_ARROW) {
+                    scrollTabs(arrow == 0 ? -1 : 1);
+                    return true;
+                }
             }
         }
         List<DecalLibrary.Entry> entries = shown();
@@ -318,8 +378,30 @@ public class StencilScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (tabsOverflow && mouseY >= top + TABS_Y && mouseY < top + TABS_Y + TAB_HEIGHT) {
+            scrollTabs(-(int) Math.signum(scrollY));
+            return true;
+        }
         page = Math.max(0, Math.min(pages() - 1, page - (int) Math.signum(scrollY)));
         return true;
+    }
+
+    private int tabArrowX(int arrow) {
+        return left + PANEL_WIDTH - 6 - (2 - arrow) * TAB_ARROW;
+    }
+
+    /** For automated checks: the categories and which tabs are shown (category indices). */
+    public List<String> categoryNames() {
+        return categoryNames;
+    }
+
+    public List<Integer> shownTabs() {
+        return tabBounds.stream().map(b -> b[4]).toList();
+    }
+
+    /** For automated checks: clicks a tab-row arrow (0 back, 1 on) as a player would. */
+    public void clickTabArrow(int arrow) {
+        mouseClicked(tabArrowX(arrow) + TAB_ARROW / 2.0, top + TABS_Y + TAB_HEIGHT / 2.0, 0);
     }
 
     @Override

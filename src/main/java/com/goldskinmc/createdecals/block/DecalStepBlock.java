@@ -31,7 +31,7 @@ public class DecalStepBlock extends CopycatStepBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
             InteractionHand hand, BlockHitResult hit) {
-        ItemInteractionResult used = DecalClicks.use(stack, level, pos, hit.getDirection());
+        ItemInteractionResult used = DecalClicks.use(stack, level, pos, hit.getDirection(), player);
         return used != null ? used : super.useItemOn(stack, state, level, pos, player, hand, hit);
     }
 }

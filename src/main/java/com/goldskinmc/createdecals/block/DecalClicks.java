@@ -10,6 +10,7 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,7 +25,7 @@ final class DecalClicks {
      * Null when the click is not for us, so the copycat handles it.
      */
     @Nullable
-    static ItemInteractionResult use(ItemStack stack, Level level, BlockPos pos, Direction face) {
+    static ItemInteractionResult use(ItemStack stack, Level level, BlockPos pos, Direction face, @Nullable Player player) {
         UnaryOperator<DecalState> change;
         if (stack.getItem() instanceof DyeItem dye) {
             int rgb = dye.getDyeColor().getTextureDiffuseColor();
@@ -40,7 +41,7 @@ final class DecalClicks {
             return null;
         }
         if (!level.isClientSide()) {
-            DecalTiles.changeWhole(level, pos, face, change);
+            DecalTiles.changeWhole(level, pos, face, change, DecalEdits.by(player, level, face, stack));
             if (!stack.is(Items.GLOW_INK_SAC) && !stack.is(Items.INK_SAC)) {
                 return ItemInteractionResult.SUCCESS;
             }

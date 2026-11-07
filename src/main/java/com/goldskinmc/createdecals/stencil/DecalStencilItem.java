@@ -2,6 +2,7 @@ package com.goldskinmc.createdecals.stencil;
 
 import com.goldskinmc.createdecals.block.CreateCopycats;
 import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
+import com.goldskinmc.createdecals.block.DecalEdits;
 import com.goldskinmc.createdecals.block.DecalTiles;
 import com.goldskinmc.createdecals.decal.DecalState;
 import com.goldskinmc.createdecals.registry.DecalsComponents;
@@ -72,14 +73,14 @@ public class DecalStencilItem extends Item {
         }
         if (data.erase()) {
             // The decal seen on top goes, so a front decal comes off before the one under it; nothing on Create's panel
-            DecalTiles.changeWhole(level, context.getClickedPos(), face, tile -> null);
+            DecalTiles.changeWhole(level, context.getClickedPos(), face, tile -> null, DecalEdits.by(player, level, face, stack));
             return InteractionResult.CONSUME;
         }
         if (data.writes()) {
             // A typed word: its first letter on the clicked face, the rest along the face's right (as turned and flipped)
             int letters = DecalTiles.letters(data.text());
             int placed = DecalTiles.placeText(level, context.getClickedPos(), face, data.text(), data.rgb(), data.rotation(), data.flip(),
-                    data.glow(), data.front());
+                    data.glow(), data.front(), DecalEdits.by(player, level, face, stack));
             if (placed < letters && player != null) {
                 player.displayClientMessage(Component.translatable("createdecals.stencil.partly", placed, letters), true);
             }
@@ -92,7 +93,7 @@ public class DecalStencilItem extends Item {
         }
         // The clicked face takes the decal's top-left tile; the rest go right and down from it on the same plane
         int tiles = decal.get().width() * decal.get().height();
-        int placed = DecalTiles.place(level, context.getClickedPos(), face, decal.get(), data.front());
+        int placed = DecalTiles.place(level, context.getClickedPos(), face, decal.get(), data.front(), DecalEdits.by(player, level, face, stack));
         if (placed < tiles && player != null) {
             player.displayClientMessage(Component.translatable("createdecals.stencil.partly", placed, tiles), true);
         }

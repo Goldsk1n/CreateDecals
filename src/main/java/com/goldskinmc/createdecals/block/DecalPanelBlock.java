@@ -27,7 +27,7 @@ public class DecalPanelBlock extends CopycatPanelBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
             InteractionHand hand, BlockHitResult hit) {
-        ItemInteractionResult dyed = DecalClicks.use(stack, level, pos, state.getValue(FACING));
+        ItemInteractionResult dyed = DecalClicks.use(stack, level, pos, state.getValue(FACING), player);
         return dyed != null ? dyed : super.useItemOn(stack, state, level, pos, player, hand, hit);
     }
 }

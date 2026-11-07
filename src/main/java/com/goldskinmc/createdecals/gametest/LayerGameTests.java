@@ -23,6 +23,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
@@ -129,6 +131,56 @@ public final class LayerGameTests {
                 helper.assertTrue(decal != null && decal.id().equals(Decals.id(expected[i])) && decal.glow() && decal.width() == 1,
                         "letter " + i + " is " + decal);
             }
+        }
+        helper.succeed();
+    }
+
+    /** The block a protection mod would guard during {@link #claimedBlocksAreLeftAlone}, absolute; null outside it. */
+    private static volatile BlockPos claimed;
+    private static boolean listening;
+
+    /**
+     * A decal reaching a block the player may not build on leaves it alone: a listener cancels placing on one block, as
+     * claim mods do; a 2x1 arrow clicked beside it lands on the free block only, and the eraser on the free block leaves
+     * the claimed one's decal.
+     */
+    @GameTest(template = "empty")
+    public static void claimedBlocksAreLeftAlone(GameTestHelper helper) {
+        if (!listening) {
+            listening = true;
+            NeoForge.EVENT_BUS.addListener((BlockEvent.EntityPlaceEvent event) -> {
+                if (event.getPos().equals(claimed)) {
+                    event.setCanceled(true);
+                }
+            });
+        }
+        Direction face = Direction.SOUTH;
+        Direction right = DecalFrame.right(face);
+        BlockPos first = right.getAxisDirection() == Direction.AxisDirection.POSITIVE ? new BlockPos(1, 1, 2) : new BlockPos(3, 1, 2);
+        BlockPos second = first.relative(right);
+        helper.setBlock(first, DecalsBlocks.DECAL_BLOCK.getDefaultState());
+        helper.setBlock(second, DecalsBlocks.DECAL_BLOCK.getDefaultState());
+        DecalCopycatBlockEntity a = helper.getBlockEntity(first);
+        DecalCopycatBlockEntity b = helper.getBlockEntity(second);
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+        ItemStack arrow = stencil(new StencilData(Optional.of(Decals.id("arrow_2x1")), 0xFFFFFF, 0, false, false, 2, 1));
+        try {
+            claimed = helper.absolutePos(second);
+            player.setItemInHand(InteractionHand.MAIN_HAND, arrow);
+            click(helper, player, first, face);
+            helper.assertTrue(a.getDecal(face) != null, "the free block got no tile");
+            helper.assertTrue(b.getDecal(face) == null, "the claimed block got " + b.getDecal(face));
+
+            claimed = null;
+            click(helper, player, first, face);
+            helper.assertTrue(b.getDecal(face) != null, "unclaimed, the second tile should land");
+            claimed = helper.absolutePos(second);
+            player.setItemInHand(InteractionHand.MAIN_HAND, stencil(StencilData.EMPTY.withErase(true)));
+            click(helper, player, first, face);
+            helper.assertTrue(a.getDecal(face) == null && b.getDecal(face) != null,
+                    "the eraser should take the free tile only: " + a.getDecal(face) + " / " + b.getDecal(face));
+        } finally {
+            claimed = null;
         }
         helper.succeed();
     }

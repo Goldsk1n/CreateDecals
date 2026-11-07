@@ -5,6 +5,7 @@ import com.goldskinmc.createdecals.decal.DecalState;
 import com.goldskinmc.createdecals.decal.DecalText;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +23,7 @@ public final class DecalTiles {
 
     /** {@link #place(Level, BlockPos, Direction, DecalState, boolean)} on the back layer. */
     public static int place(Level level, BlockPos anchor, Direction face, DecalState decal) {
-        return place(level, anchor, face, decal, false);
+        return place(level, anchor, face, decal, false, pos -> true);
     }
 
     /**
@@ -30,9 +31,9 @@ public final class DecalTiles {
      * returns how many of its tiles found a face to land on; tiles over anything but a decal block's free face are left
      * out. Create's own Copycat Panels under a tile become Decal Panels ({@link CreateCopycats}).
      */
-    public static int place(Level level, BlockPos anchor, Direction face, DecalState decal, boolean front) {
+    public static int place(Level level, BlockPos anchor, Direction face, DecalState decal, boolean front, Predicate<BlockPos> allowed) {
         List<DecalPlacement.Tile> tiles = DecalPlacement.tiles(anchor, face, decal);
-        return placeTiles(level, face, tiles, front);
+        return placeTiles(level, face, tiles, front, allowed);
     }
 
     /**
@@ -41,8 +42,8 @@ public final class DecalTiles {
      * {@link #letters(String)} how many there were.
      */
     public static int placeText(Level level, BlockPos anchor, Direction face, String text, int rgb, int rotation, boolean flip,
-            boolean glow, boolean front) {
-        return placeTiles(level, face, textTiles(anchor, face, text, rgb, rotation, flip, glow), front);
+            boolean glow, boolean front, Predicate<BlockPos> allowed) {
+        return placeTiles(level, face, textTiles(anchor, face, text, rgb, rotation, flip, glow), front, allowed);
     }
 
     /** Where each letter of a typed word goes (spaces left out). */
@@ -74,9 +75,13 @@ public final class DecalTiles {
         return count;
     }
 
-    private static int placeTiles(Level level, Direction face, List<DecalPlacement.Tile> tiles, boolean front) {
+    /** Tiles on blocks {@code allowed} rejects (protected, claimed: {@link DecalEdits}) are left out, as missing ones are. */
+    private static int placeTiles(Level level, Direction face, List<DecalPlacement.Tile> tiles, boolean front, Predicate<BlockPos> allowed) {
         int placed = 0;
         for (DecalPlacement.Tile tile : tiles) {
+            if (!allowed.test(tile.pos())) {
+                continue;
+            }
             DecalCopycatBlockEntity be = level.getBlockEntity(tile.pos()) instanceof DecalCopycatBlockEntity ours ? ours
                     : CreateCopycats.convert(level, tile.pos(), face);
             if (be != null && be.acceptsDecalOn(face)) {
@@ -93,15 +98,26 @@ public final class DecalTiles {
      * many tiles changed.
      */
     public static int changeWhole(Level level, BlockPos pos, Direction face, UnaryOperator<@Nullable DecalState> change) {
+        return changeWhole(level, pos, face, change, p -> true);
+    }
+
+    /** {@link #changeWhole(Level, BlockPos, Direction, UnaryOperator)}, leaving out tiles {@code allowed} rejects. */
+    public static int changeWhole(Level level, BlockPos pos, Direction face, UnaryOperator<@Nullable DecalState> change,
+            Predicate<BlockPos> allowed) {
         if (!(level.getBlockEntity(pos) instanceof DecalCopycatBlockEntity clicked)) {
             return 0;
         }
         Boolean front = clicked.topLayer(face);
-        return front == null ? 0 : changeWhole(level, pos, face, front, change);
+        return front == null ? 0 : changeWhole(level, pos, face, front, change, allowed);
     }
 
     /** {@link #changeWhole(Level, BlockPos, Direction, UnaryOperator)} on one layer. */
     public static int changeWhole(Level level, BlockPos pos, Direction face, boolean front, UnaryOperator<@Nullable DecalState> change) {
+        return changeWhole(level, pos, face, front, change, p -> true);
+    }
+
+    private static int changeWhole(Level level, BlockPos pos, Direction face, boolean front, UnaryOperator<@Nullable DecalState> change,
+            Predicate<BlockPos> allowed) {
         if (!(level.getBlockEntity(pos) instanceof DecalCopycatBlockEntity clicked) || clicked.getDecal(face, front) == null) {
             return 0;
         }
@@ -109,7 +125,7 @@ public final class DecalTiles {
         BlockPos anchor = DecalPlacement.anchorOf(pos, face, shown);
         int changed = 0;
         for (DecalPlacement.Tile tile : DecalPlacement.tiles(anchor, face, shown)) {
-            if (level.getBlockEntity(tile.pos()) instanceof DecalCopycatBlockEntity be) {
+            if (allowed.test(tile.pos()) && level.getBlockEntity(tile.pos()) instanceof DecalCopycatBlockEntity be) {
                 DecalState there = be.getDecal(face, front);
                 if (there != null && there.sameDecalAs(shown) && there.tileX() == tile.decal().tileX()
                         && there.tileY() == tile.decal().tileY()) {
