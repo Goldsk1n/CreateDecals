@@ -2,7 +2,8 @@
 
 Decals for Create vehicles, trains and airships, baked into copycat models: crisp on any copied material, on
 contraptions and Sable vehicles, under shaders, at no frame cost. Prototype results: `docs/decals-prototype.md`; plan
-for v1.0 (milestones and status): `docs/decals-mvp-plan.md` (both in the workspace).
+for v1.0 (milestones and status): `docs/decals-mvp-plan.md`; mod-page draft: `docs/decals-mod-page.md`, its images in
+`docs/decals-page-images/` (all in the workspace). Changes per version: `CHANGELOG.md`. Licence: MIT.
 
 Needs JDK 21 for Gradle (`JAVA_HOME="/c/Program Files/Microsoft/jdk-21.0.10.7-hotspot"`). Compiles on Create 6.0.0,
 runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
@@ -27,20 +28,29 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
 - `stencil/`: `DecalStencilItem` (used in the air it opens its screen; on a face it puts its decal there or erases it;
   sneaking it picks the face's decal up), `StencilData` (its data component: decal, colour, turns, flip, eraser),
   `StencilPayload` (the screen's choice, client to server, only onto a stencil in that hand). The screen is
-  `client/StencilScreen`, opened by `client/StencilClientEvents`; `client/StencilItemModel` puts the chosen decal on the
+  `client/StencilScreen` (Create's look: a brass-framed panel drawn in
+  `textures/gui/stencil.png`, Create's `IconButton`s and `AllIcons` to turn, flip, erase and finish), opened by
+  `client/StencilClientEvents`; `client/StencilItemModel` puts the chosen decal on the
   stencil's icon; `client/StencilOutline` outlines the faces a held
   stencil's decal would cover (green where a tile lands, red where it cannot). Create's Clipboard copies decals too
   (`ClipboardCloneable` on the block entity).
+- `ponder/`: Ponder scenes (`DecalsScenes`: the Decal Panel, the Decal Block, the Decal Stencil with large decals; tag
+  "Decals"), laid out in `Layouts`, whose schematics `PonderSchematics` writes at datagen (copycat material and decals
+  in the block entity data). Ponder's world hands models no block-entity data, so the copycat models fall back to the
+  block entity's own (`DecalPanelModel.withBlockEntityData`), and scenes change decals with
+  `modifyBlockEntityNBT(..., true)` so the section is redrawn.
 - `registry/`: Registrate entries, data components, lang, recipes, creative tab. `command/DecalsCommand`:
   `/decals decal <pos> <face> <decal|none> [colour] [rotation] [flip]` and `/decals fill <from> <to> <face> <decal|none>
   [colour]` (debug and admins).
 
 ## Build and check
 
-- Blockstates, item models, lang, recipes, loot and tags: `./gradlew runData`, then commit `src/generated/`.
+- Blockstates, item models, lang (Ponder text included), recipes, loot, tags and Ponder schematics: `./gradlew runData`
+  (default profile; on `floor` Create 6.0.0's own datagen fails without Curios),
+  then commit `src/generated/`.
 - `./gradlew build`: unit tests, `ArchitectureTest` (no Sable, Aeronautics, Sodium or Iris classes; common code off the
-  client) and `ContentCompletenessTest` (every block has a name, tooltip, recipe, loot and item model; every decal a
-  sprite and a definition).
+  client) and `ContentCompletenessTest` (every block has a name, tooltip, recipe, loot, item model and Ponder scene with
+  its schematic; every decal a sprite and a definition).
 - `./gradlew runGameTestServer` (and with `-Prun_profile=floor`): game tests in `gametest/` (saving, schematics,
   contraption turns, dye, stencil, Clipboard, large decals, the Schematicannon placing both blocks), ending "All N required tests passed".
 - `-Pdev_perf=true` adds Sodium 0.8.13, Iris 1.8.14-beta.1 and spark (`-Pdev_iris=false`: Sodium alone).
