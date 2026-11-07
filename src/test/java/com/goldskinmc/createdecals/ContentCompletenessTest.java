@@ -11,7 +11,7 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 
 /**
- * The v1.0 acceptance criterion "every block has a recipe and en_us text" (Ponder scenes join at M6), checked on the
+ * The v1.0 acceptance criterion "every block and item has a recipe, a Ponder scene and en_us text", checked on the
  * datagen output in {@code src/generated/resources}: run {@code runData} after adding a block. Also: every built-in
  * decal has both its sprite and its definition.
  */
@@ -22,7 +22,7 @@ class ContentCompletenessTest {
     private static final Path OWN_ASSETS = Path.of("src/main/resources/assets/createdecals");
 
     @Test
-    void everyBlockHasNameTooltipRecipeAndLoot() throws IOException {
+    void everyBlockHasNameTooltipRecipeLootAndPonderScene() throws IOException {
         String lang = Files.readString(ASSETS.resolve("lang/en_us.json"));
         List<String> missing = new ArrayList<>();
         List<String> blocks = names(ASSETS.resolve("blockstates"), ".json");
@@ -33,12 +33,14 @@ class ContentCompletenessTest {
             requireFile(DATA.resolve("recipe/" + block + ".json"), missing);
             requireFile(DATA.resolve("loot_table/blocks/" + block + ".json"), missing);
             requireFile(ASSETS.resolve("models/item/" + block + ".json"), missing);
+            requireKey(lang, "createdecals.ponder." + block + ".header", missing);
+            requireFile(ASSETS.resolve("ponder/" + block + ".nbt"), missing);
         }
         assertTrue(missing.isEmpty(), "missing: " + missing);
     }
 
     @Test
-    void everyItemHasNameTooltipRecipeAndModel() throws IOException {
+    void everyItemHasNameTooltipRecipeModelAndPonderScene() throws IOException {
         String lang = Files.readString(ASSETS.resolve("lang/en_us.json"));
         List<String> missing = new ArrayList<>();
         for (String item : List.of("decal_stencil")) {
@@ -46,6 +48,8 @@ class ContentCompletenessTest {
             requireKey(lang, "item.createdecals." + item + ".tooltip.summary", missing);
             requireFile(DATA.resolve("recipe/" + item + ".json"), missing);
             requireFile(ASSETS.resolve("models/item/" + item + ".json"), missing);
+            requireKey(lang, "createdecals.ponder." + item + ".header", missing);
+            requireFile(ASSETS.resolve("ponder/" + item + ".nbt"), missing);
         }
         assertTrue(missing.isEmpty(), "missing: " + missing);
     }

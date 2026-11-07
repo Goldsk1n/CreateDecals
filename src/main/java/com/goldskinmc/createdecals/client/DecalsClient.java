@@ -1,6 +1,7 @@
 package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.CreateDecals;
+import com.goldskinmc.createdecals.ponder.DecalsPonder;
 import com.goldskinmc.createdecals.registry.DecalsBlocks;
 import com.goldskinmc.createdecals.registry.DecalsItems;
 import com.goldskinmc.createdecals.stencil.DecalStencilItem;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ModelEvent;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
@@ -25,6 +27,11 @@ import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 @EventBusSubscriber(modid = CreateDecals.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class DecalsClient {
     private DecalsClient() {
+    }
+
+    @SubscribeEvent
+    public static void onClientSetup(FMLClientSetupEvent event) {
+        DecalsPonder.registerPlugin();
     }
 
     @SubscribeEvent

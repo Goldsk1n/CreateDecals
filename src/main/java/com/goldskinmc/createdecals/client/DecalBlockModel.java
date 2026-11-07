@@ -40,6 +40,7 @@ public class DecalBlockModel extends CopycatModel {
     @Override
     protected ModelData.Builder gatherModelData(ModelData.Builder builder, BlockAndTintGetter world, BlockPos pos, BlockState state,
             ModelData blockEntityData) {
+        blockEntityData = DecalPanelModel.withBlockEntityData(world, pos, blockEntityData);
         super.gatherModelData(builder, world, pos, state, blockEntityData);
         Map<Direction, DecalState> decals = blockEntityData.get(DecalCopycatBlockEntity.DECALS);
         if (decals == null) {

@@ -1,6 +1,7 @@
 package com.goldskinmc.createdecals;
 
 import com.goldskinmc.createdecals.command.DecalsCommand;
+import com.goldskinmc.createdecals.ponder.PonderSchematics;
 import com.goldskinmc.createdecals.registry.DecalsBlockEntities;
 import com.goldskinmc.createdecals.registry.DecalsBlocks;
 import com.goldskinmc.createdecals.registry.DecalsComponents;
@@ -19,6 +20,7 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import org.slf4j.Logger;
 
@@ -41,6 +43,7 @@ public final class CreateDecals {
         DecalsRecipes.register();
         DecalsCreativeTab.register(modBus);
         DecalsLang.register();
+        modBus.addListener(GatherDataEvent.class, PonderSchematics::gatherData);
         NeoForge.EVENT_BUS.addListener((RegisterCommandsEvent event) -> DecalsCommand.register(event.getDispatcher()));
     }
 

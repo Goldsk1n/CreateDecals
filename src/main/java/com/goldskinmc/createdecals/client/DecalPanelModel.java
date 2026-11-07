@@ -2,6 +2,7 @@ package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
 import com.goldskinmc.createdecals.decal.DecalState;
+import com.simibubi.create.content.decoration.copycat.CopycatModel;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelBlock;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelModel;
 import java.util.ArrayList;
@@ -38,12 +39,24 @@ public class DecalPanelModel extends CopycatPanelModel {
     @Override
     protected ModelData.Builder gatherModelData(ModelData.Builder builder, BlockAndTintGetter world, BlockPos pos, BlockState state,
             ModelData blockEntityData) {
+        blockEntityData = withBlockEntityData(world, pos, blockEntityData);
         super.gatherModelData(builder, world, pos, state, blockEntityData);
         Map<Direction, DecalState> decals = blockEntityData.get(DecalCopycatBlockEntity.DECALS);
         if (decals != null) {
             builder.with(DecalCopycatBlockEntity.DECALS, decals);
         }
         return builder;
+    }
+
+    /**
+     * The block entity's own data when the renderer passed none: Ponder's world gives models no block-entity data, so a
+     * copycat there would show neither its material nor its decals. World meshing always passes it, so never gets here.
+     */
+    static ModelData withBlockEntityData(BlockAndTintGetter world, BlockPos pos, ModelData blockEntityData) {
+        if (blockEntityData.get(CopycatModel.MATERIAL_PROPERTY) == null && world.getBlockEntity(pos) instanceof DecalCopycatBlockEntity be) {
+            return be.getModelData();
+        }
+        return blockEntityData;
     }
 
     @Override

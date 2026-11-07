@@ -3,6 +3,8 @@ package com.goldskinmc.createdecals.registry;
 import static com.goldskinmc.createdecals.CreateDecals.REGISTRATE;
 
 import com.goldskinmc.createdecals.CreateDecals;
+import com.goldskinmc.createdecals.ponder.DecalsPonder;
+import com.tterrag.registrate.providers.ProviderType;
 
 /**
  * English text that is not a block or item name: tooltips (Create's "Hold Shift" summary), the stencil's screen and
@@ -14,6 +16,8 @@ public final class DecalsLang {
 
     public static void register() {
         add("itemGroup." + CreateDecals.MOD_ID, "Create: Decals");
+        // Ponder scene text, collected from the scenes themselves
+        REGISTRATE.addDataGenerator(ProviderType.LANG, provider -> DecalsPonder.provideLang(provider::add));
         tooltip("item", "decal_stencil", "Puts _decals_ on Decal Panels and Decal Blocks. Choose the decal, its colour and how it turns in its screen.",
                 action("When used in the air", "Opens the stencil's screen."),
                 action("When R-clicked on a face", "Puts the decal there, or erases it."),
