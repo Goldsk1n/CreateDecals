@@ -27,11 +27,14 @@ public final class DecalPlacement {
      * rectangle the decal covers, counted from the rectangle's top-left.
      */
     public static int[] cellOf(DecalState decal, int tileX, int tileY) {
-        int w = decal.width();
-        int h = decal.height();
-        int x = decal.flip() ? w - 1 - tileX : tileX;
+        return cellOf(decal.width(), decal.height(), decal.rotation(), decal.flip(), tileX, tileY);
+    }
+
+    /** {@link #cellOf(DecalState, int, int)} for any {@code w} x {@code h} grid of tiles (a typed word is N x 1). */
+    public static int[] cellOf(int w, int h, int rotation, boolean flip, int tileX, int tileY) {
+        int x = flip ? w - 1 - tileX : tileX;
         int y = tileY;
-        for (int i = 0; i < decal.rotation(); i++) {
+        for (int i = 0; i < rotation; i++) {
             // A quarter turn clockwise: a W x H grid becomes H x W, its top-left cell going to the top right
             int turnedX = h - 1 - y;
             y = x;

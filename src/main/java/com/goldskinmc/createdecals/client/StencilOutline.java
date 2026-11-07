@@ -3,6 +3,7 @@ package com.goldskinmc.createdecals.client;
 import com.goldskinmc.createdecals.CreateDecals;
 import com.goldskinmc.createdecals.block.CreatePanels;
 import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
+import com.goldskinmc.createdecals.block.DecalTiles;
 import com.goldskinmc.createdecals.decal.DecalPlacement;
 import com.goldskinmc.createdecals.decal.DecalState;
 import com.goldskinmc.createdecals.stencil.DecalStencilItem;
@@ -63,11 +64,15 @@ public final class StencilOutline {
         Direction face = hit.getDirection();
         List<DecalPlacement.Tile> tiles;
         if (data.erase()) {
-            DecalState shown = clicked != null ? clicked.getDecal(face) : null;
-            if (shown == null) {
+            // The decal seen on top is the one the eraser takes
+            Boolean front = clicked != null ? clicked.topLayer(face) : null;
+            if (front == null) {
                 return;
             }
+            DecalState shown = clicked.getDecal(face, front);
             tiles = DecalPlacement.tiles(DecalPlacement.anchorOf(hit.getBlockPos(), face, shown), face, shown);
+        } else if (data.writes()) {
+            tiles = DecalTiles.textTiles(hit.getBlockPos(), face, data.text(), data.rgb(), data.rotation(), data.flip(), data.glow());
         } else {
             Optional<DecalState> decal = data.toDecal();
             if (decal.isEmpty()) {

@@ -42,15 +42,24 @@ public class DecalBlockModel extends CopycatModel {
             ModelData blockEntityData) {
         blockEntityData = DecalPanelModel.withBlockEntityData(world, pos, blockEntityData);
         super.gatherModelData(builder, world, pos, state, blockEntityData);
-        Map<Direction, DecalState> decals = blockEntityData.get(DecalCopycatBlockEntity.DECALS);
-        if (decals == null) {
+        Map<Direction, DecalState> back = blockEntityData.get(DecalCopycatBlockEntity.DECALS);
+        Map<Direction, DecalState> front = blockEntityData.get(DecalCopycatBlockEntity.FRONT_DECALS);
+        if (back == null && front == null) {
             return builder;
         }
-        builder.with(DecalCopycatBlockEntity.DECALS, decals);
+        if (back != null) {
+            builder.with(DecalCopycatBlockEntity.DECALS, back);
+        }
+        if (front != null) {
+            builder.with(DecalCopycatBlockEntity.FRONT_DECALS, front);
+        }
         BlockState material = getMaterial(blockEntityData);
         BlockPos.MutableBlockPos neighbourPos = new BlockPos.MutableBlockPos();
         int hidden = 0;
-        for (Direction face : decals.keySet()) {
+        for (Direction face : Direction.values()) {
+            if ((back == null || !back.containsKey(face)) && (front == null || !front.containsKey(face))) {
+                continue;
+            }
             neighbourPos.setWithOffset(pos, face);
             BlockState neighbour = world.getBlockState(neighbourPos);
             if (neighbour.hidesNeighborFace(world, neighbourPos, state, face.getOpposite())
@@ -91,23 +100,15 @@ public class DecalBlockModel extends CopycatModel {
     }
 
     private List<BakedQuad> withDecal(List<BakedQuad> quads, @Nullable Direction side, ModelData data, @Nullable RenderType renderType) {
-        Map<Direction, DecalState> decals = data.get(DecalCopycatBlockEntity.DECALS);
-        if (decals == null || side == null || renderType != DecalQuads.layer()) {
+        if (side == null || renderType != DecalQuads.layer()) {
             return quads;
         }
-        DecalState decal = decals.get(side);
         Integer hidden = data.get(HIDDEN_FACES);
-        if (decal == null || hidden != null && (hidden & 1 << side.ordinal()) != 0) {
+        if (hidden != null && (hidden & 1 << side.ordinal()) != 0) {
             return quads;
         }
         long start = System.nanoTime();
-        BakedQuad quad = DecalQuads.quad(decal, side, 1);
-        if (quad != null) {
-            List<BakedQuad> withDecal = new ArrayList<>(quads.size() + 1);
-            withDecal.addAll(quads);
-            withDecal.add(quad);
-            quads = withDecal;
-        }
+        quads = DecalQuads.addLayers(quads, data, side, 1);
         DecalQuads.decalNanos.addAndGet(System.nanoTime() - start);
         return quads;
     }

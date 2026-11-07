@@ -60,18 +60,29 @@ public class DecalStencilItem extends Item {
         ItemStack stack = context.getItemInHand();
         StencilData data = data(stack);
         if (player != null && player.isShiftKeyDown()) {
-            DecalState picked = be != null ? be.getDecal(face) : null;
-            if (picked == null) {
+            // The decal seen on top, and the stencil then goes on that layer
+            Boolean front = be != null ? be.topLayer(face) : null;
+            if (front == null) {
                 message(player, "nothing_to_pick");
             } else {
-                stack.set(DecalsComponents.STENCIL.get(), StencilData.of(picked));
-                message(player, "picked");
+                stack.set(DecalsComponents.STENCIL.get(), StencilData.of(be.getDecal(face, front), front));
+                message(player, front ? "picked_front" : "picked");
             }
             return InteractionResult.CONSUME;
         }
         if (data.erase()) {
-            // Nothing to erase on Create's panel; changeWhole finds no decal there
+            // The decal seen on top goes, so a front decal comes off before the one under it; nothing on Create's panel
             DecalTiles.changeWhole(level, context.getClickedPos(), face, tile -> null);
+            return InteractionResult.CONSUME;
+        }
+        if (data.writes()) {
+            // A typed word: its first letter on the clicked face, the rest along the face's right (as turned and flipped)
+            int letters = DecalTiles.letters(data.text());
+            int placed = DecalTiles.placeText(level, context.getClickedPos(), face, data.text(), data.rgb(), data.rotation(), data.flip(),
+                    data.glow(), data.front());
+            if (placed < letters && player != null) {
+                player.displayClientMessage(Component.translatable("createdecals.stencil.partly", placed, letters), true);
+            }
             return InteractionResult.CONSUME;
         }
         Optional<DecalState> decal = data.toDecal();
@@ -81,7 +92,7 @@ public class DecalStencilItem extends Item {
         }
         // The clicked face takes the decal's top-left tile; the rest go right and down from it on the same plane
         int tiles = decal.get().width() * decal.get().height();
-        int placed = DecalTiles.place(level, context.getClickedPos(), face, decal.get());
+        int placed = DecalTiles.place(level, context.getClickedPos(), face, decal.get(), data.front());
         if (placed < tiles && player != null) {
             player.displayClientMessage(Component.translatable("createdecals.stencil.partly", placed, tiles), true);
         }
@@ -99,11 +110,23 @@ public class DecalStencilItem extends Item {
         StencilData data = data(stack);
         if (data.erase()) {
             lines.add(Component.translatable("createdecals.stencil.tooltip.erase").withStyle(ChatFormatting.GRAY));
+            return;
+        }
+        String colour = String.format(Locale.ROOT, "#%06X", data.rgb());
+        if (data.writes()) {
+            lines.add(Component.translatable("createdecals.stencil.tooltip.text", data.text(), colour).withStyle(ChatFormatting.GRAY));
         } else if (data.decal().isPresent()) {
             lines.add(Component.translatable("createdecals.stencil.tooltip.decal", data.decal().get().getPath().replace('_', ' '),
-                    String.format(Locale.ROOT, "#%06X", data.rgb())).withStyle(ChatFormatting.GRAY));
+                    colour).withStyle(ChatFormatting.GRAY));
         } else {
             lines.add(Component.translatable("createdecals.stencil.tooltip.empty").withStyle(ChatFormatting.GRAY));
+            return;
+        }
+        if (data.front()) {
+            lines.add(Component.translatable("createdecals.stencil.tooltip.front").withStyle(ChatFormatting.DARK_GRAY));
+        }
+        if (data.glow()) {
+            lines.add(Component.translatable("createdecals.stencil.tooltip.glow").withStyle(ChatFormatting.DARK_GRAY));
         }
     }
 

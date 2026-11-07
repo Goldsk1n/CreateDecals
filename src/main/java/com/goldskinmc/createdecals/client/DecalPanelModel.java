@@ -41,9 +41,13 @@ public class DecalPanelModel extends CopycatPanelModel {
             ModelData blockEntityData) {
         blockEntityData = withBlockEntityData(world, pos, blockEntityData);
         super.gatherModelData(builder, world, pos, state, blockEntityData);
-        Map<Direction, DecalState> decals = blockEntityData.get(DecalCopycatBlockEntity.DECALS);
-        if (decals != null) {
-            builder.with(DecalCopycatBlockEntity.DECALS, decals);
+        Map<Direction, DecalState> back = blockEntityData.get(DecalCopycatBlockEntity.DECALS);
+        if (back != null) {
+            builder.with(DecalCopycatBlockEntity.DECALS, back);
+        }
+        Map<Direction, DecalState> front = blockEntityData.get(DecalCopycatBlockEntity.FRONT_DECALS);
+        if (front != null) {
+            builder.with(DecalCopycatBlockEntity.FRONT_DECALS, front);
         }
         return builder;
     }
@@ -69,18 +73,10 @@ public class DecalPanelModel extends CopycatPanelModel {
             @Nullable RenderType renderType) {
         long start = System.nanoTime();
         List<BakedQuad> quads = super.getQuads(state, side, rand, data, renderType);
-        Map<Direction, DecalState> decals = data.get(DecalCopycatBlockEntity.DECALS);
-        if (decals != null && side == null && state != null && renderType == DecalQuads.layer()) {
+        if (side == null && state != null && renderType == DecalQuads.layer()) {
             long decalStart = System.nanoTime();
             Direction front = state.getOptionalValue(CopycatPanelBlock.FACING).orElse(Direction.UP);
-            DecalState decal = decals.get(front);
-            BakedQuad quad = decal != null ? DecalQuads.quad(decal, front, FRONT) : null;
-            if (quad != null) {
-                List<BakedQuad> withDecal = new ArrayList<>(quads.size() + 1);
-                withDecal.addAll(quads);
-                withDecal.add(quad);
-                quads = withDecal;
-            }
+            quads = DecalQuads.addLayers(quads, data, front, FRONT);
             DecalQuads.decalNanos.addAndGet(System.nanoTime() - decalStart);
         }
         totalNanos.addAndGet(System.nanoTime() - start);

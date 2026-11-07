@@ -8,6 +8,7 @@ import com.goldskinmc.createdecals.decal.Decals;
 import com.goldskinmc.createdecals.registry.DecalsBlocks;
 import com.goldskinmc.createdecals.registry.DecalsComponents;
 import com.goldskinmc.createdecals.registry.DecalsItems;
+import com.goldskinmc.createdecals.stencil.DecalStencilItem;
 import com.goldskinmc.createdecals.stencil.StencilData;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
@@ -148,6 +149,24 @@ final class DecalsScenes {
                 .text("Faces against a solid block are hidden, decal and all, as on any block")
                 .placeNearTarget().pointAt(west);
         scene.idle(80);
+
+        ItemStack frontStencil = stencil("frame", DyeColor.RED, 0, false, 1, 1);
+        frontStencil.set(DecalsComponents.STENCIL.get(), DecalStencilItem.data(frontStencil).withFront(true));
+        scene.overlay().showControls(north, Pointing.LEFT, 30).rightClick().withItem(frontStencil);
+        scene.idle(7);
+        DecalState frame = new DecalState(Decals.id("frame"), rgb(DyeColor.RED), 0, false);
+        decal(scene, util, block, Direction.NORTH, true, frame);
+        scene.overlay().showText(80).attachKeyFrame()
+                .text("Set the stencil to the front layer to put a second decal over the first, such as a number on a stripe")
+                .placeNearTarget().pointAt(north);
+        scene.idle(90);
+        scene.overlay().showControls(north, Pointing.LEFT, 30).rightClick().withItem(new ItemStack(Items.GLOW_INK_SAC));
+        scene.idle(7);
+        decal(scene, util, block, Direction.NORTH, true, frame.withGlow(true));
+        scene.overlay().showText(70)
+                .text("A Glow Ink Sac makes a decal glow in the dark; an Ink Sac stops it")
+                .placeNearTarget().pointAt(north);
+        scene.idle(80);
     }
 
     static void stencil(SceneBuilder builder, SceneBuildingUtil util) {
@@ -165,7 +184,7 @@ final class DecalsScenes {
         Vec3 sideFace = util.vector().blockSurface(Layouts.Stencil.SIDE, Direction.NORTH);
 
         scene.overlay().showText(80).attachKeyFrame()
-                .text("Use the Decal Stencil in the air to choose a decal, its colour, and how it is turned and flipped")
+                .text("Use the Decal Stencil in the air to choose a decal or type a word, its colour, and how it is turned and flipped")
                 .placeNearTarget().pointAt(middleFace);
         scene.idle(90);
 
@@ -210,14 +229,21 @@ final class DecalsScenes {
      * blocks only after an NBT change, not after a plain block-entity call.
      */
     private static void decal(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos pos, Direction face, @Nullable DecalState decal) {
+        decal(scene, util, pos, face, false, decal);
+    }
+
+    /** {@link #decal(CreateSceneBuilder, SceneBuildingUtil, BlockPos, Direction, DecalState)} in the front or back layer. */
+    private static void decal(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos pos, Direction face, boolean front,
+            @Nullable DecalState decal) {
+        String key = front ? "FrontDecals" : "Decals";
         scene.world().modifyBlockEntityNBT(util.select().position(pos), DecalCopycatBlockEntity.class, nbt -> {
-            CompoundTag faces = nbt.getCompound("Decals");
+            CompoundTag faces = nbt.getCompound(key);
             if (decal == null) {
                 faces.remove(face.getName());
             } else {
                 faces.put(face.getName(), decal.save());
             }
-            nbt.put("Decals", faces);
+            nbt.put(key, faces);
         }, true);
     }
 

@@ -18,10 +18,10 @@ public final class DecalsLang {
         add("itemGroup." + CreateDecals.MOD_ID, "Create: Decals");
         // Ponder scene text, collected from the scenes themselves
         REGISTRATE.addDataGenerator(ProviderType.LANG, provider -> DecalsPonder.provideLang(provider::add));
-        tooltip("item", "decal_stencil", "Puts _decals_ on Decal Panels and Decal Blocks; Create's Copycat Panels become Decal Panels when they take one. Choose the decal, its colour and how it turns in its screen.",
+        tooltip("item", "decal_stencil", "Puts _decals_ or a typed _word_ on Decal Panels and Decal Blocks, behind or in front of the decal already there; Create's Copycat Panels become Decal Panels when they take one. Choose in its screen.",
                 action("When used in the air", "Opens the stencil's screen."),
-                action("When R-clicked on a face", "Puts the decal there, or erases it."),
-                action("When R-clicked while sneaking", "Picks up the decal on that face."));
+                action("When R-clicked on a face", "Puts the decal or word there, or erases the decal on top."),
+                action("When R-clicked while sneaking", "Picks up the decal on top of that face."));
         add("createdecals.stencil.title", "Decal Stencil");
         add("createdecals.stencil.rotate", "Turn");
         add("createdecals.stencil.flip", "Flip");
@@ -32,6 +32,16 @@ public final class DecalsLang {
         add("createdecals.stencil.no_decal", "Choose a decal first: use the stencil in the air");
         add("createdecals.stencil.nothing_to_pick", "No decal on that face");
         add("createdecals.stencil.picked", "Decal picked up");
+        add("createdecals.stencil.picked_front", "Front decal picked up");
+        add("createdecals.stencil.layer_back", "Back layer: under a front decal");
+        add("createdecals.stencil.layer_front", "Front layer: over the decal already there");
+        add("createdecals.stencil.glow_on", "Glowing: full-bright at night");
+        add("createdecals.stencil.glow_off", "Not glowing");
+        add("createdecals.stencil.text", "Word");
+        add("createdecals.stencil.text_hint", "Type a word...");
+        add("createdecals.stencil.tooltip.text", "\"%s\", %s");
+        add("createdecals.stencil.tooltip.front", "Front layer");
+        add("createdecals.stencil.tooltip.glow", "Glowing");
         add("createdecals.stencil.partly", "Only %s of its %s tiles found a decal block face");
         add("createdecals.stencil.tooltip.empty", "No decal chosen");
         add("createdecals.stencil.tooltip.erase", "Eraser");
@@ -42,11 +52,13 @@ public final class DecalsLang {
         tooltip("block", "decal_panel", "A _copycat panel_ that shows a _decal_ on its front: stripes, numbers, letters, emblems. Keeps it on contraptions, trains and Sable vehicles.",
                 behaviour("When R-clicked with a block", "Copies that block's look, as Create's Copycat Panel does."),
                 action("When R-clicked with a Decal Stencil", "Puts the stencil's decal on its front."),
-                action("When R-clicked with Dye", "Recolours its decal."));
+                action("When R-clicked with Dye", "Recolours its decal."),
+                action("When R-clicked with a Glow Ink Sac", "Makes its decal glow; an Ink Sac stops it."));
         tooltip("block", "decal_block", "A full _copycat block_ with a _decal_ on any of its faces, for hulls built of whole blocks.",
                 behaviour("When R-clicked with a block", "Copies that block's look."),
                 action("When R-clicked with a Decal Stencil", "Puts the stencil's decal on the clicked face."),
-                action("When R-clicked with Dye", "Recolours the decal on that face."));
+                action("When R-clicked with Dye", "Recolours the decal on that face."),
+                action("When R-clicked with a Glow Ink Sac", "Makes that decal glow; an Ink Sac stops it."));
     }
 
     /**

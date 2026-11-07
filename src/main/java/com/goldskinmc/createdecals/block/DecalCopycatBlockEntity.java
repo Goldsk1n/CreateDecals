@@ -25,14 +25,17 @@ import net.neoforged.neoforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A copycat's block entity with decals, one per face at most: the Decal Panel uses only its front, the Decal Block all
- * six. Decals are saved with the block (so contraptions, Sable vehicles and schematics carry them like the material)
- * and handed to the model as model data; nothing ticks and nothing renders here.
+ * A copycat's block entity with decals: each face holds a back decal and a front one drawn over it (a number on a
+ * stripe); the Decal Panel uses only its front face, the Decal Block all six. Decals are saved with the block (so
+ * contraptions, Sable vehicles and schematics carry them like the material) and handed to the model as model data;
+ * nothing ticks and nothing renders here. Methods without a layer work on the back one.
  */
 public class DecalCopycatBlockEntity extends CopycatBlockEntity implements ClipboardCloneable {
     public static final ModelProperty<Map<Direction, DecalState>> DECALS = new ModelProperty<>();
+    public static final ModelProperty<Map<Direction, DecalState>> FRONT_DECALS = new ModelProperty<>();
 
     private final EnumMap<Direction, DecalState> decals = new EnumMap<>(Direction.class);
+    private final EnumMap<Direction, DecalState> fronts = new EnumMap<>(Direction.class);
 
     public DecalCopycatBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -42,20 +45,44 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
         return Collections.unmodifiableMap(decals);
     }
 
+    public Map<Direction, DecalState> getFrontDecals() {
+        return Collections.unmodifiableMap(fronts);
+    }
+
     @Nullable
     public DecalState getDecal(Direction face) {
         return decals.get(face);
     }
 
-    /** Sets or (with null) removes the decal on {@code face}; panels take only their front. */
+    @Nullable
+    public DecalState getDecal(Direction face, boolean front) {
+        return (front ? fronts : decals).get(face);
+    }
+
+    /**
+     * Which layer of {@code face} is seen on top: true for the front one, false for the back one, null for a bare face.
+     * Picking up, the eraser, dye and glow work on it.
+     */
+    @Nullable
+    public Boolean topLayer(Direction face) {
+        return fronts.containsKey(face) ? Boolean.TRUE : decals.containsKey(face) ? Boolean.FALSE : null;
+    }
+
+    /** Sets or (with null) removes the back decal on {@code face}; panels take only their front face. */
     public void setDecal(Direction face, @Nullable DecalState decal) {
-        if (!acceptsDecalOn(face) || Objects.equals(decals.get(face), decal)) {
+        setDecal(face, false, decal);
+    }
+
+    /** Sets or (with null) removes the decal in one layer of {@code face}. */
+    public void setDecal(Direction face, boolean front, @Nullable DecalState decal) {
+        EnumMap<Direction, DecalState> layer = front ? fronts : decals;
+        if (!acceptsDecalOn(face) || Objects.equals(layer.get(face), decal)) {
             return;
         }
         if (decal == null) {
-            decals.remove(face);
+            layer.remove(face);
         } else {
-            decals.put(face, decal);
+            layer.put(face, decal);
         }
         changed();
     }
@@ -92,19 +119,24 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
     @Override
     public void transform(BlockEntity be, StructureTransform transform) {
         super.transform(be, transform);
-        if (decals.isEmpty()) {
+        if (decals.isEmpty() && fronts.isEmpty()) {
             return;
         }
+        turnLayer(decals, transform);
+        turnLayer(fronts, transform);
+        notifyUpdate();
+    }
+
+    private static void turnLayer(EnumMap<Direction, DecalState> layer, StructureTransform transform) {
         boolean mirrored = transform.mirror != null && transform.mirror != Mirror.NONE;
         EnumMap<Direction, DecalState> turned = new EnumMap<>(Direction.class);
-        decals.forEach((face, decal) -> {
+        layer.forEach((face, decal) -> {
             Direction newFace = turn(transform, face);
             Integer rotation = DecalFrame.rotationFor(newFace, turn(transform, DecalFrame.top(face, decal.rotation())));
             turned.put(newFace, decal.withTurn(rotation != null ? rotation : decal.rotation(), mirrored != decal.flip()));
         });
-        decals.clear();
-        decals.putAll(turned);
-        notifyUpdate();
+        layer.clear();
+        layer.putAll(turned);
     }
 
     /** What Create does to a block state's facing: mirror first, then rotate. */
@@ -113,7 +145,7 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
         return transform.rotationAxis == null ? mirrored : transform.rotateFacing(mirrored);
     }
 
-    /** Create's Clipboard: R-click copies the decal on the clicked face, L-click pastes it onto another face. */
+    /** Create's Clipboard: R-click copies the clicked face's decals (both layers), L-click pastes them onto another face. */
     @Override
     public String getClipboardKey() {
         return "createdecals_decal";
@@ -121,21 +153,28 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
 
     @Override
     public boolean writeToClipboard(HolderLookup.Provider registries, CompoundTag tag, Direction side) {
-        DecalState decal = decals.get(side);
-        if (decal == null) {
+        DecalState back = decals.get(side);
+        DecalState front = fronts.get(side);
+        if (back == null && front == null) {
             return false;
         }
-        tag.put("Decal", decal.save());
+        if (back != null) {
+            tag.put("Decal", back.save());
+        }
+        if (front != null) {
+            tag.put("Front", front.save());
+        }
         return true;
     }
 
     @Override
     public boolean readFromClipboard(HolderLookup.Provider registries, CompoundTag tag, Player player, Direction side, boolean simulate) {
-        if (!tag.contains("Decal") || !acceptsDecalOn(side)) {
+        if (!(tag.contains("Decal") || tag.contains("Front")) || !acceptsDecalOn(side)) {
             return false;
         }
         if (!simulate) {
-            setDecal(side, DecalState.load(tag.getCompound("Decal")));
+            setDecal(side, false, tag.contains("Decal") ? DecalState.load(tag.getCompound("Decal")) : null);
+            setDecal(side, true, tag.contains("Front") ? DecalState.load(tag.getCompound("Front")) : null);
         }
         return true;
     }
@@ -144,20 +183,25 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
     protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(tag, registries, clientPacket);
         EnumMap<Direction, DecalState> before = new EnumMap<>(decals);
-        decals.clear();
-        if (tag.contains("Decals")) {
-            CompoundTag faces = tag.getCompound("Decals");
-            for (Direction face : Direction.values()) {
-                if (faces.contains(face.getName())) {
-                    decals.put(face, DecalState.load(faces.getCompound(face.getName())));
-                }
-            }
-        } else if (tag.contains("Decal") && getBlockState().hasProperty(CopycatPanelBlock.FACING)) {
+        EnumMap<Direction, DecalState> frontsBefore = new EnumMap<>(fronts);
+        readLayer(tag, "FrontDecals", fronts);
+        readLayer(tag, "Decals", decals);
+        if (!tag.contains("Decals") && tag.contains("Decal") && getBlockState().hasProperty(CopycatPanelBlock.FACING)) {
             // A prototype panel: its one decal was on the front
             decals.put(getBlockState().getValue(CopycatPanelBlock.FACING), DecalState.load(tag.getCompound("Decal")));
         }
-        if (clientPacket && !before.equals(decals)) {
+        if (clientPacket && !(before.equals(decals) && frontsBefore.equals(fronts))) {
             redrawDecals();
+        }
+    }
+
+    private static void readLayer(CompoundTag tag, String key, EnumMap<Direction, DecalState> layer) {
+        layer.clear();
+        CompoundTag faces = tag.getCompound(key);
+        for (Direction face : Direction.values()) {
+            if (faces.contains(face.getName())) {
+                layer.put(face, DecalState.load(faces.getCompound(face.getName())));
+            }
         }
     }
 
@@ -175,12 +219,17 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
     }
 
     private void writeDecals(CompoundTag tag) {
-        if (decals.isEmpty()) {
+        writeLayer(tag, "Decals", decals);
+        writeLayer(tag, "FrontDecals", fronts);
+    }
+
+    private static void writeLayer(CompoundTag tag, String key, EnumMap<Direction, DecalState> layer) {
+        if (layer.isEmpty()) {
             return;
         }
         CompoundTag faces = new CompoundTag();
-        decals.forEach((face, decal) -> faces.put(face.getName(), decal.save()));
-        tag.put("Decals", faces);
+        layer.forEach((face, decal) -> faces.put(face.getName(), decal.save()));
+        tag.put(key, faces);
     }
 
     @Override
@@ -188,6 +237,9 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
         ModelData.Builder builder = ModelData.builder().with(CopycatModel.MATERIAL_PROPERTY, getMaterial());
         if (!decals.isEmpty()) {
             builder.with(DECALS, Map.copyOf(decals));
+        }
+        if (!fronts.isEmpty()) {
+            builder.with(FRONT_DECALS, Map.copyOf(fronts));
         }
         return builder.build();
     }

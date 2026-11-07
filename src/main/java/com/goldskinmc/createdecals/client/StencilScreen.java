@@ -1,6 +1,7 @@
 package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.CreateDecals;
+import com.goldskinmc.createdecals.decal.DecalText;
 import com.goldskinmc.createdecals.stencil.DecalStencilItem;
 import com.goldskinmc.createdecals.stencil.StencilData;
 import com.goldskinmc.createdecals.stencil.StencilPayload;
@@ -8,6 +9,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.math.Axis;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.widget.IconButton;
+import net.createmod.catnip.gui.element.ScreenElement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -30,8 +32,9 @@ import net.neoforged.neoforge.network.PacketDistributor;
 /**
  * The Decal Stencil's screen, in Create's style: a brass-framed panel ({@code textures/gui/stencil.png}, drawn
  * with its wells where the layout constants below put things), category tabs, the decals of one
- * category in a grid (scroll for more), the 16 dye colours and a hex field, Create's icon buttons to turn, flip, erase
- * and finish, and a preview of the decal as it will lie on a face. Closing it stores the choice on the stencil (one
+ * category in a grid (scroll for more), a field to type a word instead, the 16 dye colours and a hex field, Create's icon
+ * buttons to turn, flip, erase and finish, toggles for the layer (behind or in front of the decal already on a face) and
+ * glow, and a preview of the decal as it will lie on a face. Closing it stores the choice on the stencil (one
  * serverbound payload).
  */
 public class StencilScreen extends Screen {
@@ -52,6 +55,8 @@ public class StencilScreen extends Screen {
     private static final int SWATCH = 12;
     private static final int SWATCH_X = 8;
     private static final int SWATCH_Y = 152;
+    private static final int TEXT_Y = 134;
+    private static final int ICONS_U = 300;
 
     private final InteractionHand hand;
     private StencilData data;
@@ -61,6 +66,9 @@ public class StencilScreen extends Screen {
     private int category;
     private int page;
     private EditBox hex;
+    private EditBox text;
+    private IconButton layer;
+    private IconButton glow;
     private int left;
     private int top;
 
@@ -99,6 +107,26 @@ public class StencilScreen extends Screen {
         button(left + PREVIEW_X + 20, buttonsY, AllIcons.I_TOOL_MIRROR, "flip", () -> data = data.withTurn(data.rotation(), !data.flip()));
         button(left + PREVIEW_X + 40, buttonsY, AllIcons.I_TRASH, "erase", () -> data = data.withErase(!data.erase()));
         button(left + PANEL_WIDTH - 30, top + PANEL_HEIGHT - 30, AllIcons.I_CONFIRM, "done", this::onClose);
+        layer = new IconButton(left + PREVIEW_X, buttonsY + 20, icon(0));
+        layer.withCallback(() -> {
+            data = data.withFront(!data.front());
+            showToggles();
+        });
+        addRenderableWidget(layer);
+        glow = new IconButton(left + PREVIEW_X + 20, buttonsY + 20, icon(2));
+        glow.withCallback(() -> {
+            data = data.withGlow(!data.glow());
+            showToggles();
+        });
+        addRenderableWidget(glow);
+        showToggles();
+        text = new EditBox(font, left + 36, top + TEXT_Y, 134, 14, Component.translatable("createdecals.stencil.text"));
+        text.setMaxLength(DecalText.MAX_LENGTH);
+        text.setFilter(value -> value.chars().allMatch(c -> DecalText.allowed((char) c)));
+        text.setHint(Component.translatable("createdecals.stencil.text_hint"));
+        text.setValue(data.text());
+        text.setResponder(value -> data = data.withText(value));
+        addRenderableWidget(text);
         hex = new EditBox(font, left + 128, top + SWATCH_Y + 8, 62, 16, Component.translatable("createdecals.stencil.colour"));
         hex.setMaxLength(7);
         hex.setValue(String.format(Locale.ROOT, "#%06X", data.rgb()));
@@ -113,6 +141,19 @@ public class StencilScreen extends Screen {
             }
         });
         addRenderableWidget(hex);
+    }
+
+    /** One of the screen's own 16 px icons, drawn on Create's button: 0 back layer, 1 front layer, 2 glow. */
+    private static ScreenElement icon(int index) {
+        return (graphics, x, y) -> graphics.blit(BACKGROUND, x, y, ICONS_U + 16 * index, 0, 16, 16, 512, 256);
+    }
+
+    /** The layer button shows the layer chosen; the glow button turns green while on. */
+    private void showToggles() {
+        layer.setIcon(icon(data.front() ? 1 : 0));
+        layer.setToolTip(Component.translatable(data.front() ? "createdecals.stencil.layer_front" : "createdecals.stencil.layer_back"));
+        glow.green = data.glow();
+        glow.setToolTip(Component.translatable(data.glow() ? "createdecals.stencil.glow_on" : "createdecals.stencil.glow_off"));
     }
 
     private void button(int x, int y, AllIcons icon, String key, Runnable action) {
@@ -162,15 +203,16 @@ public class StencilScreen extends Screen {
             DecalLibrary.Entry entry = entries.get(i);
             int x = left + GRID_X + (i % COLUMNS) * CELL;
             int y = top + GRID_Y + (i / COLUMNS) * CELL;
-            boolean selected = !data.erase() && data.decal().map(entry.id()::equals).orElse(false);
+            boolean selected = !data.erase() && !data.writes() && data.decal().map(entry.id()::equals).orElse(false);
             boolean hovered = mouseX >= x && mouseX < x + CELL - 2 && mouseY >= y && mouseY < y + CELL - 2;
             graphics.fill(x, y, x + CELL - 2, y + CELL - 2, selected ? 0xFFF7CB6C : hovered ? 0xFFA8B3AB : 0xFF2A2D33);
             graphics.fill(x + 1, y + 1, x + CELL - 3, y + CELL - 3, 0xFF6B7078);
             drawDecal(graphics, entry, x + 2, y + 2, CELL - 6, 0, false);
         }
         if (pages() > 1) {
-            graphics.drawString(font, (page + 1) + "/" + pages(), left + GRID_X, top + GRID_Y + ROWS * CELL + 1, 0xE0E0E0, false);
+            graphics.drawString(font, (page + 1) + "/" + pages(), left + 176, top + TEXT_Y + 3, 0xFFFFFF, false);
         }
+        graphics.drawString(font, Component.translatable("createdecals.stencil.text"), left + GRID_X, top + TEXT_Y + 3, 0xFFFFFF, false);
         DyeColor[] dyes = DyeColor.values();
         for (int i = 0; i < dyes.length; i++) {
             int x = left + SWATCH_X + (i % 8) * (SWATCH + 2);
@@ -185,16 +227,41 @@ public class StencilScreen extends Screen {
         graphics.fill(px, py, px + PREVIEW_SIZE, py + PREVIEW_SIZE, 0xFF8D939B);
         if (data.erase()) {
             graphics.drawCenteredString(font, Component.translatable("createdecals.stencil.erase"), px + PREVIEW_SIZE / 2, py + 23, 0xFFFFFF);
+        } else if (data.writes()) {
+            // The word's letters in a row (the first few if it is long), flipped and turned as a whole, as it will lie
+            String word = data.text();
+            int shownLetters = Math.min(word.length(), 6);
+            int size = Math.min(24, (PREVIEW_SIZE - 6) / Math.max(1, shownLetters));
+            graphics.pose().pushPose();
+            graphics.pose().translate(px + PREVIEW_SIZE / 2f, py + PREVIEW_SIZE / 2f, 0);
+            graphics.pose().mulPose(Axis.ZP.rotationDegrees(90 * data.rotation()));
+            for (int i = 0; i < shownLetters; i++) {
+                ResourceLocation id = DecalText.decalFor(word.charAt(i));
+                DecalLibrary.Entry entry = id != null ? DecalLibrary.INSTANCE.get(id) : null;
+                if (entry != null) {
+                    int slot = data.flip() ? shownLetters - 1 - i : i;
+                    drawDecal(graphics, entry, -size * shownLetters / 2 + slot * size, -size / 2, size, 0, data.flip());
+                }
+            }
+            graphics.pose().popPose();
+            sizeLabel(graphics, px, py, data.rotation() % 2 == 0 ? word.length() + " x 1" : "1 x " + word.length());
         } else {
             data.decal().map(DecalLibrary.INSTANCE::get).ifPresent(entry -> {
                 drawDecal(graphics, entry, px + 3, py + 3, PREVIEW_SIZE - 6, data.rotation(), data.flip());
                 if (data.width() > 1 || data.height() > 1) {
                     boolean across = data.rotation() % 2 == 0;
-                    graphics.drawString(font, (across ? data.width() : data.height()) + " x " + (across ? data.height() : data.width()),
-                            px + PREVIEW_SIZE + 2, py + PREVIEW_SIZE - 9, 0xFFFFFF);
+                    sizeLabel(graphics, px, py, (across ? data.width() : data.height()) + " x " + (across ? data.height() : data.width()));
                 }
             });
         }
+    }
+
+    /** How many blocks across and down, in the preview's bottom right corner, inside the panel. */
+    private void sizeLabel(GuiGraphics graphics, int px, int py, String label) {
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 200);
+        graphics.drawString(font, label, px + PREVIEW_SIZE - 2 - font.width(label), py + PREVIEW_SIZE - 10, 0xFFFFFF);
+        graphics.pose().popPose();
     }
 
     /** The decal's whole sprite (all tiles of a large one), tinted, flipped and then turned {@code rotation} quarters. */
@@ -234,6 +301,7 @@ public class StencilScreen extends Screen {
             if (Math.abs(mouseX - c[0]) < CELL / 2.0 - 1 && Math.abs(mouseY - c[1]) < CELL / 2.0 - 1) {
                 DecalLibrary.Entry entry = entries.get(i);
                 data = data.withDecal(entry.id(), entry.width(), entry.height());
+                text.setValue("");
                 return true;
             }
         }
@@ -273,6 +341,19 @@ public class StencilScreen extends Screen {
     /** For automated checks, which click like a player: the centre of the {@code i}th decal cell shown. */
     public double[] cellCentre(int i) {
         return new double[] {left + GRID_X + (i % COLUMNS) * CELL + (CELL - 2) / 2.0, top + GRID_Y + (i / COLUMNS) * CELL + (CELL - 2) / 2.0};
+    }
+
+    /** For automated checks: the centre of the word field, the layer button and the glow button. */
+    public double[] textCentre() {
+        return new double[] {text.getX() + text.getWidth() / 2.0, text.getY() + text.getHeight() / 2.0};
+    }
+
+    public double[] layerCentre() {
+        return new double[] {layer.getX() + 9, layer.getY() + 9};
+    }
+
+    public double[] glowCentre() {
+        return new double[] {glow.getX() + 9, glow.getY() + 9};
     }
 
     /** For automated checks: the centre of the swatch of {@code dye}. */

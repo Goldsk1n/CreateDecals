@@ -34,7 +34,7 @@ public class DecalBlock extends CopycatBlock {
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player,
             InteractionHand hand, BlockHitResult hit) {
-        ItemInteractionResult dyed = DecalClicks.dye(stack, level, pos, hit.getDirection());
+        ItemInteractionResult dyed = DecalClicks.use(stack, level, pos, hit.getDirection());
         return dyed != null ? dyed : super.useItemOn(stack, state, level, pos, player, hand, hit);
     }
 

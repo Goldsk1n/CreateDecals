@@ -1,7 +1,10 @@
 package com.goldskinmc.createdecals.client;
 
+import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
 import com.goldskinmc.createdecals.decal.DecalFrame;
 import com.goldskinmc.createdecals.decal.DecalState;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -13,6 +16,8 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.ChunkRenderTypeSet;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.QuadTransformers;
 import net.neoforged.neoforge.client.model.pipeline.QuadBakingVertexConsumer;
 import org.jetbrains.annotations.Nullable;
 
@@ -51,6 +56,34 @@ public final class DecalQuads {
 
     public static void clearCache() {
         CACHE.clear();
+    }
+
+    /**
+     * {@code quads} plus the face's back decal and then its front one, both from the model data. Drawn later in the same
+     * layer and with the same corners, the front decal wins the depth tie over the back one, as the back one does over
+     * the material.
+     */
+    public static List<BakedQuad> addLayers(List<BakedQuad> quads, ModelData data, Direction face, float depth) {
+        BakedQuad back = quadIn(data.get(DecalCopycatBlockEntity.DECALS), face, depth);
+        BakedQuad front = quadIn(data.get(DecalCopycatBlockEntity.FRONT_DECALS), face, depth);
+        if (back == null && front == null) {
+            return quads;
+        }
+        List<BakedQuad> out = new ArrayList<>(quads.size() + 2);
+        out.addAll(quads);
+        if (back != null) {
+            out.add(back);
+        }
+        if (front != null) {
+            out.add(front);
+        }
+        return out;
+    }
+
+    @Nullable
+    private static BakedQuad quadIn(@Nullable Map<Direction, DecalState> layer, Direction face, float depth) {
+        DecalState decal = layer != null ? layer.get(face) : null;
+        return decal != null ? quad(decal, face, depth) : null;
     }
 
     /**
@@ -95,8 +128,9 @@ public final class DecalQuads {
         builder.setSprite(sprite);
         builder.setDirection(face);
         builder.setTintIndex(TINT_FLAG | decal.rgb());
-        builder.setShade(true);
-        builder.setHasAmbientOcclusion(true);
+        // A glowing decal is not shaded by the face's direction or darkened in corners, and its baked light is full
+        builder.setShade(!decal.glow());
+        builder.setHasAmbientOcclusion(!decal.glow());
         for (int i = 0; i < 4; i++) {
             // A quarter turn clockwise hands each corner the texture corner one step on, counter-clockwise
             float[] uv = uvs[(i + decal.rotation()) % 4];
@@ -107,6 +141,7 @@ public final class DecalQuads {
                     .setUv(sprite.getU((tileX + u) / decal.width()), sprite.getV((tileY + uv[1]) / decal.height()))
                     .setNormal((float) normal.x, (float) normal.y, (float) normal.z);
         }
-        return builder.bakeQuad();
+        BakedQuad quad = builder.bakeQuad();
+        return decal.glow() ? QuadTransformers.settingMaxEmissivity().process(quad) : quad;
     }
 }

@@ -13,17 +13,19 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
 
 - `block/`: `DecalPanelBlock` (Create's `CopycatPanelBlock`, a decal on its front), `DecalBlock` (a full-cube
   `CopycatBlock`, a decal on any face; hides neighbours' faces against a solid material, as copycats otherwise let them
-  through), `DecalCopycatBlockEntity` (one type for both: a `CopycatBlockEntity` with a decal per face, saved, synced,
+  through), `DecalCopycatBlockEntity` (one type for both: a `CopycatBlockEntity` with two decals per face, back and front, saved, synced,
   kept in schematics, and turned with the block when a contraption puts it back turned).
-- `decal/`: `DecalState` (decal id, colour, quarter turns, flip; for decals larger than one block their size in tiles
-  and the tile this face shows), `DecalPlacement` (where each tile of a flipped and turned large decal lands, from its
-  top-left face), `DecalFrame` (which way is up and right on each face), `Decals` (ids; the built-in list, read from our
+- `decal/`: `DecalState` (decal id, colour, quarter turns, flip, glow; for decals larger than one block their size in
+  tiles and the tile this face shows), `DecalText` (a typed word's characters as letter, digit and sign decals), `DecalPlacement` (where each tile of a flipped and turned large decal lands, from its
+  top-left face; a typed word is laid as an N x 1 grid the same way), `DecalFrame` (which way is up and right on each face), `Decals` (ids; the built-in list, read from our
   jar so the server can suggest them). `block/DecalTiles` places a whole decal and changes every tile of one (eraser,
   dye).
 - `client/`: `DecalLibrary` (every `assets/<ns>/decals/<path>.json` in the loaded resource packs: size in tiles and
   category; sprite `<ns>:decal/<path>` on the block atlas, stitched from `textures/decal/` by our
   `assets/minecraft/atlases/blocks.json`), `DecalQuads` (one quad per decal, coplanar with the material's face, cutout
-  layer, colour in the tint index, cached), `DecalPanelModel` and `DecalBlockModel` (Create's copycat models plus decal
+  layer, colour in the tint index, cached; the front decal is added after the back one, so it wins the same depth tie the
+  back one wins over the material; a glowing decal is unshaded, without ambient occlusion and baked at full light,
+  NeoForge's `QuadTransformers.settingMaxEmissivity`), `DecalPanelModel` and `DecalBlockModel` (Create's copycat models plus decal
   quads), `DecalsClient` (wraps the models, tints, loads the library).
 - `block/CreatePanels`: a decal placed on Create's own Copycat Panel (that block exactly, on its front) turns it into
   a Decal Panel in place: block-state properties copied, the block entity's saved data loaded into ours (Create's
