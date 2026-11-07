@@ -89,6 +89,16 @@ neoForge {
             def window = providers.gradleProperty('window').getOrElse('1280x720')
             def (width, height) = window.tokenize('x')
             programArguments.addAll '--width', width, '--height', height
+            // -Pquickplay_server=localhost joins that server instead of opening the test world (dedicated-server checks)
+            def quickPlayServer = providers.gradleProperty('quickplay_server').getOrNull()
+            if (quickPlayServer != null) {
+                programArguments.addAll '--quickPlayMultiplayer', quickPlayServer
+            }
+        }
+        // A dedicated server in run-server/ (superflat, offline mode, EULA accepted by the owner)
+        server {
+            server()
+            programArgument '--nogui'
         }
         // Headless check: boots every mod, runs the game tests, exits
         gameTestServer {
@@ -102,7 +112,8 @@ neoForge {
                     '--existing', file('src/main/resources/').getAbsolutePath()
         }
         configureEach {
-            gameDirectory = file(runDir)
+            // The dedicated server gets its own folder, so its log and world never clash with a client's
+            gameDirectory = file(name == 'server' ? "${runDir}-server" : runDir)
             logLevel = org.slf4j.event.Level.INFO
         }
     }
