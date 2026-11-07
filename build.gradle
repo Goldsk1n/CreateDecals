@@ -72,6 +72,8 @@ def devPerf = providers.gradleProperty('dev_perf').map { it.toBoolean() }.getOrE
 def devIris = providers.gradleProperty('dev_iris').map { it.toBoolean() }.getOrElse(true)
 // -Pdev_copycats=true adds Copycats+ (the most used copycat add-on) to check both run side by side: dev only, never shipped
 def devCopycats = providers.gradleProperty('dev_copycats').map { it.toBoolean() }.getOrElse(false)
+// -Pdev_tools=true adds JEI and The One Probe to `latest` runs, for playing by hand: dev only, never shipped
+def devTools = providers.gradleProperty('dev_tools').map { it.toBoolean() }.getOrElse(false)
 
 neoForge {
     version = floorRun ? project.neo_floor_version : project.neo_version
@@ -153,6 +155,10 @@ dependencies {
 
         if (devCopycats) {
             localRuntime("maven.modrinth:copycats:${copycats_version}") { transitive = false }
+        }
+        if (devTools) {
+            localRuntime("maven.modrinth:jei:${jei_version}") { transitive = false }
+            localRuntime("maven.modrinth:the-one-probe:${the_one_probe_version}") { transitive = false }
         }
         if (devPerf) {
             if (devIris) {
