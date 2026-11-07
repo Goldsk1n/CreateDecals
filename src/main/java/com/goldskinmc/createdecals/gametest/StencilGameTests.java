@@ -9,6 +9,8 @@ import com.goldskinmc.createdecals.registry.DecalsComponents;
 import com.goldskinmc.createdecals.registry.DecalsItems;
 import com.goldskinmc.createdecals.stencil.DecalStencilItem;
 import com.goldskinmc.createdecals.stencil.StencilData;
+import com.simibubi.create.AllBlocks;
+import com.simibubi.create.content.decoration.copycat.CopycatBlockEntity;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelBlock;
 import java.util.Optional;
 import net.minecraft.core.BlockPos;
@@ -17,10 +19,16 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.gametest.GameTestHolder;
@@ -113,6 +121,62 @@ public final class StencilGameTests {
         helper.assertFalse(target.readFromClipboard(registries, clipboard, player, Direction.EAST, false), "pasted onto a panel's side");
         helper.assertTrue(target.readFromClipboard(registries, clipboard, player, Direction.SOUTH, false), "not pasted onto the front");
         helper.assertTrue(decal.equals(target.getDecal(Direction.SOUTH)), "pasted " + target.getDecals());
+        helper.succeed();
+    }
+
+    /**
+     * Create's own Copycat Panel takes a decal by becoming a Decal Panel: a 2x1 decal clicked on the middle one of three
+     * converts the two it covers, keeping facing, waterlogging, material and the consumed item (nothing drops), and leaves
+     * the third Create's. A side of Create's panel, sneaking and the eraser change nothing.
+     */
+    @GameTest(template = "empty")
+    public static void stencilConvertsCreatePanels(GameTestHelper helper) {
+        BlockState log = Blocks.OAK_LOG.defaultBlockState().setValue(RotatedPillarBlock.AXIS, Direction.Axis.X);
+        BlockState createPanel = AllBlocks.COPYCAT_PANEL.getDefaultState().setValue(CopycatPanelBlock.FACING, Direction.SOUTH)
+                .setValue(BlockStateProperties.WATERLOGGED, true);
+        for (int x = 1; x <= 3; x++) {
+            BlockPos pos = new BlockPos(x, 2, 2);
+            helper.setBlock(pos, createPanel);
+            CopycatBlockEntity be = helper.getBlockEntity(pos);
+            be.setMaterial(log);
+            be.setConsumedItem(new ItemStack(Items.OAK_LOG));
+        }
+        BlockPos middle = new BlockPos(2, 2, 2);
+        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
+
+        player.setShiftKeyDown(true);
+        click(helper, player, middle, Direction.SOUTH);
+        player.setShiftKeyDown(false);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stencil(StencilData.EMPTY.withErase(true)));
+        click(helper, player, middle, Direction.SOUTH);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stencil(SEVEN));
+        click(helper, player, middle, Direction.EAST);
+        helper.assertBlockPresent(AllBlocks.COPYCAT_PANEL.get(), middle);
+
+        StencilData arrow = new StencilData(Optional.of(Decals.id("arrow_2x1")), 0x3C44AA, 0, false, false, 2, 1);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stencil(arrow));
+        click(helper, player, middle, Direction.SOUTH);
+        int converted = 0;
+        for (int x = 1; x <= 3; x++) {
+            BlockPos pos = new BlockPos(x, 2, 2);
+            BlockState state = helper.getBlockState(pos);
+            if (!state.is(DecalsBlocks.DECAL_PANEL.get())) {
+                helper.assertBlockPresent(AllBlocks.COPYCAT_PANEL.get(), pos);
+                continue;
+            }
+            converted++;
+            helper.assertTrue(state.getValue(CopycatPanelBlock.FACING) == Direction.SOUTH
+                    && state.getValue(BlockStateProperties.WATERLOGGED), "state not kept: " + state);
+            DecalCopycatBlockEntity be = helper.getBlockEntity(pos);
+            helper.assertTrue(log.equals(be.getMaterial()), "material " + be.getMaterial());
+            helper.assertTrue(be.getConsumedItem().is(Items.OAK_LOG), "consumed item " + be.getConsumedItem());
+            DecalState decal = be.getDecal(Direction.SOUTH);
+            helper.assertTrue(decal != null && decal.id().equals(Decals.id("arrow_2x1")) && decal.rgb() == 0x3C44AA, "decal " + decal);
+        }
+        helper.assertTrue(converted == 2, converted + " panels converted, not 2");
+        helper.assertBlockPresent(DecalsBlocks.DECAL_PANEL.get(), middle);
+        AABB area = new AABB(helper.absolutePos(BlockPos.ZERO)).inflate(8);
+        helper.assertTrue(helper.getLevel().getEntitiesOfClass(ItemEntity.class, area).isEmpty(), "an item dropped");
         helper.succeed();
     }
 }

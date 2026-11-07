@@ -29,7 +29,7 @@
   "createdecals.ponder.decal_panel.header": "Putting a decal on a Decal Panel",
   "createdecals.ponder.decal_panel.text_1": "A Decal Panel is a Copycat Panel that can show a decal on its front",
   "createdecals.ponder.decal_panel.text_2": "Like any copycat, it takes the look of a block used on it",
-  "createdecals.ponder.decal_panel.text_3": "Right-click it with a Decal Stencil to put the stencil's decal on it",
+  "createdecals.ponder.decal_panel.text_3": "Right-click it with a Decal Stencil to put the stencil's decal on it. Create's own Copycat Panels turn into Decal Panels the same way",
   "createdecals.ponder.decal_panel.text_4": "A dye recolours the decal",
   "createdecals.ponder.decal_panel.text_5": "The decal is part of the block: it stays on trains, contraptions and Sable vehicles, and under shaders",
   "createdecals.ponder.decal_stencil.header": "Choosing, placing and picking up decals",
@@ -60,6 +60,6 @@
   "item.createdecals.decal_stencil.tooltip.control1": "When used in the air",
   "item.createdecals.decal_stencil.tooltip.control2": "When R-clicked on a face",
   "item.createdecals.decal_stencil.tooltip.control3": "When R-clicked while sneaking",
-  "item.createdecals.decal_stencil.tooltip.summary": "Puts _decals_ on Decal Panels and Decal Blocks. Choose the decal, its colour and how it turns in its screen.",
+  "item.createdecals.decal_stencil.tooltip.summary": "Puts _decals_ on Decal Panels and Decal Blocks; Create's Copycat Panels become Decal Panels when they take one. Choose the decal, its colour and how it turns in its screen.",
   "itemGroup.createdecals": "Create: Decals"
 }

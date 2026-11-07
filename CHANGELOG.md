@@ -7,7 +7,9 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
 ### Blocks and items
 
 - **Decal Panel**: Create's Copycat Panel with a decal on its front. It copies any block's look as the Copycat Panel
-  does; crafted from a Copycat Panel (and back).
+  does; crafted from a Copycat Panel (and back). Create's own Copycat Panels already in a build need no swapping: a
+  stencil click on one's front turns it into a Decal Panel in place, keeping its material, facing and the block used on
+  it, then puts the decal on.
 - **Decal Block**: a full copycat block with a decal on each of its faces, for hulls built of whole blocks. Faces against
   a solid block are hidden, decal and all. Cut from a zinc ingot on a Stonecutter.
 - **Decal Stencil**: used in the air it opens a screen to choose a decal, its colour (the 16 dyes or a hex code) and how

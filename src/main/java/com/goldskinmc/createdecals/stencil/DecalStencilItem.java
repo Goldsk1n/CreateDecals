@@ -1,5 +1,6 @@
 package com.goldskinmc.createdecals.stencil;
 
+import com.goldskinmc.createdecals.block.CreatePanels;
 import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
 import com.goldskinmc.createdecals.block.DecalTiles;
 import com.goldskinmc.createdecals.decal.DecalState;
@@ -19,12 +20,14 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * The Decal Stencil: used in the air it opens its screen (on the client, {@code client/StencilScreen}), where the decal,
  * colour, turns and flip are chosen; used on a face of a decal block it puts that decal there, a large one spreading
  * right and down from the clicked face over the faces next to it on the same plane (or erases the whole decal there);
- * used while sneaking it picks the face's decal up. Decals cost nothing to apply (plan Decision 8).
+ * used while sneaking it picks the face's decal up. Decals cost nothing to apply (plan Decision 8). Create's own Copycat
+ * Panel takes a decal too, turning into a Decal Panel ({@code block/CreatePanels}).
  */
 public class DecalStencilItem extends Item {
     public DecalStencilItem(Properties properties) {
@@ -40,11 +43,14 @@ public class DecalStencilItem extends Item {
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         Player player = context.getPlayer();
-        if (!(level.getBlockEntity(context.getClickedPos()) instanceof DecalCopycatBlockEntity be)) {
+        Direction face = context.getClickedFace();
+        // Create's own Copycat Panel is treated as a Decal Panel without a decal: placing one converts it (CreatePanels)
+        BlockState state = level.getBlockState(context.getClickedPos());
+        DecalCopycatBlockEntity be = level.getBlockEntity(context.getClickedPos()) instanceof DecalCopycatBlockEntity ours ? ours : null;
+        if (be == null && !CreatePanels.isCreatePanel(state)) {
             return InteractionResult.PASS;
         }
-        Direction face = context.getClickedFace();
-        if (!be.acceptsDecalOn(face)) {
+        if (be != null ? !be.acceptsDecalOn(face) : !CreatePanels.convertible(state, face)) {
             message(player, "front_only");
             return InteractionResult.sidedSuccess(level.isClientSide());
         }
@@ -54,7 +60,7 @@ public class DecalStencilItem extends Item {
         ItemStack stack = context.getItemInHand();
         StencilData data = data(stack);
         if (player != null && player.isShiftKeyDown()) {
-            DecalState picked = be.getDecal(face);
+            DecalState picked = be != null ? be.getDecal(face) : null;
             if (picked == null) {
                 message(player, "nothing_to_pick");
             } else {
@@ -64,6 +70,7 @@ public class DecalStencilItem extends Item {
             return InteractionResult.CONSUME;
         }
         if (data.erase()) {
+            // Nothing to erase on Create's panel; changeWhole finds no decal there
             DecalTiles.changeWhole(level, context.getClickedPos(), face, tile -> null);
             return InteractionResult.CONSUME;
         }

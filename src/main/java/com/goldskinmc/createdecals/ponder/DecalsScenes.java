@@ -97,7 +97,7 @@ final class DecalsScenes {
         scene.idle(7);
         decal(scene, util, panel, Direction.NORTH, new DecalState(Decals.id("digit_7"), rgb(DyeColor.RED), 0, false));
         scene.overlay().showText(70).attachKeyFrame()
-                .text("Right-click it with a Decal Stencil to put the stencil's decal on it")
+                .text("Right-click it with a Decal Stencil to put the stencil's decal on it. Create's own Copycat Panels turn into Decal Panels the same way")
                 .placeNearTarget().pointAt(front);
         scene.idle(80);
 

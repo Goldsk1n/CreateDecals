@@ -18,7 +18,7 @@ public final class DecalsLang {
         add("itemGroup." + CreateDecals.MOD_ID, "Create: Decals");
         // Ponder scene text, collected from the scenes themselves
         REGISTRATE.addDataGenerator(ProviderType.LANG, provider -> DecalsPonder.provideLang(provider::add));
-        tooltip("item", "decal_stencil", "Puts _decals_ on Decal Panels and Decal Blocks. Choose the decal, its colour and how it turns in its screen.",
+        tooltip("item", "decal_stencil", "Puts _decals_ on Decal Panels and Decal Blocks; Create's Copycat Panels become Decal Panels when they take one. Choose the decal, its colour and how it turns in its screen.",
                 action("When used in the air", "Opens the stencil's screen."),
                 action("When R-clicked on a face", "Puts the decal there, or erases it."),
                 action("When R-clicked while sneaking", "Picks up the decal on that face."));

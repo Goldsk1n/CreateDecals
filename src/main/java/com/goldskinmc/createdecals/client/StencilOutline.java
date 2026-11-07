@@ -1,6 +1,7 @@
 package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.CreateDecals;
+import com.goldskinmc.createdecals.block.CreatePanels;
 import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
 import com.goldskinmc.createdecals.decal.DecalPlacement;
 import com.goldskinmc.createdecals.decal.DecalState;
@@ -49,9 +50,11 @@ public final class StencilOutline {
         LocalPlayer player = mc.player;
         Level level = mc.level;
         if (player == null || level == null || !(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK
-                || !(level.getBlockEntity(hit.getBlockPos()) instanceof DecalCopycatBlockEntity clicked)) {
+                || !(level.getBlockEntity(hit.getBlockPos()) instanceof DecalCopycatBlockEntity
+                        || CreatePanels.isCreatePanel(level.getBlockState(hit.getBlockPos())))) {
             return;
         }
+        DecalCopycatBlockEntity clicked = level.getBlockEntity(hit.getBlockPos()) instanceof DecalCopycatBlockEntity ours ? ours : null;
         ItemStack stack = stencilIn(player);
         if (stack.isEmpty()) {
             return;
@@ -60,7 +63,7 @@ public final class StencilOutline {
         Direction face = hit.getDirection();
         List<DecalPlacement.Tile> tiles;
         if (data.erase()) {
-            DecalState shown = clicked.getDecal(face);
+            DecalState shown = clicked != null ? clicked.getDecal(face) : null;
             if (shown == null) {
                 return;
             }
@@ -77,7 +80,8 @@ public final class StencilOutline {
         MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
         VertexConsumer lines = buffers.getBuffer(RenderType.lines());
         for (DecalPlacement.Tile tile : tiles) {
-            boolean lands = level.getBlockEntity(tile.pos()) instanceof DecalCopycatBlockEntity be && be.acceptsDecalOn(face);
+            boolean lands = level.getBlockEntity(tile.pos()) instanceof DecalCopycatBlockEntity be ? be.acceptsDecalOn(face)
+                    : CreatePanels.convertible(level.getBlockState(tile.pos()), face);
             AABB box = faceBox(level.getBlockState(tile.pos()), tile.pos(), face).move(-camera.x, -camera.y, -camera.z);
             if (data.erase()) {
                 LevelRenderer.renderLineBox(pose, lines, box, 1f, 0.55f, 0.1f, 1f);

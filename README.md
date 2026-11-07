@@ -25,6 +25,11 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   `assets/minecraft/atlases/blocks.json`), `DecalQuads` (one quad per decal, coplanar with the material's face, cutout
   layer, colour in the tint index, cached), `DecalPanelModel` and `DecalBlockModel` (Create's copycat models plus decal
   quads), `DecalsClient` (wraps the models, tints, loads the library).
+- `block/CreatePanels`: a decal placed on Create's own Copycat Panel (that block exactly, on its front) turns it into
+  a Decal Panel in place: block-state properties copied, the block entity's saved data loaded into ours (Create's
+  `setMaterial` may take a neighbour's material state instead), the old panel's consumed item emptied first so Create
+  drops nothing. The stencil and its outline treat such a panel as a Decal Panel without a decal. Create has no full
+  copycat block, so nothing turns into a Decal Block.
 - `stencil/`: `DecalStencilItem` (used in the air it opens its screen; on a face it puts its decal there or erases it;
   sneaking it picks the face's decal up), `StencilData` (its data component: decal, colour, turns, flip, eraser),
   `StencilPayload` (the screen's choice, client to server, only onto a stencil in that hand). The screen is
