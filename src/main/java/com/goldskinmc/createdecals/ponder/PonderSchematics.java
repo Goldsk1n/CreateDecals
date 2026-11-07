@@ -4,6 +4,8 @@ import com.goldskinmc.createdecals.CreateDecals;
 import com.goldskinmc.createdecals.registry.DecalsBlocks;
 import com.google.common.hash.Hashing;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelBlock;
+import com.simibubi.create.content.decoration.copycat.CopycatStepBlock;
+import net.minecraft.world.level.block.state.properties.Half;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -58,6 +60,12 @@ public final class PonderSchematics implements DataProvider {
         Schematic block = new Schematic("decal_block", Layouts.Block.SIZE, 4);
         block.copycat(Layouts.Block.BLOCK, DecalsBlocks.DECAL_BLOCK.getDefaultState(), white);
         all.add(block);
+
+        Schematic step = new Schematic("decal_step", Layouts.Step.SIZE, 4);
+        step.copycat(Layouts.Step.BLOCK, DecalsBlocks.DECAL_BLOCK.getDefaultState(), white);
+        BlockState stepState = DecalsBlocks.DECAL_STEP.getDefaultState().setValue(CopycatStepBlock.FACING, Direction.NORTH);
+        step.copycat(Layouts.Step.STEP, stepState.setValue(CopycatStepBlock.HALF, Half.BOTTOM), white);
+        all.add(step);
 
         Schematic stencil = new Schematic("decal_stencil", Layouts.Stencil.SIZE, 5);
         BlockPos.betweenClosed(Layouts.Stencil.WALL_FROM, Layouts.Stencil.WALL_TO)

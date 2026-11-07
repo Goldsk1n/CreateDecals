@@ -38,6 +38,7 @@ public final class DecalsClient {
     public static void wrapModels(ModelEvent.ModifyBakingResult event) {
         wrap(event, DecalsBlocks.DECAL_PANEL.get(), DecalPanelModel::new);
         wrap(event, DecalsBlocks.DECAL_BLOCK.get(), DecalBlockModel::new);
+        wrap(event, DecalsBlocks.DECAL_STEP.get(), DecalStepModel::new);
         ModelResourceLocation stencil = ModelResourceLocation.inventory(DecalsItems.DECAL_STENCIL.getId());
         BakedModel stencilModel = event.getModels().get(stencil);
         if (stencilModel != null) {
@@ -90,6 +91,7 @@ public final class DecalsClient {
         BlockColor material = CopycatBlock.wrappedColor();
         event.register((state, level, pos, tintIndex) -> tintIndex >= DecalQuads.TINT_FLAG
                 ? tintIndex & 0xFFFFFF
-                : material.getColor(state, level, pos, tintIndex), DecalsBlocks.DECAL_PANEL.get(), DecalsBlocks.DECAL_BLOCK.get());
+                : material.getColor(state, level, pos, tintIndex), DecalsBlocks.DECAL_PANEL.get(), DecalsBlocks.DECAL_BLOCK.get(),
+                DecalsBlocks.DECAL_STEP.get());
     }
 }

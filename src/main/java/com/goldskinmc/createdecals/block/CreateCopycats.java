@@ -15,27 +15,30 @@ import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Create's own Copycat Panel takes a decal by becoming a Decal Panel where it stands: same facing, waterlogging, material
- * and consumed item, so builds made of Create's panels need no rebuilding. Only Create's panel itself, not blocks
- * extending it (ours, other add-ons'), and only on its front. Create has no full copycat block, so there is nothing to
- * turn into a Decal Block.
+ * Create's own Copycat Panel and Copycat Step take a decal by becoming a Decal Panel or Decal Step where they stand: same
+ * facing, half, waterlogging, material and consumed item, so builds made of Create's copycats need no rebuilding. Only
+ * Create's blocks themselves, not blocks extending them (ours, other add-ons'); a panel only on its front, a step on any
+ * face. Create has no full copycat block, so there is nothing to turn into a Decal Block.
  */
-public final class CreatePanels {
-    private CreatePanels() {
+public final class CreateCopycats {
+    private CreateCopycats() {
     }
 
-    /** Whether a decal on {@code face} of this block would turn it into a Decal Panel. */
+    /** Whether a decal on {@code face} of this block would turn it into one of ours. */
     public static boolean convertible(BlockState state, Direction face) {
-        return state.is(AllBlocks.COPYCAT_PANEL.get()) && state.getValue(CopycatPanelBlock.FACING) == face;
+        if (state.is(AllBlocks.COPYCAT_PANEL.get())) {
+            return state.getValue(CopycatPanelBlock.FACING) == face;
+        }
+        return state.is(AllBlocks.COPYCAT_STEP.get());
     }
 
-    /** Whether this is Create's own Copycat Panel, whichever way it faces. */
-    public static boolean isCreatePanel(BlockState state) {
-        return state.is(AllBlocks.COPYCAT_PANEL.get());
+    /** Whether this is Create's own Copycat Panel or Step, whichever way it faces. */
+    public static boolean isCreateCopycat(BlockState state) {
+        return state.is(AllBlocks.COPYCAT_PANEL.get()) || state.is(AllBlocks.COPYCAT_STEP.get());
     }
 
     /**
-     * Turns Create's panel at {@code pos} into a Decal Panel (server side) and returns its block entity, or null when
+     * Turns Create's copycat at {@code pos} into ours (server side) and returns its block entity, or null when
      * {@link #convertible} says no.
      */
     @Nullable
@@ -44,11 +47,12 @@ public final class CreatePanels {
         if (level.isClientSide() || !convertible(state, face) || !(level.getBlockEntity(pos) instanceof CopycatBlockEntity old)) {
             return null;
         }
+        Block ours = state.is(AllBlocks.COPYCAT_PANEL.get()) ? DecalsBlocks.DECAL_PANEL.get() : DecalsBlocks.DECAL_STEP.get();
         // The saved data carries the material as it is (Create's setMaterial may take a neighbour's state instead); the
-        // old panel's item is emptied first, or Create would drop it when the block changes
+        // old block's item is emptied first, or Create would drop it when the block changes
         CompoundTag data = old.saveWithoutMetadata(level.registryAccess());
         old.setConsumedItem(ItemStack.EMPTY);
-        level.setBlock(pos, copyProperties(state, DecalsBlocks.DECAL_PANEL.getDefaultState()), Block.UPDATE_ALL);
+        level.setBlock(pos, copyProperties(state, ours.defaultBlockState()), Block.UPDATE_ALL);
         if (!(level.getBlockEntity(pos) instanceof DecalCopycatBlockEntity be)) {
             return null;
         }

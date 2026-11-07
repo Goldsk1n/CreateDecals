@@ -1,6 +1,6 @@
 package com.goldskinmc.createdecals.stencil;
 
-import com.goldskinmc.createdecals.block.CreatePanels;
+import com.goldskinmc.createdecals.block.CreateCopycats;
 import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
 import com.goldskinmc.createdecals.block.DecalTiles;
 import com.goldskinmc.createdecals.decal.DecalState;
@@ -27,7 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * colour, turns and flip are chosen; used on a face of a decal block it puts that decal there, a large one spreading
  * right and down from the clicked face over the faces next to it on the same plane (or erases the whole decal there);
  * used while sneaking it picks the face's decal up. Decals cost nothing to apply (plan Decision 8). Create's own Copycat
- * Panel takes a decal too, turning into a Decal Panel ({@code block/CreatePanels}).
+ * Panel takes a decal too, turning into a Decal Panel ({@code block/CreateCopycats}).
  */
 public class DecalStencilItem extends Item {
     public DecalStencilItem(Properties properties) {
@@ -44,13 +44,13 @@ public class DecalStencilItem extends Item {
         Level level = context.getLevel();
         Player player = context.getPlayer();
         Direction face = context.getClickedFace();
-        // Create's own Copycat Panel is treated as a Decal Panel without a decal: placing one converts it (CreatePanels)
+        // Create's own Copycat Panel and Step are treated as ours without a decal: placing one converts them (CreateCopycats)
         BlockState state = level.getBlockState(context.getClickedPos());
         DecalCopycatBlockEntity be = level.getBlockEntity(context.getClickedPos()) instanceof DecalCopycatBlockEntity ours ? ours : null;
-        if (be == null && !CreatePanels.isCreatePanel(state)) {
+        if (be == null && !CreateCopycats.isCreateCopycat(state)) {
             return InteractionResult.PASS;
         }
-        if (be != null ? !be.acceptsDecalOn(face) : !CreatePanels.convertible(state, face)) {
+        if (be != null ? !be.acceptsDecalOn(face) : !CreateCopycats.convertible(state, face)) {
             message(player, "front_only");
             return InteractionResult.sidedSuccess(level.isClientSide());
         }

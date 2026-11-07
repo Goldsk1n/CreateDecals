@@ -18,7 +18,7 @@ public final class DecalsLang {
         add("itemGroup." + CreateDecals.MOD_ID, "Create: Decals");
         // Ponder scene text, collected from the scenes themselves
         REGISTRATE.addDataGenerator(ProviderType.LANG, provider -> DecalsPonder.provideLang(provider::add));
-        tooltip("item", "decal_stencil", "Puts _decals_ or a typed _word_ on Decal Panels and Decal Blocks, behind or in front of the decal already there; Create's Copycat Panels become Decal Panels when they take one. Choose in its screen.",
+        tooltip("item", "decal_stencil", "Puts _decals_ or a typed _word_ on Decal Panels, Blocks and Steps, behind or in front of the decal already there; Create's Copycat Panels and Steps become decal ones when they take one. Choose in its screen.",
                 action("When used in the air", "Opens the stencil's screen."),
                 action("When R-clicked on a face", "Puts the decal or word there, or erases the decal on top."),
                 action("When R-clicked while sneaking", "Picks up the decal on top of that face."));
@@ -54,6 +54,11 @@ public final class DecalsLang {
                 action("When R-clicked with a Decal Stencil", "Puts the stencil's decal on its front."),
                 action("When R-clicked with Dye", "Recolours its decal."),
                 action("When R-clicked with a Glow Ink Sac", "Makes its decal glow; an Ink Sac stops it."));
+        tooltip("block", "decal_step", "A _copycat step_ with a _decal_ on any of its faces, for trims and ledges: each face shows the part of the decal it covers, so it lines up with Decal Blocks beside it.",
+                behaviour("When R-clicked with a block", "Copies that block's look, as Create's Copycat Step does."),
+                action("When R-clicked with a Decal Stencil", "Puts the stencil's decal on the clicked face."),
+                action("When R-clicked with Dye", "Recolours the decal on that face."),
+                action("When R-clicked with a Glow Ink Sac", "Makes that decal glow; an Ink Sac stops it."));
         tooltip("block", "decal_block", "A full _copycat block_ with a _decal_ on any of its faces, for hulls built of whole blocks.",
                 behaviour("When R-clicked with a block", "Copies that block's look."),
                 action("When R-clicked with a Decal Stencil", "Puts the stencil's decal on the clicked face."),

@@ -1,6 +1,7 @@
 {
   "values": [
     "createdecals:decal_panel",
-    "createdecals:decal_block"
+    "createdecals:decal_block",
+    "createdecals:decal_step"
   ]
 }

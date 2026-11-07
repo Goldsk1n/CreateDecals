@@ -31,7 +31,7 @@ public final class DecalsCreativeTab {
     }
 
     public static List<ItemLike> contents() {
-        return List.of(DecalsItems.DECAL_STENCIL, DecalsBlocks.DECAL_PANEL, DecalsBlocks.DECAL_BLOCK);
+        return List.of(DecalsItems.DECAL_STENCIL, DecalsBlocks.DECAL_PANEL, DecalsBlocks.DECAL_BLOCK, DecalsBlocks.DECAL_STEP);
     }
 
     public static void register(IEventBus modBus) {

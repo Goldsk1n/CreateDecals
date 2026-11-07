@@ -1,9 +1,10 @@
 package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.CreateDecals;
-import com.goldskinmc.createdecals.block.CreatePanels;
+import com.goldskinmc.createdecals.block.CreateCopycats;
 import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
 import com.goldskinmc.createdecals.block.DecalTiles;
+import com.goldskinmc.createdecals.decal.DecalFrame;
 import com.goldskinmc.createdecals.decal.DecalPlacement;
 import com.goldskinmc.createdecals.decal.DecalState;
 import com.goldskinmc.createdecals.stencil.DecalStencilItem;
@@ -52,7 +53,7 @@ public final class StencilOutline {
         Level level = mc.level;
         if (player == null || level == null || !(mc.hitResult instanceof BlockHitResult hit) || hit.getType() != HitResult.Type.BLOCK
                 || !(level.getBlockEntity(hit.getBlockPos()) instanceof DecalCopycatBlockEntity
-                        || CreatePanels.isCreatePanel(level.getBlockState(hit.getBlockPos())))) {
+                        || CreateCopycats.isCreateCopycat(level.getBlockState(hit.getBlockPos())))) {
             return;
         }
         DecalCopycatBlockEntity clicked = level.getBlockEntity(hit.getBlockPos()) instanceof DecalCopycatBlockEntity ours ? ours : null;
@@ -86,7 +87,7 @@ public final class StencilOutline {
         VertexConsumer lines = buffers.getBuffer(RenderType.lines());
         for (DecalPlacement.Tile tile : tiles) {
             boolean lands = level.getBlockEntity(tile.pos()) instanceof DecalCopycatBlockEntity be ? be.acceptsDecalOn(face)
-                    : CreatePanels.convertible(level.getBlockState(tile.pos()), face);
+                    : CreateCopycats.convertible(level.getBlockState(tile.pos()), face);
             AABB box = faceBox(level.getBlockState(tile.pos()), tile.pos(), face).move(-camera.x, -camera.y, -camera.z);
             if (data.erase()) {
                 LevelRenderer.renderLineBox(pose, lines, box, 1f, 0.55f, 0.1f, 1f);
@@ -109,14 +110,21 @@ public final class StencilOutline {
         return ItemStack.EMPTY;
     }
 
-    /** A thin box on the face where the decal lies: a panel's front 3/16 out from its back, else the block's face. */
+    /**
+     * A thin box on the face where the decal lies: a panel's front 3/16 out from its back, a step's face where it is
+     * (DecalFaces), else the block's face. Create's step not yet converted has the same faces as ours.
+     */
     private static AABB faceBox(BlockState state, BlockPos pos, Direction face) {
-        double depth = state.hasProperty(CopycatPanelBlock.FACING) && state.getValue(CopycatPanelBlock.FACING) == face ? 3 / 16d : 1;
+        DecalFaces.Window window = DecalFaces.window(state, face);
+        if (window == null) {
+            window = DecalFaces.Window.FULL;
+        }
         Vec3 normal = Vec3.atLowerCornerOf(face.getNormal());
-        Vec3 centre = Vec3.atCenterOf(pos).add(normal.scale(depth - 0.5 + 0.004));
-        double hx = face.getAxis() == Direction.Axis.X ? 0.004 : 0.5;
-        double hy = face.getAxis() == Direction.Axis.Y ? 0.004 : 0.5;
-        double hz = face.getAxis() == Direction.Axis.Z ? 0.004 : 0.5;
-        return new AABB(centre.x - hx, centre.y - hy, centre.z - hz, centre.x + hx, centre.y + hy, centre.z + hz);
+        Vec3 right = Vec3.atLowerCornerOf(DecalFrame.right(face).getNormal());
+        Vec3 up = Vec3.atLowerCornerOf(DecalFrame.up(face).getNormal());
+        Vec3 centre = Vec3.atCenterOf(pos).add(normal.scale(window.depth() - 0.5 + 0.004));
+        Vec3 a = centre.add(right.scale(window.s0() - 0.5)).add(up.scale(0.5 - window.t0())).add(normal.scale(-0.004));
+        Vec3 b = centre.add(right.scale(window.s1() - 0.5)).add(up.scale(0.5 - window.t1())).add(normal.scale(0.004));
+        return new AABB(a, b);
     }
 }

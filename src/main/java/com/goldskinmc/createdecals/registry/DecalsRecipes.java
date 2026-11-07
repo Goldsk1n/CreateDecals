@@ -39,6 +39,14 @@ public final class DecalsRecipes {
                 .requires(DecalsBlocks.DECAL_PANEL)
                 .unlockedBy("has_decal_panel", InventoryChangeTrigger.TriggerInstance.hasItems(DecalsBlocks.DECAL_PANEL.get()))
                 .save(out, CreateDecals.id("copycat_panel_from_decal_panel"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, DecalsBlocks.DECAL_STEP)
+                .requires(AllBlocks.COPYCAT_STEP)
+                .unlockedBy("has_copycat_step", InventoryChangeTrigger.TriggerInstance.hasItems(AllBlocks.COPYCAT_STEP.get()))
+                .save(out);
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, AllBlocks.COPYCAT_STEP)
+                .requires(DecalsBlocks.DECAL_STEP)
+                .unlockedBy("has_decal_step", InventoryChangeTrigger.TriggerInstance.hasItems(DecalsBlocks.DECAL_STEP.get()))
+                .save(out, CreateDecals.id("copycat_step_from_decal_step"));
         ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, DecalsItems.DECAL_STENCIL)
                 .requires(AllItems.IRON_SHEET)
                 .requires(Items.PAPER)

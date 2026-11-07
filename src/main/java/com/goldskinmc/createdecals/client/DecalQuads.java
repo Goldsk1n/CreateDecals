@@ -42,7 +42,7 @@ public final class DecalQuads {
     /** Time spent adding decals while meshing, for the frame-cost checks. */
     public static final AtomicLong decalNanos = new AtomicLong();
 
-    private record Key(DecalState decal, Direction face, float depth, float lift) {
+    private record Key(DecalState decal, Direction face, DecalFaces.Window window, float lift) {
     }
 
     private static final Map<Key, BakedQuad> CACHE = new ConcurrentHashMap<>();
@@ -64,8 +64,13 @@ public final class DecalQuads {
      * the material.
      */
     public static List<BakedQuad> addLayers(List<BakedQuad> quads, ModelData data, Direction face, float depth) {
-        BakedQuad back = quadIn(data.get(DecalCopycatBlockEntity.DECALS), face, depth);
-        BakedQuad front = quadIn(data.get(DecalCopycatBlockEntity.FRONT_DECALS), face, depth);
+        return addLayers(quads, data, face, new DecalFaces.Window(depth, 0, 1, 0, 1));
+    }
+
+    /** {@link #addLayers(List, ModelData, Direction, float)} for a decal seen through a window of the face (steps). */
+    public static List<BakedQuad> addLayers(List<BakedQuad> quads, ModelData data, Direction face, DecalFaces.Window window) {
+        BakedQuad back = quadIn(data.get(DecalCopycatBlockEntity.DECALS), face, window);
+        BakedQuad front = quadIn(data.get(DecalCopycatBlockEntity.FRONT_DECALS), face, window);
         if (back == null && front == null) {
             return quads;
         }
@@ -81,9 +86,9 @@ public final class DecalQuads {
     }
 
     @Nullable
-    private static BakedQuad quadIn(@Nullable Map<Direction, DecalState> layer, Direction face, float depth) {
+    private static BakedQuad quadIn(@Nullable Map<Direction, DecalState> layer, Direction face, DecalFaces.Window window) {
         DecalState decal = layer != null ? layer.get(face) : null;
-        return decal != null ? quad(decal, face, depth) : null;
+        return decal != null ? quad(decal, face, window) : null;
     }
 
     /**
@@ -92,7 +97,13 @@ public final class DecalQuads {
      */
     @Nullable
     public static BakedQuad quad(DecalState decal, Direction face, float depth) {
-        Key key = new Key(decal, face, depth, lift);
+        return quad(decal, face, new DecalFaces.Window(depth, 0, 1, 0, 1));
+    }
+
+    /** The part of the decal a window of the face shows, or null if the decal is not in the library. */
+    @Nullable
+    public static BakedQuad quad(DecalState decal, Direction face, DecalFaces.Window window) {
+        Key key = new Key(decal, face, window, lift);
         BakedQuad cached = CACHE.get(key);
         if (cached != null) {
             return cached;
@@ -101,25 +112,33 @@ public final class DecalQuads {
         if (entry == null) {
             return null;
         }
-        BakedQuad quad = bake(entry, decal, face, depth, key.lift());
+        BakedQuad quad = bake(entry, decal, face, window, key.lift());
         CACHE.put(key, quad);
         return quad;
     }
 
     /** Corners counter-clockwise seen from the front (top left, bottom left, bottom right, top right), as vanilla bakes faces. */
-    private static BakedQuad bake(DecalLibrary.Entry entry, DecalState decal, Direction face, float depth, float lift) {
+    private static BakedQuad bake(DecalLibrary.Entry entry, DecalState decal, Direction face, DecalFaces.Window window, float lift) {
         TextureAtlasSprite sprite = Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(entry.sprite());
         Vec3 normal = Vec3.atLowerCornerOf(face.getNormal());
         Vec3 right = Vec3.atLowerCornerOf(DecalFrame.right(face).getNormal());
         Vec3 up = Vec3.atLowerCornerOf(DecalFrame.up(face).getNormal());
-        Vec3 centre = new Vec3(0.5, 0.5, 0.5).add(normal.scale(-0.5 + depth + lift));
-        Vec3[] corners = {
-                centre.add(right.scale(-0.5)).add(up.scale(0.5)),
-                centre.add(right.scale(-0.5)).add(up.scale(-0.5)),
-                centre.add(right.scale(0.5)).add(up.scale(-0.5)),
-                centre.add(right.scale(0.5)).add(up.scale(0.5)),
+        Vec3 centre = new Vec3(0.5, 0.5, 0.5).add(normal.scale(-0.5 + window.depth() + lift));
+        // The window's corners as (from the left, from the top) of the face: top left, bottom left, bottom right, top right
+        float[][] st = {
+                {window.s0(), window.t0()}, {window.s0(), window.t1()}, {window.s1(), window.t1()}, {window.s1(), window.t0()},
         };
+        Vec3[] corners = new Vec3[4];
+        for (int i = 0; i < 4; i++) {
+            corners[i] = centre.add(right.scale(st[i][0] - 0.5)).add(up.scale(0.5 - st[i][1]));
+        }
         float[][] uvs = {{0, 0}, {0, 1}, {1, 1}, {1, 0}};
+        // The whole face's corners take the texture's corners turned and flipped; a window's corners lie between them
+        float[][] corner = new float[4][];
+        for (int i = 0; i < 4; i++) {
+            float[] uv = uvs[(i + decal.rotation()) % 4];
+            corner[i] = new float[] {decal.flip() ? 1 - uv[0] : uv[0], uv[1]};
+        }
         // This face shows one tile of a decal that may span several blocks
         int tileX = decal.tileX();
         int tileY = decal.tileY();
@@ -132,13 +151,16 @@ public final class DecalQuads {
         builder.setShade(!decal.glow());
         builder.setHasAmbientOcclusion(!decal.glow());
         for (int i = 0; i < 4; i++) {
-            // A quarter turn clockwise hands each corner the texture corner one step on, counter-clockwise
-            float[] uv = uvs[(i + decal.rotation()) % 4];
-            float u = decal.flip() ? 1 - uv[0] : uv[0];
+            // A quarter turn clockwise hands each corner the texture corner one step on, counter-clockwise; a window's
+            // corner is the same mix of them as of the face's corners: top left + s (to top right) + t (to bottom left)
+            float s = st[i][0];
+            float t = st[i][1];
+            float u = corner[0][0] + s * (corner[3][0] - corner[0][0]) + t * (corner[1][0] - corner[0][0]);
+            float v = corner[0][1] + s * (corner[3][1] - corner[0][1]) + t * (corner[1][1] - corner[0][1]);
             Vec3 c = corners[i];
             builder.addVertex((float) c.x, (float) c.y, (float) c.z)
                     .setColor(-1)
-                    .setUv(sprite.getU((tileX + u) / decal.width()), sprite.getV((tileY + uv[1]) / decal.height()))
+                    .setUv(sprite.getU((tileX + u) / decal.width()), sprite.getV((tileY + v) / decal.height()))
                     .setNormal((float) normal.x, (float) normal.y, (float) normal.z);
         }
         BakedQuad quad = builder.bakeQuad();

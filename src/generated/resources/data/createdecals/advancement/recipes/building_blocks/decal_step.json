@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_copycat_step": {
+      "conditions": {
+        "items": [
+          {
+            "items": "create:copycat_step"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "createdecals:decal_step"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_copycat_step"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "createdecals:decal_step"
+    ]
+  }
+}

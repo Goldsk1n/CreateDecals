@@ -25,13 +25,18 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   `assets/minecraft/atlases/blocks.json`), `DecalQuads` (one quad per decal, coplanar with the material's face, cutout
   layer, colour in the tint index, cached; the front decal is added after the back one, so it wins the same depth tie the
   back one wins over the material; a glowing decal is unshaded, without ambient occlusion and baked at full light,
-  NeoForge's `QuadTransformers.settingMaxEmissivity`), `DecalPanelModel` and `DecalBlockModel` (Create's copycat models plus decal
+  NeoForge's `QuadTransformers.settingMaxEmissivity`), `DecalPanelModel`, `DecalBlockModel` and `DecalStepModel` (Create's copycat models plus decal
   quads), `DecalsClient` (wraps the models, tints, loads the library).
-- `block/CreatePanels`: a decal placed on Create's own Copycat Panel (that block exactly, on its front) turns it into
-  a Decal Panel in place: block-state properties copied, the block entity's saved data loaded into ours (Create's
-  `setMaterial` may take a neighbour's material state instead), the old panel's consumed item emptied first so Create
-  drops nothing. The stencil and its outline treat such a panel as a Decal Panel without a decal. Create has no full
-  copycat block, so nothing turns into a Decal Block.
+- `block/CreateCopycats`: a decal placed on Create's own Copycat Panel (that block exactly, on its front) or Copycat
+  Step (any face) turns it into a Decal Panel or Decal Step in place: block-state properties copied, the block entity's
+  saved data loaded into ours (Create's `setMaterial` may take a neighbour's material state instead), the old block's
+  consumed item emptied first so Create drops nothing. The stencil and its outline treat such a block as ours without a
+  decal. Create has no full copycat block, so nothing turns into a Decal Block.
+- `block/DecalStepBlock` and `client/DecalStepModel`: Create's copycat step with decals on any face. `client/DecalFaces`
+  says where a decal lies on each face of every decal block (depth and the part of the decal shown): a step's face is a
+  window onto the decal as it would lie on the block's face in that plane, so a bottom step's front shows its lower half
+  and lines up with Decal Blocks beside it (`DecalQuads` bakes windows with texture coordinates for any turn and flip);
+  faces on the block's boundary come with their side, so they are culled with it.
 - `stencil/`: `DecalStencilItem` (used in the air it opens its screen; on a face it puts its decal there or erases it;
   sneaking it picks the face's decal up), `StencilData` (its data component: decal, colour, turns, flip, eraser),
   `StencilPayload` (the screen's choice, client to server, only onto a stencil in that hand). The screen is

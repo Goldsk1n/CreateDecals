@@ -47,6 +47,7 @@ final class DecalsScenes {
         PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> scenes = helper.withKeyFunction(RegistryEntry::getId);
         scenes.forComponents(DecalsBlocks.DECAL_PANEL).addStoryBoard("decal_panel", DecalsScenes::decalPanel, DECALS);
         scenes.forComponents(DecalsBlocks.DECAL_BLOCK).addStoryBoard("decal_block", DecalsScenes::decalBlock, DECALS);
+        scenes.forComponents(DecalsBlocks.DECAL_STEP).addStoryBoard("decal_step", DecalsScenes::decalStep, DECALS);
         scenes.forComponents(DecalsItems.DECAL_STENCIL).addStoryBoard("decal_stencil", DecalsScenes::stencil, DECALS);
     }
 
@@ -61,7 +62,8 @@ final class DecalsScenes {
         tags.addToTag(DECALS)
                 .add(DecalsItems.DECAL_STENCIL)
                 .add(DecalsBlocks.DECAL_PANEL)
-                .add(DecalsBlocks.DECAL_BLOCK);
+                .add(DecalsBlocks.DECAL_BLOCK)
+                .add(DecalsBlocks.DECAL_STEP);
     }
 
     static void decalPanel(SceneBuilder builder, SceneBuildingUtil util) {
@@ -167,6 +169,48 @@ final class DecalsScenes {
                 .text("A Glow Ink Sac makes a decal glow in the dark; an Ink Sac stops it")
                 .placeNearTarget().pointAt(north);
         scene.idle(80);
+    }
+
+    static void decalStep(SceneBuilder builder, SceneBuildingUtil util) {
+        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
+        scene.title("decal_step", "Decals on Decal Steps");
+        scene.configureBasePlate(0, 0, Layouts.Step.SIZE);
+        scene.showBasePlate();
+        scene.idle(10);
+        scene.world().showSection(util.select().position(Layouts.Step.BLOCK), Direction.DOWN);
+        scene.idle(5);
+        scene.world().showSection(util.select().position(Layouts.Step.STEP), Direction.DOWN);
+        scene.idle(20);
+        Vec3 blockFace = util.vector().blockSurface(Layouts.Step.BLOCK, Direction.NORTH);
+        Vec3 stepFace = util.vector().blockSurface(Layouts.Step.STEP, Direction.NORTH).add(0, -0.25, 0);
+        Vec3 stepTop = util.vector().centerOf(Layouts.Step.STEP).add(0, 0, -0.25);
+
+        scene.overlay().showText(70).attachKeyFrame()
+                .text("A Decal Step is a Copycat Step that takes a decal on any of its faces")
+                .placeNearTarget().pointAt(stepFace);
+        scene.idle(80);
+        scene.overlay().showControls(blockFace, Pointing.DOWN, 30).rightClick().withItem(stencil("hazard", DyeColor.YELLOW, 0, false, 1, 1));
+        scene.idle(7);
+        decal(scene, util, Layouts.Step.BLOCK, Direction.NORTH, new DecalState(Decals.id("hazard"), rgb(DyeColor.YELLOW), 0, false));
+        scene.idle(20);
+        scene.overlay().showControls(stepFace, Pointing.DOWN, 30).rightClick().withItem(stencil("hazard", DyeColor.YELLOW, 0, false, 1, 1));
+        scene.idle(7);
+        decal(scene, util, Layouts.Step.STEP, Direction.NORTH, new DecalState(Decals.id("hazard"), rgb(DyeColor.YELLOW), 0, false));
+        scene.overlay().showText(90).attachKeyFrame()
+                .text("Each face shows the part of the decal it covers, as if the decal lay on the whole face of the block, so stripes and patterns run on from the Decal Blocks beside it")
+                .placeNearTarget().pointAt(stepFace);
+        scene.idle(100);
+        scene.overlay().showControls(stepTop, Pointing.DOWN, 30).rightClick().withItem(stencil("stripe_double", DyeColor.BLACK, 1, false, 1, 1));
+        scene.idle(7);
+        decal(scene, util, Layouts.Step.STEP, Direction.UP, new DecalState(Decals.id("stripe_double"), rgb(DyeColor.BLACK), 1, false));
+        scene.overlay().showText(70)
+                .text("Letters and numbers read best on Decal Blocks and Panels, where the whole decal shows")
+                .placeNearTarget().pointAt(stepTop);
+        scene.idle(80);
+        scene.overlay().showText(80).attachKeyFrame()
+                .text("Create's own Copycat Steps turn into Decal Steps when a stencil puts a decal on them")
+                .placeNearTarget().pointAt(stepFace);
+        scene.idle(90);
     }
 
     static void stencil(SceneBuilder builder, SceneBuildingUtil util) {

@@ -22,6 +22,13 @@ final class Layouts {
         static final BlockPos BLOCK = new BlockPos(2, 1, 2);
     }
 
+    /** 5x5 plate: a Decal Block, and west of it a bottom Decal Step facing north, its front in the block's north face's plane. */
+    static final class Step {
+        static final int SIZE = 5;
+        static final BlockPos BLOCK = new BlockPos(3, 1, 2);
+        static final BlockPos STEP = new BlockPos(2, 1, 2);
+    }
+
     /** 7x7 plate: a 3x3 wall of Decal Blocks facing north, and one more block to the side. */
     static final class Stencil {
         static final int SIZE = 7;

@@ -12,6 +12,10 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
   it, then puts the decal on.
 - **Decal Block**: a full copycat block with a decal on each of its faces, for hulls built of whole blocks. Faces against
   a solid block are hidden, decal and all. Cut from a zinc ingot on a Stonecutter.
+- **Decal Step**: Create's Copycat Step with a decal on any of its faces, for trims and ledges. Each face shows the part
+  of the decal it covers, as if the decal lay on the whole face of the block in that plane, so stripes and patterns run
+  on unbroken from the Decal Blocks beside it. Crafted from a Copycat Step (and back); Create's own Copycat Steps turn
+  into Decal Steps in place when a stencil puts a decal on any of their faces.
 - **Decal Stencil**: used in the air it opens a screen to choose a decal or type a word, its colour (the 16 dyes or a
   hex code), how it is turned and flipped, its layer and whether it glows; on a decal block's face it puts the decal
   there. Sneak-clicking a decal picks it up into the stencil; its eraser takes a decal off. While held, it outlines the faces its decal would cover: green where a tile

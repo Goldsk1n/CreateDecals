@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "ingredients": [
+    {
+      "item": "create:copycat_step"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "createdecals:decal_step"
+  }
+}

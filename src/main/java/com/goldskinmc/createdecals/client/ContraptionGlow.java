@@ -29,8 +29,6 @@ import net.minecraft.world.level.block.state.BlockState;
  * in order. Faces against a solid block are skipped, as the model hides them.
  */
 public final class ContraptionGlow {
-    private static final float PANEL_FRONT = 3 / 16f;
-
     private ContraptionGlow() {
     }
 
@@ -45,7 +43,6 @@ public final class ContraptionGlow {
             return;
         }
         BlockState state = context.state;
-        Direction panelFacing = state.getOptionalValue(CopycatPanelBlock.FACING).orElse(null);
         PoseStack pose = matrices.getViewProjection();
         pose.pushPose();
         pose.last().pose().mul(matrices.getModel().last().pose());
@@ -57,19 +54,19 @@ public final class ContraptionGlow {
             DecalState frontDecal = front.get(face);
             boolean backGlows = backDecal != null && backDecal.glow();
             boolean frontGlows = frontDecal != null && frontDecal.glow();
-            if (!backGlows && !frontGlows || panelFacing != null && face != panelFacing) {
+            DecalFaces.Window window = DecalFaces.window(state, face);
+            if (!backGlows && !frontGlows || window == null) {
                 continue;
             }
             BlockPos neighbour = context.localPos.relative(face);
-            if (panelFacing == null && renderWorld.getBlockState(neighbour).isSolidRender(renderWorld, neighbour)) {
+            if (window.onBoundary() && renderWorld.getBlockState(neighbour).isSolidRender(renderWorld, neighbour)) {
                 continue;
             }
-            float depth = panelFacing != null ? PANEL_FRONT : 1;
             if (backGlows) {
-                draw(pose, consumer, backDecal, face, depth, LightTexture.FULL_BRIGHT);
+                draw(pose, consumer, backDecal, face, window, LightTexture.FULL_BRIGHT);
             }
             if (frontDecal != null) {
-                draw(pose, consumer, frontDecal, face, depth, frontGlows ? LightTexture.FULL_BRIGHT : worldLight);
+                draw(pose, consumer, frontDecal, face, window, frontGlows ? LightTexture.FULL_BRIGHT : worldLight);
             }
         }
         pose.popPose();
@@ -84,8 +81,9 @@ public final class ContraptionGlow {
         return false;
     }
 
-    private static void draw(PoseStack pose, VertexConsumer consumer, DecalState decal, Direction face, float depth, int light) {
-        BakedQuad quad = DecalQuads.quad(decal, face, depth);
+    private static void draw(PoseStack pose, VertexConsumer consumer, DecalState decal, Direction face, DecalFaces.Window window,
+            int light) {
+        BakedQuad quad = DecalQuads.quad(decal, face, window);
         if (quad == null) {
             return;
         }
