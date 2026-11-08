@@ -1,6 +1,8 @@
 package com.goldskinmc.createdecals;
 
 import com.goldskinmc.createdecals.block.DecalSync;
+import com.goldskinmc.createdecals.block.DecalTransforms;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import com.goldskinmc.createdecals.command.DecalsCommand;
 import com.goldskinmc.createdecals.registry.DecalsAttachments;
 import com.goldskinmc.createdecals.ponder.PonderSchematics;
@@ -46,6 +48,7 @@ public final class CreateDecals {
         modBus.addListener(UndoPayload::register);
         modBus.addListener(DecalSync::register);
         DecalsAttachments.register(modBus);
+        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(DecalTransforms::registerCopycatsPlus));
         DecalsRecipes.register();
         DecalsCreativeTab.register(modBus);
         DecalsLang.register();

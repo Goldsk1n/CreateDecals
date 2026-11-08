@@ -145,21 +145,9 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
     }
 
     private static void turnLayer(EnumMap<Direction, DecalState> layer, StructureTransform transform) {
-        boolean mirrored = transform.mirror != null && transform.mirror != Mirror.NONE;
-        EnumMap<Direction, DecalState> turned = new EnumMap<>(Direction.class);
-        layer.forEach((face, decal) -> {
-            Direction newFace = turn(transform, face);
-            Integer rotation = DecalFrame.rotationFor(newFace, turn(transform, DecalFrame.top(face, decal.rotation())));
-            turned.put(newFace, decal.withTurn(rotation != null ? rotation : decal.rotation(), mirrored != decal.flip()));
-        });
+        Map<Direction, DecalState> turned = DecalTransforms.turned(layer, transform);
         layer.clear();
         layer.putAll(turned);
-    }
-
-    /** What Create does to a block state's facing: mirror first, then rotate. */
-    private static Direction turn(StructureTransform transform, Direction direction) {
-        Direction mirrored = transform.mirrorFacing(direction);
-        return transform.rotationAxis == null ? mirrored : transform.rotateFacing(mirrored);
     }
 
     /** Create's Clipboard: R-click copies the clicked face's decals (both layers), L-click pastes them onto another face. */

@@ -121,6 +121,48 @@ public final class CopycatsPlusGameTests {
         helper.succeed();
     }
 
+    /**
+     * Through Create's own code: a contraption putting a Copycats+ block back turned a quarter clockwise moves its north
+     * decal to the east face, still upright, and turns its top decal (StructureTransform.apply, which asks Create's
+     * transform registry first); and the schematic writer Create asks first for that type keeps the decals, so
+     * a block loaded from that data has them.
+     */
+    @GameTest(template = "empty")
+    public static void copycatsPlusDecalsTurnAndGoIntoSchematics(GameTestHelper helper) {
+        if (!CopycatsPlus.loaded()) {
+            helper.succeed();
+            return;
+        }
+        BlockPos pos = new BlockPos(2, 1, 2);
+        helper.setBlock(pos, copycat("copycat_block").defaultBlockState());
+        BlockEntity be = helper.getBlockEntity(pos);
+        DecalHolder holder = DecalHolder.at(helper.getLevel(), helper.absolutePos(pos));
+        DecalState upright = new DecalState(Decals.id("letter_r"), 0xFFFFFF, 0, false);
+        holder.setDecal(Direction.NORTH, false, upright);
+        holder.setDecal(Direction.UP, true, upright);
+
+        new com.simibubi.create.content.contraptions.StructureTransform(BlockPos.ZERO, Direction.Axis.Y,
+                net.minecraft.world.level.block.Rotation.CLOCKWISE_90, net.minecraft.world.level.block.Mirror.NONE).apply(be);
+        helper.assertTrue(upright.equals(holder.getDecal(Direction.EAST, false)) && holder.getDecal(Direction.NORTH, false) == null,
+                "the north decal should be on the east face: north " + holder.getDecal(Direction.NORTH, false) + ", east "
+                        + holder.getDecal(Direction.EAST, false));
+        helper.assertTrue(upright.withTurn(1, false).equals(holder.getDecal(Direction.UP, true)),
+                "the top decal should turn a quarter: " + holder.getDecal(Direction.UP, true));
+
+        // What Create's schematic code does first for a block entity: its type's registered safe writer
+        var writer = com.simibubi.create.api.schematic.nbt.SafeNbtWriterRegistry.REGISTRY.get(be.getType());
+        CompoundTag schematic = writer == null ? null : new CompoundTag();
+        if (writer != null) {
+            writer.writeSafe(be, schematic, helper.getLevel().registryAccess());
+        }
+        BlockEntity placed = schematic == null ? null
+                : BlockEntity.loadStatic(be.getBlockPos(), be.getBlockState(), schematic, helper.getLevel().registryAccess());
+        helper.assertTrue(placed != null && placed.getExistingData(DecalsAttachments.DECALS.get())
+                        .map(d -> upright.equals(d.get(Direction.EAST, false))).orElse(false),
+                "schematic data lost the decals: " + schematic);
+        helper.succeed();
+    }
+
     /** Create's own copycats are still converted to ours, not given an attachment, with Copycats+ installed. */
     @GameTest(template = "empty")
     public static void createCopycatsStillConvert(GameTestHelper helper) {

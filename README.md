@@ -106,6 +106,9 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   slopes need nothing of their own; Create's contraption renderer asks the model for its data too
   (`getModelData(renderWorld, ...)`). `client/CopycatsPlusModels` also registers a colour handler that passes non-decal
   tints to `ICopycatBlock.wrappedColor()`. Game tests `copycatsPlusTakeDecals` and `createCopycatsStillConvert` (they
-  pass at once without it). Not carried: Create's schematics (its `writeSafe` is Copycats+'s), the Clipboard, turning with a
-  contraption that stops at an angle (Create calls Copycats+'s own `transform`), and the extra full-bright pass for glow
-  on moving contraptions under Sodium.
+  pass at once without it). Turning with a contraption and schematics go through Create's own public registries,
+  which Create asks before a block entity's `transform` and `writeSafe` (`block/DecalTransforms.registerCopycatsPlus`,
+  at common setup): for each of Copycats+'s block entity types, Copycats+'s own method runs, then the decals turn
+  (`DecalTransforms.turned`, shared with our block entity) or are added to the schematic's data under NeoForge's
+  attachments key (game test `copycatsPlusDecalsTurnAndGoIntoSchematics`). No mixin. Not carried: the Clipboard, and the
+  extra full-bright pass for glow on moving contraptions under Sodium.
