@@ -10,6 +10,7 @@ import com.goldskinmc.createdecals.registry.DecalsCreativeTab;
 import com.goldskinmc.createdecals.registry.DecalsLang;
 import com.goldskinmc.createdecals.registry.DecalsRecipes;
 import com.goldskinmc.createdecals.stencil.StencilPayload;
+import com.goldskinmc.createdecals.stencil.UndoPayload;
 import com.mojang.logging.LogUtils;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
@@ -40,6 +41,7 @@ public final class CreateDecals {
         DecalsComponents.register(modBus);
         DecalsItems.register();
         modBus.addListener(StencilPayload::register);
+        modBus.addListener(UndoPayload::register);
         DecalsRecipes.register();
         DecalsCreativeTab.register(modBus);
         DecalsLang.register();

@@ -4,6 +4,7 @@ import com.goldskinmc.createdecals.block.CreateCopycats;
 import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
 import com.goldskinmc.createdecals.block.DecalEdits;
 import com.goldskinmc.createdecals.block.DecalTiles;
+import com.goldskinmc.createdecals.block.DecalUndo;
 import com.goldskinmc.createdecals.decal.DecalState;
 import com.goldskinmc.createdecals.registry.DecalsComponents;
 import java.util.List;
@@ -22,6 +23,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The Decal Stencil: used in the air it opens its screen (on the client, {@code client/StencilScreen}), where the decal,
@@ -58,6 +60,12 @@ public class DecalStencilItem extends Item {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
+        // Every tile the click changes is kept as one step the player can undo (DecalUndo)
+        return DecalUndo.record(player, level, () -> apply(context, level, player, face, be));
+    }
+
+    private InteractionResult apply(UseOnContext context, Level level, @Nullable Player player, Direction face,
+            @Nullable DecalCopycatBlockEntity be) {
         ItemStack stack = context.getItemInHand();
         StencilData data = data(stack);
         if (player != null && player.isShiftKeyDown()) {

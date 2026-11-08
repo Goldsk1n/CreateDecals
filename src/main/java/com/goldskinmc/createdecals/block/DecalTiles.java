@@ -85,7 +85,9 @@ public final class DecalTiles {
             DecalCopycatBlockEntity be = level.getBlockEntity(tile.pos()) instanceof DecalCopycatBlockEntity ours ? ours
                     : CreateCopycats.convert(level, tile.pos(), face);
             if (be != null && be.acceptsDecalOn(face)) {
+                DecalState before = be.getDecal(face, front);
                 be.setDecal(face, front, tile.decal());
+                DecalUndo.changed(tile.pos(), face, front, before, tile.decal());
                 placed++;
             }
         }
@@ -130,7 +132,9 @@ public final class DecalTiles {
                 DecalState there = be.getDecal(face, front);
                 if (there != null && there.sameDecalAs(shown) && there.tileX() == tile.decal().tileX()
                         && there.tileY() == tile.decal().tileY()) {
-                    be.setDecal(face, front, change.apply(there));
+                    DecalState after = change.apply(there);
+                    be.setDecal(face, front, after);
+                    DecalUndo.changed(tile.pos(), face, front, there, after);
                     changed++;
                 }
             }

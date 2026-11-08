@@ -28,6 +28,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * The Decal Stencil's screen, in Create's style: a brass-framed panel ({@code textures/gui/stencil.png}, drawn
@@ -60,6 +61,8 @@ public class StencilScreen extends Screen {
     private static final int ICONS_U = 300;
 
     private final InteractionHand hand;
+    @Nullable
+    private final Component wrongBlock;
     private StencilData data;
     private final Map<String, List<DecalLibrary.Entry>> categories = new LinkedHashMap<>();
     private final List<String> categoryNames = new ArrayList<>();
@@ -79,8 +82,14 @@ public class StencilScreen extends Screen {
     private int top;
 
     public StencilScreen(InteractionHand hand, ItemStack stack) {
+        this(hand, stack, null);
+    }
+
+    /** {@code wrongBlock}: the name of a block that takes no decals, when the screen opened from a click on one. */
+    public StencilScreen(InteractionHand hand, ItemStack stack, @Nullable Component wrongBlock) {
         super(Component.translatable("createdecals.stencil.title"));
         this.hand = hand;
+        this.wrongBlock = wrongBlock;
         this.data = DecalStencilItem.data(stack);
         List<DecalLibrary.Entry> all = new ArrayList<>(DecalLibrary.INSTANCE.all());
         all.sort(Comparator.comparing((DecalLibrary.Entry e) -> categoryRank(e.category())).thenComparing(e -> e.id().toString()));
@@ -344,9 +353,31 @@ public class StencilScreen extends Screen {
                 }
             });
         }
+        if (wrongBlock != null) {
+            wrongBlockNote(graphics);
+        }
         if (hoveredEntry != null) {
             graphics.renderTooltip(font, decalName(hoveredEntry), mouseX, mouseY);
         }
+    }
+
+    /**
+     * Above the panel, when the screen opened from a click on a block that takes no decals: where decals go, in the
+     * panel's brass and dark grey, wrapped to the panel's width (over its title bar if the window leaves no room).
+     */
+    private void wrongBlockNote(GuiGraphics graphics) {
+        List<net.minecraft.util.FormattedCharSequence> lines = font.split(
+                Component.translatable("createdecals.stencil.wrong_block", wrongBlock), PANEL_WIDTH - 12);
+        int boxHeight = lines.size() * 10 + 6;
+        int y = Math.max(2, top - boxHeight - 3);
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 300);
+        graphics.fill(left, y, left + PANEL_WIDTH, y + boxHeight, 0xFFB8763E);
+        graphics.fill(left + 1, y + 1, left + PANEL_WIDTH - 1, y + boxHeight - 1, 0xF0303438);
+        for (int i = 0; i < lines.size(); i++) {
+            graphics.drawString(font, lines.get(i), left + 6, y + 4 + i * 10, 0xF7CB6C, false);
+        }
+        graphics.pose().popPose();
     }
 
     /** How many blocks across and down, in the preview's bottom right corner, inside the panel. */

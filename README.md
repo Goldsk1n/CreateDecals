@@ -47,9 +47,17 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   `client/StencilScreen` (Create's look: a brass-framed panel drawn in
   `textures/gui/stencil.png`, Create's `IconButton`s and `AllIcons` to turn, flip, erase and finish), opened by
   `client/StencilClientEvents`; `client/StencilItemModel` puts the chosen decal on the
-  stencil's icon; `client/StencilOutline` outlines the faces a held
-  stencil's decal would cover (green where a tile lands, red where it cannot). Create's Clipboard copies decals too
-  (`ClipboardCloneable` on the block entity).
+  stencil's icon; `client/StencilOutline` shows what a held stencil would do: a see-through ghost of each tile it
+  would place (the decal's own quad from `DecalQuads`, so steps' windows match, lifted a hair and drawn in
+  `Sheets.translucentCullBlockSheet()`), green outlines where tiles land and red where they cannot; with the eraser, the
+  decal it takes drawn over in red (only that layer's tiles); a red outline on any other block aimed at. A click on such
+  a block falls through to using the stencil in the air, so `StencilClientEvents` opens the screen with a note naming the
+  block. `client/StencilKeys`: Ctrl + scroll turns the held stencil (on the client at once, then `StencilPayload`), and
+  the undo key (Z, active only while a stencil is held, `IKeyConflictContext`) sends `stencil/UndoPayload`.
+  `block/DecalUndo` keeps each player's last 10 stencil clicks in server memory (every tile `DecalTiles` changed, before
+  and after, recorded while `DecalStencilItem` runs the click) and puts back only tiles still holding what the click
+  left, where the player may still edit (game tests `undoPutsBackTheLastClick`, `undoKeepsTenClicks`). Create's
+  Clipboard copies decals too (`ClipboardCloneable` on the block entity).
 - `contraption/DecalMovement` (a `MovementBehaviour` for both blocks; does nothing while moving) and
   `client/ContraptionGlow`: on a Create contraption or train, glowing decals are drawn a second time at full light from
   `renderInContraption`, in vanilla's sign-text layer (`RenderType.textPolygonOffset`, so it wins over the mesh's copy

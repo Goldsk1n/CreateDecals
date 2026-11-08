@@ -21,7 +21,9 @@ public final class DecalsLang {
         tooltip("item", "decal_stencil", "Puts _decals_ or a typed _word_ on Decal Panels, Blocks and Steps, behind or in front of the decal already there; Create's Copycat Panels and Steps become decal ones when they take one. Choose in its screen.",
                 action("When used in the air", "Opens the stencil's screen."),
                 action("When R-clicked on a face", "Puts the decal or word there, or erases the decal in the stencil's layer."),
-                action("When R-clicked while sneaking", "Picks up the decal in the stencil's layer on that face."));
+                action("When R-clicked while sneaking", "Picks up the decal in the stencil's layer on that face."),
+                action("When scrolled holding Ctrl", "Turns the decal or word a quarter."),
+                action("When Z is pressed", "Undoes the last stencil click, up to 10 (the key is in Controls)."));
         add("createdecals.stencil.title", "Decal Stencil");
         add("createdecals.stencil.rotate", "Turn");
         add("createdecals.stencil.flip", "Flip");
@@ -29,6 +31,13 @@ public final class DecalsLang {
         add("createdecals.stencil.done", "Done");
         add("createdecals.stencil.colour", "Colour");
         add("createdecals.stencil.front_only", "A Decal Panel takes a decal on its front only");
+        add("createdecals.stencil.wrong_block", "Decals go on Decal Blocks, Panels and Steps, or on Create's Copycat Panels and Steps. That was %s.");
+        add("createdecals.stencil.turned", "Turned to %s°");
+        add("createdecals.stencil.undone", "Undone: %s tiles");
+        add("createdecals.stencil.undone_partly", "Undone: %s of %s tiles (the rest were changed since, or are protected)");
+        add("createdecals.stencil.undo_none", "Nothing to undo");
+        add("key.createdecals.undo", "Undo last stencil click");
+        add("key.categories.createdecals", "Create: Decals");
         add("createdecals.stencil.no_decal", "Choose a decal first: use the stencil in the air");
         add("createdecals.stencil.nothing_to_pick", "No decal on that face");
         add("createdecals.stencil.picked", "Decal picked up");

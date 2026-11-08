@@ -18,8 +18,16 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
   into Decal Steps in place when a stencil puts a decal on any of their faces.
 - **Decal Stencil**: used in the air it opens a screen to choose a decal or type a word, its colour (the 16 dyes or a
   hex code), how it is turned and flipped, its layer and whether it glows; on a decal block's face it puts the decal
-  there. Sneak-clicking a decal picks it up into the stencil; its eraser takes a decal off. While held, it outlines the faces its decal would cover: green where a tile
-  lands, red where it cannot. Its icon shows the decal it holds. Crafted from an Iron Sheet, paper and a dye.
+  there. Sneak-clicking a decal picks it up into the stencil; its eraser takes a decal off. Its icon shows the decal it
+  holds. Crafted from an Iron Sheet, paper and a dye.
+- While a stencil is held, a see-through ghost shows its decal or word where a click would put it, in its colour, turn
+  and flip, outlined green; red outlines mark tiles that would miss. With the eraser, the decal it would take off is
+  drawn over in red, so on a face with two decals it shows which one goes. Aimed at a block that takes no decals, the
+  face is outlined red, and clicking it opens the screen with a note on where decals go.
+- Ctrl + scroll while holding a stencil turns its decal or word a quarter, without opening the screen.
+- Z (rebindable in Controls) undoes the last stencil click: a decal, a large one, a word or the eraser, up to 10 clicks
+  back. Tiles painted over since, mined, carried off on a contraption or now protected are left alone, and the action
+  bar says how many came back. The history is kept until the player leaves.
 
 ### Decals
 
