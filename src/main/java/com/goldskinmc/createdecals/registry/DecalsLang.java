@@ -31,7 +31,7 @@ public final class DecalsLang {
         add("createdecals.stencil.done", "Done");
         add("createdecals.stencil.colour", "Colour");
         add("createdecals.stencil.front_only", "A Decal Panel takes a decal on its front only");
-        add("createdecals.stencil.wrong_block", "Decals go on Decal Blocks, Panels and Steps, or on Create's Copycat Panels and Steps. That was %s.");
+        add("createdecals.stencil.wrong_block", "%s takes no decals: use Decal Blocks, Panels or Steps");
         add("createdecals.stencil.turned", "Turned to %s°");
         add("createdecals.stencil.undone", "Undone: %s tiles");
         add("createdecals.stencil.undone_partly", "Undone: %s of %s tiles (the rest were changed since, or are protected)");

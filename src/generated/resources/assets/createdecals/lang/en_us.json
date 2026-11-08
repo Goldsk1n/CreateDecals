@@ -89,7 +89,7 @@
   "createdecals.stencil.undo_none": "Nothing to undo",
   "createdecals.stencil.undone": "Undone: %s tiles",
   "createdecals.stencil.undone_partly": "Undone: %s of %s tiles (the rest were changed since, or are protected)",
-  "createdecals.stencil.wrong_block": "Decals go on Decal Blocks, Panels and Steps, or on Create's Copycat Panels and Steps. That was %s.",
+  "createdecals.stencil.wrong_block": "%s takes no decals: use Decal Blocks, Panels or Steps",
   "item.createdecals.decal_stencil": "Decal Stencil",
   "item.createdecals.decal_stencil.tooltip.action1": "Opens the stencil's screen.",
   "item.createdecals.decal_stencil.tooltip.action2": "Puts the decal or word there, or erases the decal in the stencil's layer.",

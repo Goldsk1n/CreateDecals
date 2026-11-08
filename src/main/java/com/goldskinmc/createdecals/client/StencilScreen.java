@@ -363,19 +363,23 @@ public class StencilScreen extends Screen {
 
     /**
      * Above the panel, when the screen opened from a click on a block that takes no decals: where decals go, in the
-     * panel's brass and dark grey, wrapped to the panel's width (over its title bar if the window leaves no room).
+     * panel's brass and dark grey, as wide as its text and centred on the panel, wrapped only if the window is narrower
+     * (over the panel's title bar if the window leaves no room above it).
      */
     private void wrongBlockNote(GuiGraphics graphics) {
-        List<net.minecraft.util.FormattedCharSequence> lines = font.split(
-                Component.translatable("createdecals.stencil.wrong_block", wrongBlock), PANEL_WIDTH - 12);
+        Component note = Component.translatable("createdecals.stencil.wrong_block", wrongBlock);
+        List<net.minecraft.util.FormattedCharSequence> lines = font.split(note, Math.max(PANEL_WIDTH - 12, width - 20));
+        int textWidth = lines.stream().mapToInt(font::width).max().orElse(0);
+        int boxWidth = textWidth + 12;
+        int x = Math.max(4, left + (PANEL_WIDTH - boxWidth) / 2);
         int boxHeight = lines.size() * 10 + 6;
         int y = Math.max(2, top - boxHeight - 3);
         graphics.pose().pushPose();
         graphics.pose().translate(0, 0, 300);
-        graphics.fill(left, y, left + PANEL_WIDTH, y + boxHeight, 0xFFB8763E);
-        graphics.fill(left + 1, y + 1, left + PANEL_WIDTH - 1, y + boxHeight - 1, 0xF0303438);
+        graphics.fill(x, y, x + boxWidth, y + boxHeight, 0xFFB8763E);
+        graphics.fill(x + 1, y + 1, x + boxWidth - 1, y + boxHeight - 1, 0xF0303438);
         for (int i = 0; i < lines.size(); i++) {
-            graphics.drawString(font, lines.get(i), left + 6, y + 4 + i * 10, 0xF7CB6C, false);
+            graphics.drawString(font, lines.get(i), x + 6, y + 4 + i * 10, 0xF7CB6C, false);
         }
         graphics.pose().popPose();
     }
