@@ -80,6 +80,7 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   `./gradlew installShaderpack` puts Complementary Reimagined into `run/shaderpacks/` (personal-use licence: never
   bundle it); shaders on/off is `enableShaders` in `run/config/iris.properties`.
 - Dedicated server: `runServer` uses `run-server/` (superflat, offline mode, EULA accepted by the owner Nov 7, 2026).
+- `-Pdev_sable=false` leaves Sable and Veil out of `latest` runs (game folder `run-nosable/`), to tell their effects from ours.
 - `-Pdev_tools=true` adds JEI and The One Probe (the same versions as Lightworks') for playing by hand; `latest` only,
   never shipped.
 - `-Pdev_copycats=true` adds Copycats+ (pinned by Modrinth version id, as in Lightworks) to check both run side by side.

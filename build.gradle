@@ -66,7 +66,7 @@ if (!(runProfile in ['latest', 'floor'])) {
 }
 def floorRun = runProfile == 'floor'
 // Each profile keeps its own game directory, so worlds never load with mods they were not made with
-def runDir = floorRun ? 'run-floor' : 'run'
+def runDir = floorRun ? 'run-floor' : providers.gradleProperty('dev_sable').map { it.toBoolean() }.getOrElse(true) ? 'run' : 'run-nosable'
 // -Pdev_perf=true adds Sodium, Iris and spark (shader and frame-cost checks); -Pdev_iris=false leaves Iris out
 def devPerf = providers.gradleProperty('dev_perf').map { it.toBoolean() }.getOrElse(false)
 def devIris = providers.gradleProperty('dev_iris').map { it.toBoolean() }.getOrElse(true)
@@ -74,6 +74,8 @@ def devIris = providers.gradleProperty('dev_iris').map { it.toBoolean() }.getOrE
 def devCopycats = providers.gradleProperty('dev_copycats').map { it.toBoolean() }.getOrElse(false)
 // -Pdev_tools=true adds JEI and The One Probe to `latest` runs, for playing by hand: dev only, never shipped
 def devTools = providers.gradleProperty('dev_tools').map { it.toBoolean() }.getOrElse(false)
+// -Pdev_sable=false leaves Sable and Veil out of `latest` runs (to tell their effects from ours)
+def devSable = providers.gradleProperty('dev_sable').map { it.toBoolean() }.getOrElse(true)
 
 neoForge {
     version = floorRun ? project.neo_floor_version : project.neo_version
@@ -148,10 +150,12 @@ dependencies {
         localRuntime "com.tterrag.registrate:Registrate:${registrate_version}"
 
         // Non-transitive: Sable's POM pulls the full Create jar, which would load Create twice
-        localRuntime("dev.ryanhcode.sable:sable-neoforge-${minecraft_version}:${sable_version}") { transitive = false }
-        localRuntime "dev.ryanhcode.sable:sable-sable_rapier-${minecraft_version}:${sable_version}"
-        localRuntime "dev.ryanhcode.sable-companion:sable-companion-common-${minecraft_version}:${sable_companion_version}"
-        localRuntime "foundry.veil:veil-neoforge-${minecraft_version}:${veil_version}"
+        if (devSable) {
+            localRuntime("dev.ryanhcode.sable:sable-neoforge-${minecraft_version}:${sable_version}") { transitive = false }
+            localRuntime "dev.ryanhcode.sable:sable-sable_rapier-${minecraft_version}:${sable_version}"
+            localRuntime "dev.ryanhcode.sable-companion:sable-companion-common-${minecraft_version}:${sable_companion_version}"
+            localRuntime "foundry.veil:veil-neoforge-${minecraft_version}:${veil_version}"
+        }
 
         if (devCopycats) {
             localRuntime("maven.modrinth:copycats:${copycats_version}") { transitive = false }
