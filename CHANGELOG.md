@@ -31,9 +31,12 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
 
 ### Decals
 
-- 77 built-in decals in Create's style: 26 letters and 10 digits (a 16 px pixel font), 6 signs, 12 lines (stripes,
-  hazard stripes, chequer), 9 markers (arrows, chevrons, frames) and 14 emblems (cogs, a train, a balloon, a propeller,
-  wings and more). 7 of them cover several blocks, up to 3x3.
+- 86 built-in decals in Create's style: 26 letters and 10 digits (a 16 px pixel font), 6 signs, 21 lines, 9 markers
+  (arrows, chevrons, frames) and 14 emblems (8-tooth cogs in three sizes, a train, a balloon, a propeller, wings and
+  more). 10 of them cover several blocks, up to 3x3.
+- Stripes that join up for liveries: the stripe, the thin stripe and the double stripe each come straight, as a turn, as
+  an end and as a rise (2x2, up one block at 45 degrees), all on the same bands; the edge stripe has a corner, and frames
+  share its weight. Plus hazard stripes, chequer, halves and wedges.
 - Decals larger than one block spread right and down from the face you click, in one click, over the decal blocks
   beside it, turned and flipped as a whole. The eraser and dye work on any tile and change the whole decal.
 - Two decals on one face: set the stencil to the front layer to put a second decal over the one already there, a
