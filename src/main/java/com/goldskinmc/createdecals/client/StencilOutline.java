@@ -65,15 +65,15 @@ public final class StencilOutline {
         Direction face = hit.getDirection();
         List<DecalPlacement.Tile> tiles;
         if (data.erase()) {
-            // The decal seen on top is the one the eraser takes
-            Boolean front = clicked != null ? clicked.topLayer(face) : null;
+            // The decal in the stencil's layer (or the other one) is the one the eraser takes
+            Boolean front = clicked != null ? clicked.layerFor(face, data.front()) : null;
             if (front == null) {
                 return;
             }
             DecalState shown = clicked.getDecal(face, front);
             tiles = DecalPlacement.tiles(DecalPlacement.anchorOf(hit.getBlockPos(), face, shown), face, shown);
         } else if (data.writes()) {
-            tiles = DecalTiles.textTiles(hit.getBlockPos(), face, data.text(), data.rgb(), data.rotation(), data.flip(), data.glow());
+            tiles = DecalTiles.textTiles(hit.getBlockPos(), face, data.text(), data.rgb(), data.rotation(), false, data.glow());
         } else {
             Optional<DecalState> decal = data.toDecal();
             if (decal.isEmpty()) {

@@ -54,7 +54,7 @@ public final class DecalsRecipes {
                 .unlockedBy("has_iron_sheet", InventoryChangeTrigger.TriggerInstance.hasItems(AllItems.IRON_SHEET.get()))
                 .save(out);
         SingleItemRecipeBuilder.stonecutting(Ingredient.of(ItemTags.create(ResourceLocation.fromNamespaceAndPath("c", "ingots/zinc"))),
-                        RecipeCategory.BUILDING_BLOCKS, DecalsBlocks.DECAL_BLOCK, 1)
+                        RecipeCategory.BUILDING_BLOCKS, DecalsBlocks.DECAL_BLOCK, 2)
                 .unlockedBy("has_zinc_ingot", InventoryChangeTrigger.TriggerInstance.hasItems(AllItems.ZINC_INGOT.get()))
                 .save(out, CreateDecals.id("decal_block"));
     }

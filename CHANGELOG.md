@@ -11,7 +11,7 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
   stencil click on one's front turns it into a Decal Panel in place, keeping its material, facing and the block used on
   it, then puts the decal on.
 - **Decal Block**: a full copycat block with a decal on each of its faces, for hulls built of whole blocks. Faces against
-  a solid block are hidden, decal and all. Cut from a zinc ingot on a Stonecutter.
+  a solid block are hidden, decal and all. Two from a zinc ingot on a Stonecutter.
 - **Decal Step**: Create's Copycat Step with a decal on any of its faces, for trims and ledges. Each face shows the part
   of the decal it covers, as if the decal lay on the whole face of the block in that plane, so stripes and patterns run
   on unbroken from the Decal Blocks beside it. Crafted from a Copycat Step (and back); Create's own Copycat Steps turn
@@ -29,10 +29,13 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
 - Decals larger than one block spread right and down from the face you click, in one click, over the decal blocks
   beside it, turned and flipped as a whole. The eraser and dye work on any tile and change the whole decal.
 - Two decals on one face: set the stencil to the front layer to put a second decal over the one already there, a
-  number on a stripe or a letter on a hazard band. Picking up, the eraser, dye and glow work on the decal on top, so
-  the eraser peels the front decal off first.
+  number on a stripe or a letter on a hazard band. The stencil's layer also decides which decal it picks up and erases
+  (the other one when that layer is bare), so the decal under a front one can be picked up or erased alone; dye and
+  glow work on the decal on top.
 - Type a word (up to 16 letters, digits, spaces and & - . # + /) in the stencil's screen and one click lays it along
-  the hull, one letter per block, turned and flipped as a whole.
+  the hull, one letter per block, turned as a whole; words are never mirrored.
+- The stencil's screen names each decal when the mouse is on it (resource packs can name theirs with a
+  `decal.<namespace>.<name>` language key).
 - A Glow Ink Sac clicked on a decal makes it glow, full-bright at night, also on contraptions, trains and Sable
   vehicles, with Sodium and with shader packs; an Ink Sac stops it. The stencil's screen can
   set glow too.

@@ -50,8 +50,9 @@ public final class LayerGameTests {
     }
 
     /**
-     * A stripe on the back layer and a 7 on the front of one face; both kept by saving and by the Clipboard. Dye, pick-up
-     * and the eraser take the front decal first: the eraser peels the 7, then the stripe.
+     * A stripe on the back layer and a 7 on the front of one face; both kept by saving and by the Clipboard. Dye takes the
+     * decal on top; pick-up and the eraser take the decal in the stencil's layer, or the other one when that is bare: a
+     * back-layer stencil picks up the stripe under the 7, a front-layer eraser takes the 7, then the stripe.
      */
     @GameTest(template = "empty")
     public static void twoLayersOnOneFace(GameTestHelper helper) {
@@ -90,16 +91,20 @@ public final class LayerGameTests {
         helper.assertTrue(block.getDecal(face, true).rgb() != SEVEN.rgb(), "front not dyed");
         helper.assertTrue(block.getDecal(face, false).rgb() == STRIPE.rgb(), "back dyed too");
 
-        // Picking up takes the front decal and sets the stencil to the front layer
+        // A back-layer stencil picks up the stripe under the 7; a front-layer one the 7, and stays on the front layer
         player.setItemInHand(InteractionHand.MAIN_HAND, stencil(StencilData.EMPTY));
         player.setShiftKeyDown(true);
+        click(helper, player, pos, face);
+        StencilData pickedBack = DecalStencilItem.data(player.getMainHandItem());
+        helper.assertTrue(pickedBack.decal().equals(Optional.of(Decals.id("stripe"))) && !pickedBack.front(), "picked " + pickedBack);
+        player.setItemInHand(InteractionHand.MAIN_HAND, stencil(StencilData.EMPTY.withFront(true)));
         click(helper, player, pos, face);
         player.setShiftKeyDown(false);
         StencilData picked = DecalStencilItem.data(player.getMainHandItem());
         helper.assertTrue(picked.decal().equals(Optional.of(Decals.id("digit_7"))) && picked.front(), "picked " + picked);
 
-        // The eraser peels the front decal, then the back one
-        player.setItemInHand(InteractionHand.MAIN_HAND, stencil(StencilData.EMPTY.withErase(true)));
+        // A front-layer eraser takes the 7, then, the front being bare, the stripe
+        player.setItemInHand(InteractionHand.MAIN_HAND, stencil(StencilData.EMPTY.withErase(true).withFront(true)));
         click(helper, player, pos, face);
         helper.assertTrue(block.getDecal(face, true) == null && block.getDecal(face, false) != null, "first erase left "
                 + block.getDecal(face, true) + " / " + block.getDecal(face, false));

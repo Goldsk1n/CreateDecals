@@ -74,6 +74,7 @@ public class StencilScreen extends Screen {
     private EditBox text;
     private IconButton layer;
     private IconButton glow;
+    private IconButton flip;
     private int left;
     private int top;
 
@@ -103,7 +104,7 @@ public class StencilScreen extends Screen {
         layoutTabs();
         int buttonsY = top + PREVIEW_Y + PREVIEW_SIZE + 8;
         button(left + PREVIEW_X, buttonsY, AllIcons.I_TOOL_ROTATE, "rotate", () -> data = data.withTurn(data.rotation() + 1, data.flip()));
-        button(left + PREVIEW_X + 20, buttonsY, AllIcons.I_TOOL_MIRROR, "flip", () -> data = data.withTurn(data.rotation(), !data.flip()));
+        flip = button(left + PREVIEW_X + 20, buttonsY, AllIcons.I_TOOL_MIRROR, "flip", () -> data = data.withTurn(data.rotation(), !data.flip()));
         button(left + PREVIEW_X + 40, buttonsY, AllIcons.I_TRASH, "erase", () -> data = data.withErase(!data.erase()));
         button(left + PANEL_WIDTH - 30, top + PANEL_HEIGHT - 30, AllIcons.I_CONFIRM, "done", this::onClose);
         layer = new IconButton(left + PREVIEW_X, buttonsY + 20, icon(0));
@@ -124,7 +125,15 @@ public class StencilScreen extends Screen {
         text.setFilter(value -> value.chars().allMatch(c -> DecalText.allowed((char) c)));
         text.setHint(Component.translatable("createdecals.stencil.text_hint"));
         text.setValue(data.text());
-        text.setResponder(value -> data = data.withText(value));
+        text.setResponder(value -> {
+            // Words are laid in capitals: show them so as they are typed
+            String upper = value.toUpperCase(Locale.ROOT);
+            if (!upper.equals(value)) {
+                text.setValue(upper);
+                return;
+            }
+            data = data.withText(value);
+        });
         addRenderableWidget(text);
         hex = new EditBox(font, left + 128, top + SWATCH_Y + 8, 62, 16, Component.translatable("createdecals.stencil.colour"));
         hex.setMaxLength(7);
@@ -155,11 +164,34 @@ public class StencilScreen extends Screen {
         glow.setToolTip(Component.translatable(data.glow() ? "createdecals.stencil.glow_on" : "createdecals.stencil.glow_off"));
     }
 
-    private void button(int x, int y, AllIcons icon, String key, Runnable action) {
+    private IconButton button(int x, int y, AllIcons icon, String key, Runnable action) {
         IconButton button = new IconButton(x, y, icon);
         button.setToolTip(Component.translatable("createdecals.stencil." + key));
         button.withCallback(action);
         addRenderableWidget(button);
+        return button;
+    }
+
+    /**
+     * A decal's name for its tooltip: {@code decal.<namespace>.<path>} from the language files (resource packs can name
+     * theirs), else made from its id: words capitalised, a size suffix shown as the size.
+     */
+    static Component decalName(DecalLibrary.Entry entry) {
+        String[] words = entry.id().getPath().split("_");
+        StringBuilder name = new StringBuilder();
+        for (String word : words) {
+            if (word.isEmpty() || word.matches("\\dx\\d")) {
+                continue;
+            }
+            if (!name.isEmpty()) {
+                name.append(' ');
+            }
+            name.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+        }
+        if (entry.width() > 1 || entry.height() > 1) {
+            name.append(" (").append(entry.width()).append(" x ").append(entry.height()).append(')');
+        }
+        return Component.translatableWithFallback("decal." + entry.id().getNamespace() + "." + entry.id().getPath(), name.toString());
     }
 
     /**
@@ -234,6 +266,8 @@ public class StencilScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        flip.active = !data.writes();
+        flip.setToolTip(Component.translatable(data.writes() ? "createdecals.stencil.flip_words" : "createdecals.stencil.flip"));
         super.render(graphics, mouseX, mouseY, partialTick);
         graphics.drawString(font, title, left + 9, top + 7, 0xFFFFFF);
         for (int[] b : tabBounds) {
@@ -252,6 +286,7 @@ public class StencilScreen extends Screen {
             }
         }
         List<DecalLibrary.Entry> entries = shown();
+        DecalLibrary.Entry hoveredEntry = null;
         for (int i = 0; i < entries.size(); i++) {
             DecalLibrary.Entry entry = entries.get(i);
             int x = left + GRID_X + (i % COLUMNS) * CELL;
@@ -261,6 +296,9 @@ public class StencilScreen extends Screen {
             graphics.fill(x, y, x + CELL - 2, y + CELL - 2, selected ? 0xFFF7CB6C : hovered ? 0xFFA8B3AB : 0xFF2A2D33);
             graphics.fill(x + 1, y + 1, x + CELL - 3, y + CELL - 3, 0xFF6B7078);
             drawDecal(graphics, entry, x + 2, y + 2, CELL - 6, 0, false);
+            if (hovered) {
+                hoveredEntry = entry;
+            }
         }
         if (pages() > 1) {
             graphics.drawString(font, (page + 1) + "/" + pages(), left + 176, top + TEXT_Y + 3, 0xFFFFFF, false);
@@ -281,7 +319,7 @@ public class StencilScreen extends Screen {
         if (data.erase()) {
             graphics.drawCenteredString(font, Component.translatable("createdecals.stencil.erase"), px + PREVIEW_SIZE / 2, py + 23, 0xFFFFFF);
         } else if (data.writes()) {
-            // The word's letters in a row (the first few if it is long), flipped and turned as a whole, as it will lie
+            // The word's letters in a row (the first few if it is long), turned as a whole, as it will lie (never mirrored)
             String word = data.text();
             int shownLetters = Math.min(word.length(), 6);
             int size = Math.min(24, (PREVIEW_SIZE - 6) / Math.max(1, shownLetters));
@@ -292,8 +330,7 @@ public class StencilScreen extends Screen {
                 ResourceLocation id = DecalText.decalFor(word.charAt(i));
                 DecalLibrary.Entry entry = id != null ? DecalLibrary.INSTANCE.get(id) : null;
                 if (entry != null) {
-                    int slot = data.flip() ? shownLetters - 1 - i : i;
-                    drawDecal(graphics, entry, -size * shownLetters / 2 + slot * size, -size / 2, size, 0, data.flip());
+                    drawDecal(graphics, entry, -size * shownLetters / 2 + i * size, -size / 2, size, 0, false);
                 }
             }
             graphics.pose().popPose();
@@ -306,6 +343,9 @@ public class StencilScreen extends Screen {
                     sizeLabel(graphics, px, py, (across ? data.width() : data.height()) + " x " + (across ? data.height() : data.width()));
                 }
             });
+        }
+        if (hoveredEntry != null) {
+            graphics.renderTooltip(font, decalName(hoveredEntry), mouseX, mouseY);
         }
     }
 

@@ -68,6 +68,18 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
         return fronts.containsKey(face) ? Boolean.TRUE : decals.containsKey(face) ? Boolean.FALSE : null;
     }
 
+    /**
+     * The layer a stencil set to the {@code front} or back layer works on at {@code face} (picking up, erasing): that layer
+     * if it has a decal, else the other one; null for a bare face.
+     */
+    @Nullable
+    public Boolean layerFor(Direction face, boolean front) {
+        if ((front ? fronts : decals).containsKey(face)) {
+            return front;
+        }
+        return (front ? decals : fronts).containsKey(face) ? !front : null;
+    }
+
     /** Sets or (with null) removes the back decal on {@code face}; panels take only their front face. */
     public void setDecal(Direction face, @Nullable DecalState decal) {
         setDecal(face, false, decal);

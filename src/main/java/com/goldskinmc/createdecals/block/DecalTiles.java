@@ -116,7 +116,8 @@ public final class DecalTiles {
         return changeWhole(level, pos, face, front, change, p -> true);
     }
 
-    private static int changeWhole(Level level, BlockPos pos, Direction face, boolean front, UnaryOperator<@Nullable DecalState> change,
+    /** {@link #changeWhole(Level, BlockPos, Direction, boolean, UnaryOperator)}, leaving out tiles {@code allowed} rejects. */
+    public static int changeWhole(Level level, BlockPos pos, Direction face, boolean front, UnaryOperator<@Nullable DecalState> change,
             Predicate<BlockPos> allowed) {
         if (!(level.getBlockEntity(pos) instanceof DecalCopycatBlockEntity clicked) || clicked.getDecal(face, front) == null) {
             return 0;

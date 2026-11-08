@@ -61,8 +61,8 @@ public class DecalStencilItem extends Item {
         ItemStack stack = context.getItemInHand();
         StencilData data = data(stack);
         if (player != null && player.isShiftKeyDown()) {
-            // The decal seen on top, and the stencil then goes on that layer
-            Boolean front = be != null ? be.topLayer(face) : null;
+            // The decal in the stencil's layer (or the other one, if that is bare); the stencil then goes on that layer
+            Boolean front = be != null ? be.layerFor(face, data.front()) : null;
             if (front == null) {
                 message(player, "nothing_to_pick");
             } else {
@@ -72,14 +72,17 @@ public class DecalStencilItem extends Item {
             return InteractionResult.CONSUME;
         }
         if (data.erase()) {
-            // The decal seen on top goes, so a front decal comes off before the one under it; nothing on Create's panel
-            DecalTiles.changeWhole(level, context.getClickedPos(), face, tile -> null, DecalEdits.by(player, level, face, stack));
+            // The decal in the stencil's layer goes (or the other one, if that is bare); nothing on Create's copycats
+            Boolean front = be != null ? be.layerFor(face, data.front()) : null;
+            if (front != null) {
+                DecalTiles.changeWhole(level, context.getClickedPos(), face, front, tile -> null, DecalEdits.by(player, level, face, stack));
+            }
             return InteractionResult.CONSUME;
         }
         if (data.writes()) {
-            // A typed word: its first letter on the clicked face, the rest along the face's right (as turned and flipped)
+            // A typed word: its first letter on the clicked face, the rest along the face's right, as turned; never mirrored
             int letters = DecalTiles.letters(data.text());
-            int placed = DecalTiles.placeText(level, context.getClickedPos(), face, data.text(), data.rgb(), data.rotation(), data.flip(),
+            int placed = DecalTiles.placeText(level, context.getClickedPos(), face, data.text(), data.rgb(), data.rotation(), false,
                     data.glow(), data.front(), DecalEdits.by(player, level, face, stack));
             if (placed < letters && player != null) {
                 player.displayClientMessage(Component.translatable("createdecals.stencil.partly", placed, letters), true);

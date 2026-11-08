@@ -20,8 +20,8 @@ public final class DecalsLang {
         REGISTRATE.addDataGenerator(ProviderType.LANG, provider -> DecalsPonder.provideLang(provider::add));
         tooltip("item", "decal_stencil", "Puts _decals_ or a typed _word_ on Decal Panels, Blocks and Steps, behind or in front of the decal already there; Create's Copycat Panels and Steps become decal ones when they take one. Choose in its screen.",
                 action("When used in the air", "Opens the stencil's screen."),
-                action("When R-clicked on a face", "Puts the decal or word there, or erases the decal on top."),
-                action("When R-clicked while sneaking", "Picks up the decal on top of that face."));
+                action("When R-clicked on a face", "Puts the decal or word there, or erases the decal in the stencil's layer."),
+                action("When R-clicked while sneaking", "Picks up the decal in the stencil's layer on that face."));
         add("createdecals.stencil.title", "Decal Stencil");
         add("createdecals.stencil.rotate", "Turn");
         add("createdecals.stencil.flip", "Flip");
@@ -33,8 +33,9 @@ public final class DecalsLang {
         add("createdecals.stencil.nothing_to_pick", "No decal on that face");
         add("createdecals.stencil.picked", "Decal picked up");
         add("createdecals.stencil.picked_front", "Front decal picked up");
-        add("createdecals.stencil.layer_back", "Back layer: under a front decal");
-        add("createdecals.stencil.layer_front", "Front layer: over the decal already there");
+        add("createdecals.stencil.layer_back", "Back layer: goes under a front decal; picks up and erases back decals");
+        add("createdecals.stencil.layer_front", "Front layer: goes over the decal already there; picks up and erases front decals");
+        add("createdecals.stencil.flip_words", "Words are not mirrored");
         add("createdecals.stencil.glow_on", "Glowing: full-bright at night");
         add("createdecals.stencil.glow_off", "Not glowing");
         add("createdecals.stencil.text", "Word");
@@ -42,7 +43,7 @@ public final class DecalsLang {
         add("createdecals.stencil.tooltip.text", "\"%s\", %s");
         add("createdecals.stencil.tooltip.front", "Front layer");
         add("createdecals.stencil.tooltip.glow", "Glowing");
-        add("createdecals.stencil.partly", "Only %s of its %s tiles found a decal block face");
+        add("createdecals.stencil.partly", "Only %s of %s tiles landed: the rest are not on decal blocks, or are protected");
         add("createdecals.stencil.tooltip.empty", "No decal chosen");
         add("createdecals.stencil.tooltip.erase", "Eraser");
         add("createdecals.stencil.tooltip.decal", "%s, %s");
