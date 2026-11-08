@@ -62,7 +62,7 @@ public final class DecalsLang {
                 {"sign_plus", "Plus"}, {"sign_slash", "Slash"}, {"sign_exclaim", "Exclamation Mark"},
                 {"sign_question", "Question Mark"}, {"sign_colon", "Colon"}, {"sign_apostrophe", "Apostrophe"},
                 {"sign_paren_left", "Opening Bracket"}, {"sign_paren_right", "Closing Bracket"}, {"no_entry", "No Entry"},
-                {"drop", "Water Drop"}};
+                {"drop", "Water Drop"}, {"skull_crossbones", "Skull and Crossbones"}};
         for (String[] name : names) {
             add("decal.createdecals." + name[0], name[1]);
         }
