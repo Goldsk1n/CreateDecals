@@ -163,6 +163,48 @@ public final class CopycatsPlusGameTests {
         helper.succeed();
     }
 
+    /**
+     * Create's Clipboard, through its own click handlers: R-click on a Copycats+ slope's top copies its stripe and 7, L-click
+     * pastes them onto another slope and onto our Decal Block. And Copycats+'s copycats get our movement behaviour (the
+     * full-bright redraw of glowing decals on contraptions), except where Copycats+ has its own.
+     */
+    @GameTest(template = "empty")
+    public static void clipboardAndGlowOnCopycatsPlus(GameTestHelper helper) {
+        if (!CopycatsPlus.loaded()) {
+            helper.succeed();
+            return;
+        }
+        FakePlayer player = FakePlayerFactory.getMinecraft(helper.getLevel());
+        player.setPos(Vec3.atCenterOf(helper.absolutePos(new BlockPos(2, 3, 2))));
+        BlockPos from = new BlockPos(1, 1, 2);
+        BlockPos to = new BlockPos(2, 1, 2);
+        BlockPos ours = new BlockPos(3, 1, 2);
+        helper.setBlock(from, copycat("copycat_slope").defaultBlockState());
+        helper.setBlock(to, copycat("copycat_slope").defaultBlockState());
+        helper.setBlock(ours, com.goldskinmc.createdecals.registry.DecalsBlocks.DECAL_BLOCK.getDefaultState());
+        DecalHolder source = DecalHolder.at(helper.getLevel(), helper.absolutePos(from));
+        source.setDecal(Direction.UP, false, STRIPE.toDecal().get());
+        source.setDecal(Direction.UP, true, SEVEN.toDecal().get());
+
+        ItemStack clipboard = com.simibubi.create.AllBlocks.CLIPBOARD.asStack();
+        click(helper, player, clipboard, from, Direction.UP);
+        for (BlockPos target : new BlockPos[] {to, ours}) {
+            net.neoforged.neoforge.common.NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock(
+                    player, helper.absolutePos(target), Direction.UP,
+                    net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock.Action.START));
+            DecalHolder pasted = DecalHolder.at(helper.getLevel(), helper.absolutePos(target));
+            helper.assertTrue(pasted != null && STRIPE.toDecal().get().equals(pasted.getDecal(Direction.UP, false))
+                            && SEVEN.toDecal().get().equals(pasted.getDecal(Direction.UP, true)),
+                    "pasted onto " + target + ": " + (pasted != null ? pasted.getDecal(Direction.UP, false) + " / " + pasted.getDecal(Direction.UP, true)
+                            : "no holder") + ", clipboard " + player.getMainHandItem().getComponents());
+        }
+
+        var behaviour = com.simibubi.create.api.behaviour.movement.MovementBehaviour.REGISTRY.get(copycat("copycat_slope"));
+        helper.assertTrue(behaviour instanceof com.goldskinmc.createdecals.contraption.DecalMovement,
+                "a Copycats+ slope should have our movement behaviour: " + behaviour);
+        helper.succeed();
+    }
+
     /** Create's own copycats are still converted to ours, not given an attachment, with Copycats+ installed. */
     @GameTest(template = "empty")
     public static void createCopycatsStillConvert(GameTestHelper helper) {

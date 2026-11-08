@@ -5,6 +5,8 @@ import com.goldskinmc.createdecals.compat.CopycatsPlus;
 import com.goldskinmc.createdecals.decal.DecalFrame;
 import com.goldskinmc.createdecals.decal.DecalState;
 import com.goldskinmc.createdecals.registry.DecalsAttachments;
+import com.goldskinmc.createdecals.contraption.DecalMovement;
+import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.api.contraption.transformable.MovedBlockTransformerRegistries;
 import com.simibubi.create.api.contraption.transformable.TransformableBlockEntity;
 import com.simibubi.create.api.schematic.nbt.PartialSafeNBT;
@@ -103,6 +105,16 @@ public final class DecalTransforms {
             }
         }
         CreateDecals.LOGGER.info("Copycats+: decals turn with contraptions and go into schematics on {} block entity types", hooked);
+        // Glowing decals on moving contraptions are drawn again at full light by our movement behaviour (Sodium drops the
+        // mesh's baked light): given to Copycats+'s copycats that have none of their own
+        int moving = 0;
+        for (Block block : BuiltInRegistries.BLOCK) {
+            if (CopycatsPlus.takesDecals(block.defaultBlockState()) && MovementBehaviour.REGISTRY.get(block) == null) {
+                MovementBehaviour.REGISTRY.register(block, new DecalMovement());
+                moving++;
+            }
+        }
+        CreateDecals.LOGGER.info("Copycats+: glowing decals full-bright on contraptions for {} copycats", moving);
     }
 
     /**

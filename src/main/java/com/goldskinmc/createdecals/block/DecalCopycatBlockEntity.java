@@ -153,35 +153,17 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
     /** Create's Clipboard: R-click copies the clicked face's decals (both layers), L-click pastes them onto another face. */
     @Override
     public String getClipboardKey() {
-        return "createdecals_decal";
+        return DecalClipboard.KEY;
     }
 
     @Override
     public boolean writeToClipboard(HolderLookup.Provider registries, CompoundTag tag, Direction side) {
-        DecalState back = decals.get(side);
-        DecalState front = fronts.get(side);
-        if (back == null && front == null) {
-            return false;
-        }
-        if (back != null) {
-            tag.put("Decal", back.save());
-        }
-        if (front != null) {
-            tag.put("Front", front.save());
-        }
-        return true;
+        return DecalClipboard.write(this, tag, side);
     }
 
     @Override
     public boolean readFromClipboard(HolderLookup.Provider registries, CompoundTag tag, Player player, Direction side, boolean simulate) {
-        if (!(tag.contains("Decal") || tag.contains("Front")) || !acceptsDecalOn(side)) {
-            return false;
-        }
-        if (!simulate) {
-            setDecal(side, false, tag.contains("Decal") ? DecalState.load(tag.getCompound("Decal")) : null);
-            setDecal(side, true, tag.contains("Front") ? DecalState.load(tag.getCompound("Front")) : null);
-        }
-        return true;
+        return DecalClipboard.read(this, tag, side, simulate);
     }
 
     @Override

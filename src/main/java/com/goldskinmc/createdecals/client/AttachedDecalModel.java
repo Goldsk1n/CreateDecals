@@ -89,6 +89,54 @@ public class AttachedDecalModel extends BakedModelWrapper<BakedModel> {
         }
     }
 
+    /** A decal quad for the contraption glow pass, and whether it is drawn at full light. */
+    public record GlowQuad(BakedQuad quad, boolean glows) {
+    }
+
+    /**
+     * For {@link ContraptionGlow}: the glowing decals of a copycat on a contraption, projected as the model draws them,
+     * and a front decal over a glowing back one (at the world's light, so the layers stay in order); faces the model
+     * culls against a solid neighbour are left out. Empty when the model there is not ours.
+     */
+    public static List<GlowQuad> glowQuads(BakedModel model, BlockAndTintGetter level, BlockPos pos, BlockState state, AttachedDecals decals) {
+        if (!(model instanceof AttachedDecalModel wrapper)) {
+            return List.of();
+        }
+        ModelData data = wrapper.getModelData(level, pos, state, level.getModelData(pos));
+        RandomSource rand = RandomSource.create(state.getSeed(pos));
+        List<GlowQuad> out = new ArrayList<>();
+        List<Direction> sides = new ArrayList<>(List.of(Direction.values()));
+        sides.add(null);
+        for (Direction side : sides) {
+            if (side != null && level.getBlockState(pos.relative(side)).isSolidRender(level, pos.relative(side))) {
+                continue;
+            }
+            for (BakedQuad material : wrapper.materialQuads(state, side, rand, data)) {
+                for (Direction face : Direction.values()) {
+                    DecalState back = decals.get(face, false);
+                    DecalState front = decals.get(face, true);
+                    boolean backGlows = back != null && back.glow();
+                    if (!backGlows && (front == null || !front.glow()) || !DecalQuads.faces(material, face)) {
+                        continue;
+                    }
+                    if (backGlows) {
+                        BakedQuad quad = DecalQuads.projected(back, face, material);
+                        if (quad != null) {
+                            out.add(new GlowQuad(quad, true));
+                        }
+                    }
+                    if (front != null) {
+                        BakedQuad quad = DecalQuads.projected(front, face, material);
+                        if (quad != null) {
+                            out.add(new GlowQuad(quad, front.glow()));
+                        }
+                    }
+                }
+            }
+        }
+        return out;
+    }
+
     /**
      * For the stencil's ghost: {@code decal} on {@code face} of the copycat at {@code pos}, projected onto its quads as
      * the model would draw it (all of them, culled or not). Empty when the model there is not ours.

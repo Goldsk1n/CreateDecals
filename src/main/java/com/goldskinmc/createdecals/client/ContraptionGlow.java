@@ -8,7 +8,15 @@ import com.simibubi.create.content.contraptions.behaviour.MovementContext;
 import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelBlock;
 import com.simibubi.create.foundation.virtualWorld.VirtualRenderWorld;
+import com.goldskinmc.createdecals.block.AttachedDecals;
+import com.goldskinmc.createdecals.registry.DecalsAttachments;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -34,7 +42,12 @@ public final class ContraptionGlow {
 
     public static void render(MovementContext context, VirtualRenderWorld renderWorld, ContraptionMatrices matrices,
             MultiBufferSource buffer) {
-        if (!(renderWorld.getBlockEntity(context.localPos) instanceof DecalCopycatBlockEntity be)) {
+        BlockEntity blockEntity = renderWorld.getBlockEntity(context.localPos);
+        if (blockEntity != null && !(blockEntity instanceof DecalCopycatBlockEntity)) {
+            renderAttached(context, renderWorld, matrices, buffer, blockEntity);
+            return;
+        }
+        if (!(blockEntity instanceof DecalCopycatBlockEntity be)) {
             return;
         }
         Map<Direction, DecalState> back = be.getDecals();
@@ -68,6 +81,43 @@ public final class ContraptionGlow {
             if (frontDecal != null) {
                 draw(pose, consumer, frontDecal, face, window, frontGlows ? LightTexture.FULL_BRIGHT : worldLight);
             }
+        }
+        pose.popPose();
+    }
+
+    /** The quads worked out for a Copycats+ copycat's decals, kept while its decals are the same (they rarely change). */
+    private record Cached(AttachedDecals decals, BlockState state, List<AttachedDecalModel.GlowQuad> quads) {
+    }
+
+    private static final Map<BlockEntity, Cached> ATTACHED = Collections.synchronizedMap(new WeakHashMap<>());
+
+    /** Copycats+'s copycats: their glowing decals, projected onto the copycat's own quads as its model draws them. */
+    private static void renderAttached(MovementContext context, VirtualRenderWorld renderWorld, ContraptionMatrices matrices,
+            MultiBufferSource buffer, BlockEntity be) {
+        AttachedDecals decals = be.getExistingData(DecalsAttachments.DECALS.get()).orElse(null);
+        if (decals == null || !anyGlows(decals.back()) && !anyGlows(decals.front())) {
+            return;
+        }
+        BlockState state = context.state;
+        Cached cached = ATTACHED.get(be);
+        if (cached == null || cached.decals() != decals || cached.state() != state) {
+            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
+            cached = new Cached(decals, state, AttachedDecalModel.glowQuads(model, renderWorld, context.localPos, state, decals));
+            ATTACHED.put(be, cached);
+        }
+        if (cached.quads().isEmpty()) {
+            return;
+        }
+        PoseStack pose = matrices.getViewProjection();
+        pose.pushPose();
+        pose.last().pose().mul(matrices.getModel().last().pose());
+        int worldLight = context.position == null || context.world == null ? LightTexture.FULL_BLOCK
+                : LevelRenderer.getLightColor(context.world, BlockPos.containing(context.position));
+        VertexConsumer consumer = buffer.getBuffer(RenderType.textPolygonOffset(TextureAtlas.LOCATION_BLOCKS));
+        for (AttachedDecalModel.GlowQuad glow : cached.quads()) {
+            int rgb = glow.quad().getTintIndex() & 0xFFFFFF;
+            consumer.putBulkData(pose.last(), glow.quad(), (rgb >> 16 & 0xFF) / 255f, (rgb >> 8 & 0xFF) / 255f, (rgb & 0xFF) / 255f, 1f,
+                    glow.glows() ? LightTexture.FULL_BRIGHT : worldLight, OverlayTexture.NO_OVERLAY);
         }
         pose.popPose();
     }

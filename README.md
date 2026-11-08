@@ -110,5 +110,11 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   which Create asks before a block entity's `transform` and `writeSafe` (`block/DecalTransforms.registerCopycatsPlus`,
   at common setup): for each of Copycats+'s block entity types, Copycats+'s own method runs, then the decals turn
   (`DecalTransforms.turned`, shared with our block entity) or are added to the schematic's data under NeoForge's
-  attachments key (game test `copycatsPlusDecalsTurnAndGoIntoSchematics`). No mixin. Not carried: the Clipboard, and the
-  extra full-bright pass for glow on moving contraptions under Sodium.
+  attachments key (game test `copycatsPlusDecalsTurnAndGoIntoSchematics`). No mixin. The same setup gives every Copycats+
+  copycat without a movement behaviour of its own our `DecalMovement` (39 of them), so `ContraptionGlow` redraws their
+  glowing decals full-bright on moving contraptions under Sodium (`AttachedDecalModel.glowQuads`, cached per block entity
+  while its decals are unchanged). Create's Clipboard asks every behaviour of a `SmartBlockEntity`, which Copycats+'s are:
+  `block/DecalClipboard` attaches a `ClipboardCloneable` behaviour with Create's public `attachBehaviourLate` just before
+  a Clipboard reaches one (click events at highest priority on both sides, and `client/CopycatsPlusClipboard` while one is
+  aimed at, for Create's outline), under the same key our block entity uses, so decals copy between our blocks and
+  Copycats+'s both ways (game test `clipboardAndGlowOnCopycatsPlus`).
