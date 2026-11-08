@@ -56,6 +56,16 @@ public final class DecalsLang {
         add("createdecals.stencil.tooltip.empty", "No decal chosen");
         add("createdecals.stencil.tooltip.erase", "Eraser");
         add("createdecals.stencil.tooltip.decal", "%s, %s");
+        // Decals whose names are not their ids in words (the screen makes the rest from the id)
+        String[][] names = {
+                {"sign_and", "Ampersand"}, {"sign_dash", "Dash"}, {"sign_dot", "Full Stop"}, {"sign_hash", "Hash"},
+                {"sign_plus", "Plus"}, {"sign_slash", "Slash"}, {"sign_exclaim", "Exclamation Mark"},
+                {"sign_question", "Question Mark"}, {"sign_colon", "Colon"}, {"sign_apostrophe", "Apostrophe"},
+                {"sign_paren_left", "Opening Bracket"}, {"sign_paren_right", "Closing Bracket"}, {"no_entry", "No Entry"},
+                {"drop", "Water Drop"}};
+        for (String[] name : names) {
+            add("decal.createdecals." + name[0], name[1]);
+        }
         for (String category : new String[] {"letters", "digits", "signs", "lines", "markers", "emblems", "misc"}) {
             add("createdecals.category." + category, Character.toUpperCase(category.charAt(0)) + category.substring(1));
         }

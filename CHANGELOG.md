@@ -31,9 +31,9 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
 
 ### Decals
 
-- 87 built-in decals in Create's style: 26 letters and 10 digits (a 16 px pixel font), 6 signs, 21 lines, 9 markers
-  (arrows, chevrons, frames) and 15 emblems (8-tooth cogs in three sizes, a train, a balloon, a four-blade propeller,
-  wings, a warning sign and more). 10 of them cover several blocks, up to 3x3. All in one tone: an emblem's detail (a
+- 99 built-in decals in Create's style: 26 letters and 10 digits (a 16 px pixel font), 12 signs, 21 lines, 9 markers
+  (arrows, chevrons, frames) and 21 emblems (8-tooth cogs in three sizes, a train, a balloon, a four-blade propeller,
+  wings, and signs for factories: warning, no entry, flame, water drop, snowflake, skull, cross). 10 of them cover several blocks, up to 3x3. All in one tone: an emblem's detail (a
   train's headlights, a balloon's panels) is cut out, so it shows in every colour, black included.
 - Stripes that join up for liveries: the stripe, the thin stripe and the double stripe each come straight, as a turn, as
   an end and as a rise (2x2, up one block at 45 degrees), all on the same bands; the edge stripe has a corner, and frames
@@ -44,7 +44,7 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
   number on a stripe or a letter on a hazard band. The stencil's layer also decides which decal it picks up and erases
   (the other one when that layer is bare), so the decal under a front one can be picked up or erased alone; dye and
   glow work on the decal on top.
-- Type a word (up to 16 letters, digits, spaces and & - . # + /) in the stencil's screen and one click lays it along
+- Type a word (up to 16 letters, digits, spaces and & - . # + / ! ? : ' ( )) in the stencil's screen and one click lays it along
   the hull, one letter per block, turned as a whole; words are never mirrored.
 - The stencil's screen names each decal when the mouse is on it (resource packs can name theirs with a
   `decal.<namespace>.<name>` language key).
