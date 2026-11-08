@@ -139,6 +139,8 @@ dependencies {
     compileOnly("com.simibubi.create:create-${minecraft_version}:${create_floor_version}") { transitive = false }
     compileOnly "net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}"
     compileOnly "dev.engine-room.flywheel:flywheel-neoforge-api-${minecraft_version}:${flywheel_floor_version}"
+    // Copycats+, optional: compiled against for compat/copycats only (its public foundation package; ArchitectureTest)
+    compileOnly("maven.modrinth:copycats:${copycats_version}") { transitive = false }
     compileOnly "com.tterrag.registrate:Registrate:${registrate_floor_version}"
 
     if (floorRun) {

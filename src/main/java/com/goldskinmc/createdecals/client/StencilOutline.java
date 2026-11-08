@@ -2,7 +2,8 @@ package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.CreateDecals;
 import com.goldskinmc.createdecals.block.CreateCopycats;
-import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
+import com.goldskinmc.createdecals.block.AttachedDecalHolder;
+import com.goldskinmc.createdecals.block.DecalHolder;
 import com.goldskinmc.createdecals.block.DecalTiles;
 import com.goldskinmc.createdecals.decal.DecalFrame;
 import com.goldskinmc.createdecals.decal.DecalPlacement;
@@ -23,6 +24,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -33,6 +35,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -84,7 +87,7 @@ public final class StencilOutline {
         Vec3 camera = event.getCamera().getPosition();
         MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
         BlockState clickedState = level.getBlockState(clickedPos);
-        DecalCopycatBlockEntity clicked = level.getBlockEntity(clickedPos) instanceof DecalCopycatBlockEntity ours ? ours : null;
+        DecalHolder clicked = DecalHolder.at(level, clickedPos);
         if (clicked == null && !CreateCopycats.isCreateCopycat(clickedState)) {
             // Not a block that takes decals: say so before the click, on the face aimed at
             if (!data.erase()) {
@@ -119,7 +122,8 @@ public final class StencilOutline {
             BlockState state = level.getBlockState(tile.pos());
             if (data.erase()) {
                 // Only the tiles the eraser takes: the same decal, the same tile of it, in that layer
-                DecalState there = level.getBlockEntity(tile.pos()) instanceof DecalCopycatBlockEntity be ? be.getDecal(face, erasedLayer) : null;
+                DecalHolder holder = DecalHolder.at(level, tile.pos());
+                DecalState there = holder != null ? holder.getDecal(face, erasedLayer) : null;
                 if (there != null && there.sameDecalAs(tile.decal()) && there.tileX() == tile.decal().tileX()
                         && there.tileY() == tile.decal().tileY()) {
                     ghost(pose, ghosts, level, tile.pos(), state, face, there.withGlow(false), camera, ERASE_RGB, 0.7f);
@@ -131,11 +135,14 @@ public final class StencilOutline {
         buffers.endBatch(Sheets.translucentCullBlockSheet());
         VertexConsumer lines = buffers.getBuffer(RenderType.lines());
         for (DecalPlacement.Tile tile : tiles) {
-            AABB box = faceBox(level.getBlockState(tile.pos()), tile.pos(), face).move(-camera.x, -camera.y, -camera.z);
+            AABB box = faceBox(level, level.getBlockState(tile.pos()), tile.pos(), face).move(-camera.x, -camera.y, -camera.z);
             if (data.erase()) {
                 LevelRenderer.renderLineBox(pose, lines, box, 1f, 0.55f, 0.1f, 1f);
             } else if (lands(level, tile.pos(), face)) {
-                LevelRenderer.renderLineBox(pose, lines, box, 0.3f, 1f, 0.3f, 1f);
+                // On Copycats+'s shapes (slopes) a box would float off the face: the ghost alone shows where it goes
+                if (!(DecalHolder.at(level, tile.pos()) instanceof AttachedDecalHolder)) {
+                    LevelRenderer.renderLineBox(pose, lines, box, 0.3f, 1f, 0.3f, 1f);
+                }
             } else {
                 LevelRenderer.renderLineBox(pose, lines, box, 1f, 0.25f, 0.25f, 1f);
             }
@@ -145,7 +152,8 @@ public final class StencilOutline {
 
     /** Whether a tile would land on that face: a decal block's free face, or Create's copycat that converts. */
     private static boolean lands(Level level, BlockPos pos, Direction face) {
-        return level.getBlockEntity(pos) instanceof DecalCopycatBlockEntity be ? be.acceptsDecalOn(face)
+        DecalHolder holder = DecalHolder.at(level, pos);
+        return holder != null ? holder.acceptsDecalOn(face)
                 : CreateCopycats.convertible(level.getBlockState(pos), face);
     }
 
@@ -155,6 +163,15 @@ public final class StencilOutline {
      */
     private static void ghost(PoseStack pose, VertexConsumer out, Level level, BlockPos pos, BlockState state, Direction face,
             DecalState decal, Vec3 camera, int rgb, float alpha) {
+        if (DecalHolder.at(level, pos) instanceof AttachedDecalHolder) {
+            // Copycats+: the decal projected onto the copycat's own quads, as its model will draw it
+            BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
+            int light = decal.glow() ? LightTexture.FULL_BRIGHT : LevelRenderer.getLightColor(level, pos.relative(face));
+            for (BakedQuad quad : AttachedDecalModel.ghostQuads(model, level, pos, state, decal, face)) {
+                emit(pose, out, quad, pos, face, camera, rgb, alpha, light);
+            }
+            return;
+        }
         DecalFaces.Window window = DecalFaces.window(state, face);
         BakedQuad quad = DecalQuads.quad(decal, face, window != null ? window : DecalFaces.Window.FULL);
         if (quad == null) {
@@ -162,6 +179,11 @@ public final class StencilOutline {
         }
         int light = decal.glow() ? LightTexture.FULL_BRIGHT
                 : LevelRenderer.getLightColor(level, window == null || window.onBoundary() ? pos.relative(face) : pos);
+        emit(pose, out, quad, pos, face, camera, rgb, alpha, light);
+    }
+
+    private static void emit(PoseStack pose, VertexConsumer out, BakedQuad quad, BlockPos pos, Direction face, Vec3 camera, int rgb,
+            float alpha, int light) {
         float r = ((rgb >> 16) & 0xFF) / 255f;
         float g = ((rgb >> 8) & 0xFF) / 255f;
         float b = (rgb & 0xFF) / 255f;
@@ -209,7 +231,12 @@ public final class StencilOutline {
      * A thin box on the face where the decal lies: a panel's front 3/16 out from its back, a step's face where it is
      * (DecalFaces), else the block's face. Create's step not yet converted has the same faces as ours.
      */
-    private static AABB faceBox(BlockState state, BlockPos pos, Direction face) {
+    private static AABB faceBox(Level level, BlockState state, BlockPos pos, Direction face) {
+        if (DecalHolder.at(level, pos) instanceof AttachedDecalHolder) {
+            // Copycats+: the face of the copycat's outline box
+            VoxelShape shape = state.getShape(level, pos);
+            return faceOf(shape.isEmpty() ? new AABB(pos) : shape.bounds().move(pos), face);
+        }
         DecalFaces.Window window = DecalFaces.window(state, face);
         if (window == null) {
             window = DecalFaces.Window.FULL;

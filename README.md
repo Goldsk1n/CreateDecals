@@ -91,4 +91,21 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
 - `-Pdev_sable=false` leaves Sable and Veil out of `latest` runs (game folder `run-nosable/`), to tell their effects from ours.
 - `-Pdev_tools=true` adds JEI and The One Probe (the same versions as Lightworks') for playing by hand; `latest` only,
   never shipped.
-- `-Pdev_copycats=true` adds Copycats+ (pinned by Modrinth version id, as in Lightworks) to check both run side by side.
+- `-Pdev_copycats=true` adds Copycats+ (pinned by Modrinth version id, as in Lightworks) to dev runs and game tests; the
+  build always compiles against it for `compat/copycats`.
+- **Copycats+** (optional, All Rights Reserved; only its `foundation` package, which its wiki calls public and stable;
+  `ArchitectureTest` keeps every reference in `compat/copycats`). Its copycats are recognised by `ICopycatBlock`
+  (`compat/copycats/CopycatsPlusBlocks`; not Create's copycats or ours, not kinetic ones) and keep decals in a NeoForge
+  data attachment on their block entity (`block/AttachedDecals`, `AttachedDecalHolder`), saved with it, so contraptions
+  (`saveWithFullMetadata`), Sable vehicles and chunks carry them. NeoForge 21.1 does not send block entity attachments,
+  so `block/DecalSync` does: on change, with each chunk a player starts to see, and a tick after one is read on the server
+  (a contraption putting blocks back). `block/DecalHolder` is what the stencil, dye, undo and outline work through, our
+  block entity or an attachment alike. `client/AttachedDecalModel` wraps each of its block states' models (lowest
+  priority, after Create's model swapper) and projects each decal onto every quad that faces its side
+  (`DecalQuads.faces`/`projected`: same corners, so it wins the depth tie; texture as if square on to that face), so
+  slopes need nothing of their own; Create's contraption renderer asks the model for its data too
+  (`getModelData(renderWorld, ...)`). `client/CopycatsPlusModels` also registers a colour handler that passes non-decal
+  tints to `ICopycatBlock.wrappedColor()`. Game tests `copycatsPlusTakeDecals` and `createCopycatsStillConvert` (they
+  pass at once without it). Not carried: Create's schematics (its `writeSafe` is Copycats+'s), the Clipboard, turning with a
+  contraption that stops at an angle (Create calls Copycats+'s own `transform`), and the extra full-bright pass for glow
+  on moving contraptions under Sodium.

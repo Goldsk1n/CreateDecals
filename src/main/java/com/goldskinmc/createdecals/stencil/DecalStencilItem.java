@@ -1,7 +1,7 @@
 package com.goldskinmc.createdecals.stencil;
 
 import com.goldskinmc.createdecals.block.CreateCopycats;
-import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
+import com.goldskinmc.createdecals.block.DecalHolder;
 import com.goldskinmc.createdecals.block.DecalEdits;
 import com.goldskinmc.createdecals.block.DecalTiles;
 import com.goldskinmc.createdecals.block.DecalUndo;
@@ -47,9 +47,10 @@ public class DecalStencilItem extends Item {
         Level level = context.getLevel();
         Player player = context.getPlayer();
         Direction face = context.getClickedFace();
-        // Create's own Copycat Panel and Step are treated as ours without a decal: placing one converts them (CreateCopycats)
+        // Our decal blocks and Copycats+'s copycats keep decals (DecalHolder); Create's own Copycat Panel and Step are
+        // treated as ours without a decal: placing one converts them (CreateCopycats)
         BlockState state = level.getBlockState(context.getClickedPos());
-        DecalCopycatBlockEntity be = level.getBlockEntity(context.getClickedPos()) instanceof DecalCopycatBlockEntity ours ? ours : null;
+        DecalHolder be = DecalHolder.at(level, context.getClickedPos());
         if (be == null && !CreateCopycats.isCreateCopycat(state)) {
             return InteractionResult.PASS;
         }
@@ -65,7 +66,7 @@ public class DecalStencilItem extends Item {
     }
 
     private InteractionResult apply(UseOnContext context, Level level, @Nullable Player player, Direction face,
-            @Nullable DecalCopycatBlockEntity be) {
+            @Nullable DecalHolder be) {
         ItemStack stack = context.getItemInHand();
         StencilData data = data(stack);
         if (player != null && player.isShiftKeyDown()) {

@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Whole decals in the world: placing all their tiles at once, laying a typed word, and changing every tile of one already
- * placed. Each face has a back and a front layer ({@link DecalCopycatBlockEntity}).
+ * placed. Each face has a back and a front layer ({@link DecalHolder}: our decal blocks, or Copycats+'s copycats).
  */
 public final class DecalTiles {
     private DecalTiles() {
@@ -82,8 +82,10 @@ public final class DecalTiles {
             if (!allowed.test(tile.pos())) {
                 continue;
             }
-            DecalCopycatBlockEntity be = level.getBlockEntity(tile.pos()) instanceof DecalCopycatBlockEntity ours ? ours
-                    : CreateCopycats.convert(level, tile.pos(), face);
+            DecalHolder be = DecalHolder.at(level, tile.pos());
+            if (be == null) {
+                be = CreateCopycats.convert(level, tile.pos(), face);
+            }
             if (be != null && be.acceptsDecalOn(face)) {
                 DecalState before = be.getDecal(face, front);
                 be.setDecal(face, front, tile.decal());
@@ -106,7 +108,8 @@ public final class DecalTiles {
     /** {@link #changeWhole(Level, BlockPos, Direction, UnaryOperator)}, leaving out tiles {@code allowed} rejects. */
     public static int changeWhole(Level level, BlockPos pos, Direction face, UnaryOperator<@Nullable DecalState> change,
             Predicate<BlockPos> allowed) {
-        if (!(level.getBlockEntity(pos) instanceof DecalCopycatBlockEntity clicked)) {
+        DecalHolder clicked = DecalHolder.at(level, pos);
+        if (clicked == null) {
             return 0;
         }
         Boolean front = clicked.topLayer(face);
@@ -121,14 +124,16 @@ public final class DecalTiles {
     /** {@link #changeWhole(Level, BlockPos, Direction, boolean, UnaryOperator)}, leaving out tiles {@code allowed} rejects. */
     public static int changeWhole(Level level, BlockPos pos, Direction face, boolean front, UnaryOperator<@Nullable DecalState> change,
             Predicate<BlockPos> allowed) {
-        if (!(level.getBlockEntity(pos) instanceof DecalCopycatBlockEntity clicked) || clicked.getDecal(face, front) == null) {
+        DecalHolder clicked = DecalHolder.at(level, pos);
+        if (clicked == null || clicked.getDecal(face, front) == null) {
             return 0;
         }
         DecalState shown = clicked.getDecal(face, front);
         BlockPos anchor = DecalPlacement.anchorOf(pos, face, shown);
         int changed = 0;
         for (DecalPlacement.Tile tile : DecalPlacement.tiles(anchor, face, shown)) {
-            if (allowed.test(tile.pos()) && level.getBlockEntity(tile.pos()) instanceof DecalCopycatBlockEntity be) {
+            DecalHolder be = allowed.test(tile.pos()) ? DecalHolder.at(level, tile.pos()) : null;
+            if (be != null) {
                 DecalState there = be.getDecal(face, front);
                 if (there != null && there.sameDecalAs(shown) && there.tileX() == tile.decal().tileX()
                         && there.tileY() == tile.decal().tileY()) {

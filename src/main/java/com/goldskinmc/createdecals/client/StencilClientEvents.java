@@ -2,7 +2,7 @@ package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.CreateDecals;
 import com.goldskinmc.createdecals.block.CreateCopycats;
-import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
+import com.goldskinmc.createdecals.block.DecalHolder;
 import com.goldskinmc.createdecals.stencil.DecalStencilItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -30,7 +30,7 @@ public final class StencilClientEvents {
             Component wrongBlock = null;
             if (mc.hitResult instanceof BlockHitResult hit && hit.getType() == HitResult.Type.BLOCK && mc.level != null) {
                 BlockState state = mc.level.getBlockState(hit.getBlockPos());
-                if (!(mc.level.getBlockEntity(hit.getBlockPos()) instanceof DecalCopycatBlockEntity) && !CreateCopycats.isCreateCopycat(state)) {
+                if (DecalHolder.at(mc.level, hit.getBlockPos()) == null && !CreateCopycats.isCreateCopycat(state)) {
                     wrongBlock = state.getBlock().getName();
                 }
             }

@@ -96,7 +96,7 @@ public final class DecalUndo {
         if (level != null) {
             for (Change change : step.changes()) {
                 if (level.isLoaded(change.pos()) && DecalEdits.mayEdit(player, level, change.pos(), change.face(), held)
-                        && level.getBlockEntity(change.pos()) instanceof DecalCopycatBlockEntity be
+                        && DecalHolder.at(level, change.pos()) instanceof DecalHolder be
                         && Objects.equals(be.getDecal(change.face(), change.front()), change.after())) {
                     be.setDecal(change.face(), change.front(), change.before());
                     restored++;

@@ -61,4 +61,10 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
 - They stay on Create contraptions, trains and Sable vehicles (Create Aeronautics), and are put back turned with the
   block when a contraption stops at an angle. Schematics and the Schematicannon keep them.
 - Works with Sodium and Iris shader packs; no measurable frame cost against Create's own copycats, at 1000 blocks.
+- **Copycats+** (optional): its copycats take decals too, without converting: slopes, stairs, slabs, beams, vertical
+  steps, slope layers, doors and the rest (not its turning shafts and cogwheels). A decal lies on every part of the shape
+  that faces the clicked side, slanted faces included, as if it lay on the block's face in that plane. Stencil, ghost,
+  dye, glow ink and undo work on them; they keep their decals when saved, on contraptions and trains, on Sable vehicles,
+  and when a contraption puts them back. Uses only Copycats+'s public `foundation` package (2.0 and later; tested with
+  3.0.9).
 - Every block and the stencil have a Ponder scene.

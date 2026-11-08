@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
-/** Clicks both decal blocks share, on the decal seen on top of the clicked face. */
+/** Clicks every decal block shares (and Copycats+'s copycats, see {@link #onRightClick}), on the decal on top of the clicked face. */
 final class DecalClicks {
     private DecalClicks() {
     }
@@ -25,7 +25,7 @@ final class DecalClicks {
      * Null when the click is not for us, so the copycat handles it.
      */
     @Nullable
-    static ItemInteractionResult use(ItemStack stack, Level level, BlockPos pos, Direction face, @Nullable Player player) {
+    public static ItemInteractionResult use(ItemStack stack, Level level, BlockPos pos, Direction face, @Nullable Player player) {
         UnaryOperator<DecalState> change;
         if (stack.getItem() instanceof DyeItem dye) {
             int rgb = dye.getDyeColor().getTextureDiffuseColor();
@@ -37,7 +37,8 @@ final class DecalClicks {
         } else {
             return null;
         }
-        if (!(level.getBlockEntity(pos) instanceof DecalCopycatBlockEntity be) || be.topLayer(face) == null) {
+        DecalHolder be = DecalHolder.at(level, pos);
+        if (be == null || be.topLayer(face) == null) {
             return null;
         }
         if (!level.isClientSide()) {

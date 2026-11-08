@@ -35,3 +35,11 @@ type = "required"
 versionRange = "${create_version_range}"
 ordering = "AFTER"
 side = "BOTH"
+
+# Optional: its copycats take decals too (compat/copycats; only its public foundation package, from 2.0 on)
+[[dependencies.${mod_id}]]
+modId = "copycats"
+type = "optional"
+versionRange = "[2.0,)"
+ordering = "AFTER"
+side = "BOTH"

@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
  * contraptions, Sable vehicles and schematics carry them like the material) and handed to the model as model data;
  * nothing ticks and nothing renders here. Methods without a layer work on the back one.
  */
-public class DecalCopycatBlockEntity extends CopycatBlockEntity implements ClipboardCloneable {
+public class DecalCopycatBlockEntity extends CopycatBlockEntity implements ClipboardCloneable, DecalHolder {
     public static final ModelProperty<Map<Direction, DecalState>> DECALS = new ModelProperty<>();
     public static final ModelProperty<Map<Direction, DecalState>> FRONT_DECALS = new ModelProperty<>();
 
@@ -54,6 +54,7 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
         return decals.get(face);
     }
 
+    @Override
     @Nullable
     public DecalState getDecal(Direction face, boolean front) {
         return (front ? fronts : decals).get(face);
@@ -63,6 +64,7 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
      * Which layer of {@code face} is seen on top: true for the front one, false for the back one, null for a bare face.
      * Picking up, the eraser, dye and glow work on it.
      */
+    @Override
     @Nullable
     public Boolean topLayer(Direction face) {
         return fronts.containsKey(face) ? Boolean.TRUE : decals.containsKey(face) ? Boolean.FALSE : null;
@@ -72,6 +74,7 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
      * The layer a stencil set to the {@code front} or back layer works on at {@code face} (picking up, erasing): that layer
      * if it has a decal, else the other one; null for a bare face.
      */
+    @Override
     @Nullable
     public Boolean layerFor(Direction face, boolean front) {
         if ((front ? fronts : decals).containsKey(face)) {
@@ -86,6 +89,7 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
     }
 
     /** Sets or (with null) removes the decal in one layer of {@code face}. */
+    @Override
     public void setDecal(Direction face, boolean front, @Nullable DecalState decal) {
         EnumMap<Direction, DecalState> layer = front ? fronts : decals;
         if (!acceptsDecalOn(face) || Objects.equals(layer.get(face), decal)) {
@@ -100,6 +104,7 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
     }
 
     /** Which faces can hold a decal: a panel's front, any face of a full block. */
+    @Override
     public boolean acceptsDecalOn(Direction face) {
         BlockState state = getBlockState();
         return !state.hasProperty(CopycatPanelBlock.FACING) || state.getValue(CopycatPanelBlock.FACING) == face;
