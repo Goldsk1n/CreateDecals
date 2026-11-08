@@ -31,9 +31,9 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
 
 ### Decals
 
-- 99 built-in decals in Create's style: 26 letters and 10 digits (a 16 px pixel font), 12 signs, 21 lines, 9 markers
-  (arrows, chevrons, frames) and 21 emblems (8-tooth cogs in three sizes, a train, a balloon, a four-blade propeller,
-  wings, and signs for factories: warning, no entry, flame, water drop, snowflake, skull, cross). 10 of them cover several blocks, up to 3x3. All in one tone: an emblem's detail (a
+- 98 built-in decals in Create's style: 26 letters and 10 digits (a 16 px pixel font), 12 signs, 21 lines, 9 markers
+  (arrows, chevrons, frames) and 20 emblems (8-tooth cogs in three sizes, a train, a balloon, a four-blade propeller,
+  wings, and signs for factories: warning, no entry, flame, water drop, skull, cross). 10 of them cover several blocks, up to 3x3. All in one tone: an emblem's detail (a
   train's headlights, a balloon's panels) is cut out, so it shows in every colour, black included.
 - Stripes that join up for liveries: the stripe, the thin stripe and the double stripe each come straight, as a turn, as
   an end and as a rise (2x2, up one block at 45 degrees), all on the same bands; the edge stripe has a corner, and frames
