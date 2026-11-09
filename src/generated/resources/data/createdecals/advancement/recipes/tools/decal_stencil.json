@@ -1,6 +1,16 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
+    "has_brass_nugget": {
+      "conditions": {
+        "items": [
+          {
+            "items": "create:brass_nugget"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_iron_sheet": {
       "conditions": {
         "items": [
@@ -21,7 +31,8 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_iron_sheet"
+      "has_iron_sheet",
+      "has_brass_nugget"
     ]
   ],
   "rewards": {

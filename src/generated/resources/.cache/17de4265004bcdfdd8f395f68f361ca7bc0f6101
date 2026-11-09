@@ -1,4 +1,4 @@
-// 1.21.1	2026-11-08T22:30:04.5026113	Registrate Provider for createdecals [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2026-11-09T18:06:15.9337273	Registrate Provider for createdecals [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 3dff9e1ec59415779195d2abfa9f07bc17b428a1 assets/createdecals/blockstates/decal_block.json
 3dff9e1ec59415779195d2abfa9f07bc17b428a1 assets/createdecals/blockstates/decal_panel.json
 3dff9e1ec59415779195d2abfa9f07bc17b428a1 assets/createdecals/blockstates/decal_step.json
@@ -13,7 +13,7 @@ b01417b6e0597e99c8ca9d175645af39b1746ed8 data/createdecals/advancement/recipes/b
 08c8350706787a534900e8b2d46d1d28c4747bd0 data/createdecals/advancement/recipes/building_blocks/decal_block.json
 ed2936dae0a401fdc563da6f9e4486048d8a3ae5 data/createdecals/advancement/recipes/building_blocks/decal_panel.json
 082cc0d400fa4d99b201b5a714c0715e94aeec29 data/createdecals/advancement/recipes/building_blocks/decal_step.json
-b10f418d3d5816d0d63a44b856db77097257e620 data/createdecals/advancement/recipes/tools/decal_stencil.json
+92d99bde7ee2b5059f9473b135d53af88427b6c8 data/createdecals/advancement/recipes/tools/decal_stencil.json
 30db0bb95ee400dac199e1771a16c695bb24184b data/createdecals/loot_table/blocks/decal_block.json
 8ba01803f15d1963580f353478cc7868c2d6af81 data/createdecals/loot_table/blocks/decal_panel.json
 d935eeec3005200e004913e0d02cf393282f8210 data/createdecals/loot_table/blocks/decal_step.json
@@ -21,7 +21,7 @@ d935eeec3005200e004913e0d02cf393282f8210 data/createdecals/loot_table/blocks/dec
 6ae4474f3a0ae2793ee3c6725138e5fbb6a5d087 data/createdecals/recipe/copycat_step_from_decal_step.json
 ec280b9f2cc12709afc751b81d4abb4e2a3107f4 data/createdecals/recipe/decal_block.json
 11c2e9b358473fb69e530b20861acb998ff27e39 data/createdecals/recipe/decal_panel.json
-1be41751945b3bfe0771cbd9db965cb046dbdf07 data/createdecals/recipe/decal_stencil.json
+51485be3d0de811add56195aae627cfe65601605 data/createdecals/recipe/decal_stencil.json
 cbf630a144046da07ec14c07ca42ddf4f76df69c data/createdecals/recipe/decal_step.json
 ce9c3dd090cf48b167ba1e71e4db6a0a6fe4fc93 data/minecraft/tags/block/mineable/axe.json
 ce9c3dd090cf48b167ba1e71e4db6a0a6fe4fc93 data/minecraft/tags/block/mineable/pickaxe.json

@@ -1,16 +1,21 @@
 {
-  "type": "minecraft:crafting_shapeless",
+  "type": "minecraft:crafting_shaped",
   "category": "equipment",
-  "ingredients": [
-    {
-      "item": "create:iron_sheet"
-    },
-    {
-      "item": "minecraft:paper"
-    },
-    {
+  "key": {
+    "D": {
       "tag": "c:dyes"
+    },
+    "N": {
+      "tag": "c:nuggets/brass"
+    },
+    "S": {
+      "tag": "c:plates/iron"
     }
+  },
+  "pattern": [
+    "N N",
+    " S ",
+    "NDN"
   ],
   "result": {
     "count": 1,
