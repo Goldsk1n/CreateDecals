@@ -44,8 +44,10 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
 - `stencil/`: `DecalStencilItem` (used in the air it opens its screen; on a face it puts its decal there or erases it;
   sneaking it picks the face's decal up), `StencilData` (its data component: decal, colour, turns, flip, eraser),
   `StencilPayload` (the screen's choice, client to server, only onto a stencil in that hand). The screen is
-  `client/StencilScreen` (Create's look: a brass-framed panel drawn in
-  `textures/gui/stencil.png`, Create's `IconButton`s and `AllIcons` to turn, flip, erase and finish), opened by
+  `client/StencilScreen` (built as Create's schematic screens are: a grey header, a blue two-tone body, sunken slots,
+  Create-style input bars and a grey tray with the confirm tab, all our drawing in
+  `textures/gui/stencil.png`; categories on Create's own buttons (`AllGuiTextures`) with our 12 px icons, Create's
+  `IconButton`s and `AllIcons` to turn, flip, erase and finish), opened by
   `client/StencilClientEvents`; `client/StencilItemModel` puts the chosen decal on the
   stencil's icon; `client/StencilOutline` shows what a held stencil would do: a see-through ghost of each tile it
   would place (the decal's own quad from `DecalQuads`, so steps' windows match, lifted a hair and drawn in
