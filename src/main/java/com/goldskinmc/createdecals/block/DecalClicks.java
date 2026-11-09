@@ -21,11 +21,12 @@ final class DecalClicks {
 
     /**
      * A dye on a face with a decal recolours that decal, every tile of a large one; a Glow Ink Sac makes it glow and an
-     * Ink Sac stops it glowing, as on signs. Nothing is used up (Decision 8 of the plan: decals cost nothing).
+     * Ink Sac stops it glowing, as on signs, with the sounds signs make. Nothing is used up (Decision 8 of the plan: decals cost nothing).
      * Null when the click is not for us, so the copycat handles it.
      */
     @Nullable
-    public static ItemInteractionResult use(ItemStack stack, Level level, BlockPos pos, Direction face, @Nullable Player player) {
+    public static ItemInteractionResult use(ItemStack stack, Level level, BlockPos pos, Direction clicked, @Nullable Player player) {
+        Direction face = DecalEdits.clickedFace(player, clicked);
         UnaryOperator<DecalState> change;
         if (stack.getItem() instanceof DyeItem dye) {
             int rgb = dye.getDyeColor().getTextureDiffuseColor();
@@ -43,11 +44,8 @@ final class DecalClicks {
         }
         if (!level.isClientSide()) {
             DecalTiles.changeWhole(level, pos, face, change, DecalEdits.by(player, level, face, stack));
-            if (!stack.is(Items.GLOW_INK_SAC) && !stack.is(Items.INK_SAC)) {
-                return ItemInteractionResult.SUCCESS;
-            }
-            level.playSound(null, pos, stack.is(Items.GLOW_INK_SAC) ? SoundEvents.GLOW_INK_SAC_USE : SoundEvents.INK_SAC_USE,
-                    SoundSource.BLOCKS, 1, 1);
+            level.playSound(null, pos, stack.is(Items.GLOW_INK_SAC) ? SoundEvents.GLOW_INK_SAC_USE
+                    : stack.is(Items.INK_SAC) ? SoundEvents.INK_SAC_USE : SoundEvents.DYE_USE, SoundSource.BLOCKS, 1, 1);
         }
         return ItemInteractionResult.sidedSuccess(level.isClientSide());
     }

@@ -2,6 +2,7 @@ package com.goldskinmc.createdecals.block;
 
 import com.goldskinmc.createdecals.CreateDecals;
 import com.goldskinmc.createdecals.decal.DecalState;
+import com.simibubi.create.AllSoundEvents;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -19,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.util.FakePlayer;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import org.jetbrains.annotations.Nullable;
@@ -53,9 +55,13 @@ public final class DecalUndo {
     private DecalUndo() {
     }
 
-    /** Runs a click's changes, keeping them as one step the {@code player} can undo (if any tile changed). */
+    /**
+     * Runs a click's changes, keeping them as one step the {@code player} can undo (if any tile changed), and plays the
+     * click's sound and dust ({@link DecalEffects}). A Deployer's clicks are not kept: its fake player answers to its
+     * owner's UUID, so they would land in the owner's own undo.
+     */
     public static <T> T record(@Nullable Player player, Level level, Supplier<T> click) {
-        if (player == null || level.isClientSide()) {
+        if (level.isClientSide()) {
             return click.get();
         }
         List<Change> changes = new ArrayList<>();
@@ -64,7 +70,8 @@ public final class DecalUndo {
             return click.get();
         } finally {
             RECORDING.remove();
-            if (!changes.isEmpty()) {
+            DecalEffects.clicked(level, changes);
+            if (!changes.isEmpty() && player != null && !(player instanceof FakePlayer)) {
                 Deque<Step> steps = HISTORY.computeIfAbsent(player.getUUID(), id -> new ArrayDeque<>());
                 steps.push(new Step(level.dimension(), List.copyOf(changes)));
                 while (steps.size() > STEPS) {
@@ -101,6 +108,9 @@ public final class DecalUndo {
                     be.setDecal(change.face(), change.front(), change.before());
                     restored++;
                 }
+            }
+            if (restored > 0) {
+                AllSoundEvents.CLIPBOARD_ERASE.playOnServer(level, step.changes().get(0).pos(), 1, 0.8f);
             }
         }
         return new Result(restored, step.changes().size());

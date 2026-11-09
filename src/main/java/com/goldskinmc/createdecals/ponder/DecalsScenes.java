@@ -10,16 +10,21 @@ import com.goldskinmc.createdecals.registry.DecalsComponents;
 import com.goldskinmc.createdecals.registry.DecalsItems;
 import com.goldskinmc.createdecals.stencil.DecalStencilItem;
 import com.goldskinmc.createdecals.stencil.StencilData;
+import com.simibubi.create.AllBlocks;
+import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
 import com.tterrag.registrate.util.entry.RegistryEntry;
 import java.util.Optional;
 import net.createmod.catnip.math.Pointing;
 import net.createmod.ponder.api.PonderPalette;
+import net.createmod.ponder.api.element.ElementLink;
+import net.createmod.ponder.api.element.WorldSectionElement;
 import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
 import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
 import net.createmod.ponder.api.scene.SceneBuilder;
 import net.createmod.ponder.api.scene.SceneBuildingUtil;
+import net.createmod.ponder.api.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -49,6 +54,9 @@ final class DecalsScenes {
         scenes.forComponents(DecalsBlocks.DECAL_BLOCK).addStoryBoard("decal_block", DecalsScenes::decalBlock, DECALS);
         scenes.forComponents(DecalsBlocks.DECAL_STEP).addStoryBoard("decal_step", DecalsScenes::decalStep, DECALS);
         scenes.forComponents(DecalsItems.DECAL_STENCIL).addStoryBoard("decal_stencil", DecalsScenes::stencil, DECALS);
+        // Also under Create's Deployer, so players looking up what a Deployer can do find it there
+        scenes.forComponents(DecalsItems.DECAL_STENCIL, AllBlocks.DEPLOYER)
+                .addStoryBoard("decal_stencil_deployer", DecalsScenes::deployer, DECALS);
     }
 
     static void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
@@ -266,6 +274,84 @@ final class DecalsScenes {
                 .text("The stencil's eraser takes a whole decal off, clicked on any of its tiles. Create's Clipboard copies decals too")
                 .placeNearTarget().pointAt(middleFace);
         scene.idle(90);
+    }
+
+    static void deployer(SceneBuilder builder, SceneBuildingUtil util) {
+        CreateSceneBuilder scene = new CreateSceneBuilder(builder);
+        scene.title("decal_stencil_deployer", "Stamping decals with Deployers");
+        scene.configureBasePlate(0, 0, Layouts.Deployer.SIZE);
+        scene.showBasePlate();
+        scene.idle(10);
+        BlockPos deployerPos = Layouts.Deployer.DEPLOYER;
+        BlockPos middle = Layouts.Deployer.MIDDLE;
+        Selection shaft = util.select().fromTo(Layouts.Deployer.SHAFT_FROM, Layouts.Deployer.SHAFT_TO);
+        Selection kinetics = shaft.copy().add(util.select().position(deployerPos));
+        scene.world().showSection(util.select().position(middle), Direction.DOWN);
+        scene.idle(5);
+        ElementLink<WorldSectionElement> deployer = scene.world().showIndependentSection(util.select().position(deployerPos), Direction.DOWN);
+        scene.world().showSection(shaft, Direction.DOWN);
+        scene.idle(15);
+        Vec3 top = util.vector().blockSurface(middle, Direction.UP);
+
+        held(scene, util, deployerPos, stencil("cog", DyeColor.ORANGE, 0, false, 1, 1));
+        scene.world().setKineticSpeed(kinetics, 32);
+        scene.overlay().showText(80).attachKeyFrame()
+                .text("A Deployer holding a Decal Stencil stamps its decal on the block in front of it, as a player's click does")
+                .placeNearTarget().pointAt(util.vector().topOf(deployerPos));
+        scene.idle(30);
+        stamp(scene, util, deployerPos, middle, new DecalState(Decals.id("cog"), rgb(DyeColor.ORANGE), 0, false));
+        scene.idle(40);
+
+        held(scene, util, deployerPos, new ItemStack(Items.BLUE_DYE));
+        scene.overlay().showText(70).attachKeyFrame()
+                .text("With a dye it recolours the decal; with the stencil's eraser it takes the decal off")
+                .placeNearTarget().pointAt(top);
+        scene.idle(20);
+        stamp(scene, util, deployerPos, middle, new DecalState(Decals.id("cog"), rgb(DyeColor.BLUE), 0, false));
+        ItemStack eraser = new ItemStack(DecalsItems.DECAL_STENCIL.get());
+        eraser.set(DecalsComponents.STENCIL.get(), StencilData.EMPTY.withErase(true));
+        held(scene, util, deployerPos, eraser);
+        scene.idle(10);
+        stamp(scene, util, deployerPos, middle, null);
+        scene.idle(30);
+
+        scene.world().setKineticSpeed(kinetics, 0);
+        scene.world().hideSection(shaft, Direction.UP);
+        scene.idle(10);
+        scene.world().showSection(util.select().position(Layouts.Deployer.ROW_FROM), Direction.DOWN);
+        scene.world().showSection(util.select().position(Layouts.Deployer.ROW_TO), Direction.DOWN);
+        scene.idle(15);
+        held(scene, util, deployerPos, stencil("stripe", DyeColor.RED, 0, false, 1, 1));
+        scene.world().moveSection(deployer, new Vec3(1, 0, 0), 15);
+        scene.idle(15);
+        scene.overlay().showText(90).attachKeyFrame()
+                .text("Carried on a contraption, a Deployer stamps every block it passes: lay a stripe along a hull as it goes by")
+                .placeNearTarget().pointAt(util.vector().topOf(middle.east()));
+        DecalState stripe = new DecalState(Decals.id("stripe"), rgb(DyeColor.RED), 0, false);
+        for (int x = Layouts.Deployer.ROW_TO.getX(); x >= Layouts.Deployer.ROW_FROM.getX(); x--) {
+            decal(scene, util, new BlockPos(x, 1, 2), Direction.UP, stripe);
+            if (x > Layouts.Deployer.ROW_FROM.getX()) {
+                scene.world().moveSection(deployer, new Vec3(-1, 0, 0), 15);
+                scene.idle(15);
+            }
+        }
+        scene.idle(60);
+    }
+
+    /** Puts {@code stack} in the Deployer's hand, through its saved data as Create's own scenes do. */
+    private static void held(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos deployer, ItemStack stack) {
+        scene.world().modifyBlockEntityNBT(util.select().position(deployer), DeployerBlockEntity.class,
+                nbt -> nbt.put("HeldItem", stack.saveOptional(scene.world().getHolderLookupProvider())));
+    }
+
+    /** The Deployer reaches out, the face below changes (null: the decal goes), and it pulls back. */
+    private static void stamp(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos deployer, BlockPos target,
+            @Nullable DecalState decal) {
+        scene.world().moveDeployer(deployer, 1, 25);
+        scene.idle(26);
+        decal(scene, util, target, Direction.UP, decal);
+        scene.world().moveDeployer(deployer, -1, 25);
+        scene.idle(25);
     }
 
     /**

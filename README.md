@@ -58,7 +58,17 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   the undo key (Z, active only while a stencil is held, `IKeyConflictContext`) sends `stencil/UndoPayload`.
   `block/DecalUndo` keeps each player's last 10 stencil clicks in server memory (every tile `DecalTiles` changed, before
   and after, recorded while `DecalStencilItem` runs the click) and puts back only tiles still holding what the click
-  left, where the player may still edit (game tests `undoPutsBackTheLastClick`, `undoKeepsTenClicks`). Create's
+  left, where the player may still edit (game tests `undoPutsBackTheLastClick`, `undoKeepsTenClicks`). A fake player's
+  clicks (a Deployer's) are not kept: Create's Deployer player answers to its owner's UUID, so they would land in the
+  owner's undo. `block/DecalEffects` plays each recorded click's sound and dust on the server: vanilla's dye-on-sign sound
+  and dust of the decal's colour per tile for a decal put on, Create's Clipboard eraser for one taken off (and for undo),
+  its pen for a pick-up.
+- Create's Deployer: it calls the stencil's `useOn` and the blocks' `useItemOn` with its fake player, so stamping, dye,
+  glow and the eraser work from a Deployer with no code of their own. A moving Deployer pointing down (or up) clicks
+  with a level ray, so Create hands over the block's side; `DecalEdits.clickedFace` takes the top (or bottom) from the
+  fake player's pitch. Game tests `deployerStampsDecals`, `movingDeployerStampsDecals` (on a Mechanical Piston),
+  `deployerDyesDecals`, `fakePlayersLeaveNoUndo`; Ponder scene `decal_stencil_deployer` (under the stencil and Create's
+  Deployer). Create's
   Clipboard copies decals too (`ClipboardCloneable` on the block entity).
 - `contraption/DecalMovement` (a `MovementBehaviour` for both blocks; does nothing while moving) and
   `client/ContraptionGlow`: on a Create contraption or train, glowing decals are drawn a second time at full light from
@@ -67,8 +77,8 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   contraptions into a `BufferBuilder`, whose `putBulkData` Sodium replaces with a fast path that keeps the light the
   block renderer worked out and drops the quad's baked full light (its own terrain pipeline keeps it, so placed blocks and
   Sable vehicles glow without this).
-- `ponder/`: Ponder scenes (`DecalsScenes`: the Decal Panel, the Decal Block, the Decal Stencil with large decals; tag
-  "Decals"), laid out in `Layouts`, whose schematics `PonderSchematics` writes at datagen (copycat material and decals
+- `ponder/`: Ponder scenes (`DecalsScenes`: the Decal Panel, the Decal Block, the Decal Stencil with large decals, and
+  stamping with Deployers, also listed under Create's Deployer; tag "Decals"), laid out in `Layouts`, whose schematics `PonderSchematics` writes at datagen (copycat material and decals
   in the block entity data). Ponder's world hands models no block-entity data, so the copycat models fall back to the
   block entity's own (`DecalPanelModel.withBlockEntityData`), and scenes change decals with
   `modifyBlockEntityNBT(..., true)` so the section is redrawn.

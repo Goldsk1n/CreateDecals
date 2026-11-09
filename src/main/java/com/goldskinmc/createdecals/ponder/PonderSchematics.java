@@ -3,9 +3,11 @@ package com.goldskinmc.createdecals.ponder;
 import com.goldskinmc.createdecals.CreateDecals;
 import com.goldskinmc.createdecals.registry.DecalsBlocks;
 import com.google.common.hash.Hashing;
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.decoration.copycat.CopycatPanelBlock;
 import com.simibubi.create.content.decoration.copycat.CopycatStepBlock;
-import net.minecraft.world.level.block.state.properties.Half;
+import com.simibubi.create.content.kinetics.base.DirectionalAxisKineticBlock;
+import com.simibubi.create.content.kinetics.base.DirectionalKineticBlock;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -27,7 +29,9 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,6 +76,15 @@ public final class PonderSchematics implements DataProvider {
                 .forEach(pos -> stencil.copycat(pos.immutable(), DecalsBlocks.DECAL_BLOCK.getDefaultState(), white));
         stencil.copycat(Layouts.Stencil.SIDE, DecalsBlocks.DECAL_BLOCK.getDefaultState(), Blocks.BLACK_CONCRETE.defaultBlockState());
         all.add(stencil);
+
+        Schematic deployer = new Schematic("decal_stencil_deployer", Layouts.Deployer.SIZE, 5);
+        BlockPos.betweenClosed(Layouts.Deployer.ROW_FROM, Layouts.Deployer.ROW_TO)
+                .forEach(pos -> deployer.copycat(pos.immutable(), DecalsBlocks.DECAL_BLOCK.getDefaultState(), white));
+        deployer.set(Layouts.Deployer.DEPLOYER, AllBlocks.DEPLOYER.getDefaultState().setValue(DirectionalKineticBlock.FACING, Direction.DOWN)
+                .setValue(DirectionalAxisKineticBlock.AXIS_ALONG_FIRST_COORDINATE, false));
+        deployer.fill(Layouts.Deployer.SHAFT_FROM, Layouts.Deployer.SHAFT_TO,
+                AllBlocks.SHAFT.getDefaultState().setValue(RotatedPillarBlock.AXIS, Direction.Axis.Z));
+        all.add(deployer);
         return all;
     }
 

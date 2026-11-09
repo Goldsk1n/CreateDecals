@@ -25,15 +25,24 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
   drawn over in red, so on a face with two decals it shows which one goes. Aimed at a block that takes no decals, the
   face is outlined red, and clicking it opens the screen with a note on where decals go.
 - Ctrl + scroll while holding a stencil turns its decal or word a quarter, without opening the screen.
+- **Create's Deployer** uses the stencil as a player does: one holding a stencil stamps its decal (or word, or large
+  decal) on the block two in front of it, and one carried on a contraption stamps every block it passes, so a piston,
+  gantry or train lays a stripe as it goes; pointing down, it stamps the tops. A Deployer with a dye recolours decals,
+  with a Glow Ink Sac makes them glow, with the eraser takes them off. Its clicks keep to the same building rules as a
+  player's and stay out of anyone's undo. Ponder shows it, under the stencil and under Create's Deployer.
+- Stamping a decal sounds like dye going onto a sign and puffs a little dust of its colour off each tile; erasing and
+  undoing sound like Create's Clipboard eraser, picking a decal up like its pen. A dye on a decal now sounds as on a sign.
 - Z (rebindable in Controls) undoes the last stencil click: a decal, a large one, a word or the eraser, up to 10 clicks
   back. Tiles painted over since, mined, carried off on a contraption or now protected are left alone, and the action
   bar says how many came back. The history is kept until the player leaves.
 
 ### Decals
 
-- 98 built-in decals in Create's style: 26 letters and 10 digits (a 16 px pixel font), 12 signs, 21 lines, 9 markers
-  (arrows, chevrons, frames) and 20 emblems (8-tooth cogs in three sizes, a train, a balloon, a four-blade propeller,
-  wings, and signs for factories: warning, no entry, flame, water drop, cross, skull and crossbones). 10 of them cover several blocks, up to 3x3. All in one tone: an emblem's detail (a
+- 101 built-in decals in Create's style: 26 letters and 10 digits (a 16 px pixel font), 12 signs, 21 lines, 10 markers
+  (arrows, chevrons, frames, a rotation arrow for shafts; the stencil's flip turns it the other way) and 22 emblems
+  (8-tooth cogs in three sizes, a train, a balloon, a four-blade propeller, wings, a wrench, crossed tools, and signs for
+  factories: warning, rotating machinery, no entry, flame, water drop, cross, skull and crossbones). 11 of them cover
+  several blocks, up to 3x3. All in one tone: an emblem's detail (a
   train's headlights, a balloon's panels) is cut out, so it shows in every colour, black included.
 - Stripes that join up for liveries: the stripe, the thin stripe and the double stripe each come straight, as a turn, as
   an end and as a rise (2x2, up one block at 45 degrees), all on the same bands; the edge stripe has a corner, and frames
@@ -72,4 +81,4 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
   saved, on contraptions and trains (glowing ones full-bright, also under Sodium), on Sable vehicles, in schematics, and
   when a contraption puts them back, turned with the block. Uses only Copycats+'s public `foundation`
   package and Create's own API (Copycats+ 2.0 and later; tested with 3.0.9).
-- Every block and the stencil have a Ponder scene.
+- Every block and the stencil have a Ponder scene, and the stencil a second one for Deployers.

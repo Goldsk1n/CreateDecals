@@ -40,6 +40,20 @@ final class Layouts {
         static final BlockPos SIDE = new BlockPos(0, 1, 3);
     }
 
+    /**
+     * 5x5 plate: a row of three Decal Blocks running east, a Deployer two blocks over the middle one pointing down, its
+     * shaft running south to the plate's edge.
+     */
+    static final class Deployer {
+        static final int SIZE = 5;
+        static final BlockPos ROW_FROM = new BlockPos(1, 1, 2);
+        static final BlockPos ROW_TO = new BlockPos(3, 1, 2);
+        static final BlockPos MIDDLE = new BlockPos(2, 1, 2);
+        static final BlockPos DEPLOYER = new BlockPos(2, 3, 2);
+        static final BlockPos SHAFT_FROM = new BlockPos(2, 3, 3);
+        static final BlockPos SHAFT_TO = new BlockPos(2, 3, 4);
+    }
+
     private Layouts() {
     }
 }

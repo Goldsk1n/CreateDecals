@@ -1,12 +1,13 @@
 package com.goldskinmc.createdecals.stencil;
 
 import com.goldskinmc.createdecals.block.CreateCopycats;
-import com.goldskinmc.createdecals.block.DecalHolder;
 import com.goldskinmc.createdecals.block.DecalEdits;
+import com.goldskinmc.createdecals.block.DecalHolder;
 import com.goldskinmc.createdecals.block.DecalTiles;
 import com.goldskinmc.createdecals.block.DecalUndo;
 import com.goldskinmc.createdecals.decal.DecalState;
 import com.goldskinmc.createdecals.registry.DecalsComponents;
+import com.simibubi.create.AllSoundEvents;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -46,7 +47,7 @@ public class DecalStencilItem extends Item {
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         Player player = context.getPlayer();
-        Direction face = context.getClickedFace();
+        Direction face = DecalEdits.clickedFace(player, context.getClickedFace());
         // Our decal blocks and Copycats+'s copycats keep decals (DecalHolder); Create's own Copycat Panel and Step are
         // treated as ours without a decal: placing one converts them (CreateCopycats)
         BlockState state = level.getBlockState(context.getClickedPos());
@@ -77,6 +78,7 @@ public class DecalStencilItem extends Item {
             } else {
                 stack.set(DecalsComponents.STENCIL.get(), StencilData.of(be.getDecal(face, front), front));
                 message(player, front ? "picked_front" : "picked");
+                AllSoundEvents.CLIPBOARD_CHECKMARK.playOnServer(level, context.getClickedPos());
             }
             return InteractionResult.CONSUME;
         }
