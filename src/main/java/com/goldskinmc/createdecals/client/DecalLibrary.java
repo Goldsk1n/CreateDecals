@@ -1,6 +1,7 @@
 package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.CreateDecals;
+import com.goldskinmc.createdecals.decal.DecalPlacement;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -65,6 +66,18 @@ public final class DecalLibrary implements ResourceManagerReloadListener {
                     JsonArray size = GsonHelper.getAsJsonArray(json, "size");
                     width = Math.max(1, size.get(0).getAsInt());
                     height = Math.max(1, size.get(1).getAsInt());
+                }
+                // A typo in someone's pack must not make a decal the stencil cannot place as listed
+                if (width > DecalPlacement.MAX_SIZE || height > DecalPlacement.MAX_SIZE) {
+                    CreateDecals.LOGGER.warn("Decal {} is {} x {} blocks; decals are at most {} x {}, so it is listed at that size",
+                            id, width, height, DecalPlacement.MAX_SIZE, DecalPlacement.MAX_SIZE);
+                    width = Math.min(width, DecalPlacement.MAX_SIZE);
+                    height = Math.min(height, DecalPlacement.MAX_SIZE);
+                }
+                ResourceLocation picture = ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "textures/decal/" + path + ".png");
+                if (manager.getResource(picture).isEmpty()) {
+                    CreateDecals.LOGGER.warn("Skipping decal definition {}: no picture at {}", location, picture);
+                    continue;
                 }
                 JsonElement category = json.get("category");
                 loaded.put(id, new Entry(id, ResourceLocation.fromNamespaceAndPath(id.getNamespace(), "decal/" + path), width, height,

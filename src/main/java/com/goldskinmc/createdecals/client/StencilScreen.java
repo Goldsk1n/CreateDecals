@@ -7,22 +7,28 @@ import com.goldskinmc.createdecals.stencil.DecalStencilItem;
 import com.goldskinmc.createdecals.stencil.StencilData;
 import com.goldskinmc.createdecals.stencil.StencilPayload;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.math.Axis;
 import com.simibubi.create.foundation.gui.AllGuiTextures;
 import com.simibubi.create.foundation.gui.AllIcons;
 import com.simibubi.create.foundation.gui.widget.IconButton;
-import net.createmod.catnip.gui.element.ScreenElement;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import net.createmod.catnip.gui.element.ScreenElement;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
@@ -32,6 +38,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Matrix4f;
 
 /**
  * The Decal Stencil's screen, built as Create's own screens are (its schematic screens: a grey header strip, a blue
@@ -480,11 +487,36 @@ public class StencilScreen extends Screen {
             // A mirrored quad winds the other way, and the GUI culls back faces: without this it vanished
             RenderSystem.disableCull();
         }
-        graphics.blit(-size / 2, -size / 2, 0, size, size, sprite, r, g, b, 1f);
+        blitInset(graphics, sprite, -size / 2, -size / 2, size, r, g, b);
         if (flip) {
             RenderSystem.enableCull();
         }
         graphics.pose().popPose();
+    }
+
+    /**
+     * {@code GuiGraphics.blit} with a sprite, its texture coordinates pulled in by a fiftieth of a texel: at GUI scales
+     * that put a decal's edge between screen pixels (a word's letters at scale 3), the plain blit sampled the next
+     * sprite on the block atlas and drew a line of it beside the letter.
+     */
+    private static void blitInset(GuiGraphics graphics, TextureAtlasSprite sprite, int x, int y, int size, float r, float g, float b) {
+        float du = (sprite.getU1() - sprite.getU0()) / sprite.contents().width() * 0.02f;
+        float dv = (sprite.getV1() - sprite.getV0()) / sprite.contents().height() * 0.02f;
+        float u0 = sprite.getU0() + du;
+        float u1 = sprite.getU1() - du;
+        float v0 = sprite.getV0() + dv;
+        float v1 = sprite.getV1() - dv;
+        RenderSystem.setShaderTexture(0, sprite.atlasLocation());
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
+        RenderSystem.enableBlend();
+        Matrix4f pose = graphics.pose().last().pose();
+        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        buffer.addVertex(pose, x, y, 0).setUv(u0, v0).setColor(r, g, b, 1f);
+        buffer.addVertex(pose, x, y + size, 0).setUv(u0, v1).setColor(r, g, b, 1f);
+        buffer.addVertex(pose, x + size, y + size, 0).setUv(u1, v1).setColor(r, g, b, 1f);
+        buffer.addVertex(pose, x + size, y, 0).setUv(u1, v0).setColor(r, g, b, 1f);
+        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        RenderSystem.disableBlend();
     }
 
     @Override

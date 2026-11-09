@@ -149,6 +149,11 @@ dependencies {
 
     if (floorRun) {
         localRuntime("com.simibubi.create:create-${minecraft_version}:${create_floor_version}") { transitive = false }
+        // With -Pcopycats_version=yJiPTmhu (3.0.1, the oldest for 1.21.1, which says it takes Create 6.0.0 on; later ones
+        // need 6.0.8): Copycats+ on the oldest Create
+        if (devCopycats) {
+            localRuntime("maven.modrinth:copycats:${copycats_version}") { transitive = false }
+        }
     } else {
         localRuntime("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") { transitive = false }
         localRuntime "net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${minecraft_version}"
@@ -165,6 +170,24 @@ dependencies {
 
         if (devCopycats) {
             localRuntime("maven.modrinth:copycats:${copycats_version}") { transitive = false }
+        }
+        // -Pdev_conflicts=immediatelyfast,entityculling,sodium-extra adds mods big Create packs ship (All of Create
+        // Aeronautics has all three) that change how things are drawn: ImmediatelyFast batches screen drawing, Entity
+        // Culling skips what it thinks is hidden, Sodium Extra (needs -Pdev_perf) changes Sodium's options. The same
+        // versions Lightworks tests against; dev only, never shipped
+        def conflictMods = [
+                'immediatelyfast': "maven.modrinth:immediatelyfast:${immediatelyfast_version}",
+                'entityculling'  : "maven.modrinth:entityculling:${entityculling_version}",
+                'sodium-extra'   : "maven.modrinth:sodium-extra:${sodium_extra_version}",
+        ]
+        providers.gradleProperty('dev_conflicts').map { it.split(',')*.trim() as Set }.getOrElse([] as Set).each { name ->
+            if (!conflictMods.containsKey(name)) {
+                throw new GradleException("Unknown dev_conflicts mod '${name}'; use ${conflictMods.keySet().join(', ')}")
+            }
+            if (name == 'sodium-extra' && !devPerf) {
+                throw new GradleException('sodium-extra needs -Pdev_perf=true (Sodium)')
+            }
+            localRuntime(conflictMods[name]) { transitive = false }
         }
         if (devTools) {
             localRuntime("maven.modrinth:jei:${jei_version}") { transitive = false }

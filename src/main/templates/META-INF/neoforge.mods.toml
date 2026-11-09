@@ -36,10 +36,11 @@ versionRange = "${create_version_range}"
 ordering = "AFTER"
 side = "BOTH"
 
-# Optional: its copycats take decals too (compat/copycats; only its public foundation package, from 2.0 on)
+# Optional: its copycats take decals too (compat/copycats; only its public foundation package). 3.0.1 is its oldest
+# release for NeoForge 1.21.1: tested with it on Create 6.0.0 and with 3.0.9 and 3.0.11 on 6.0.10
 [[dependencies.${mod_id}]]
 modId = "copycats"
 type = "optional"
-versionRange = "[2.0,)"
+versionRange = "[3.0.1,)"
 ordering = "AFTER"
 side = "BOTH"

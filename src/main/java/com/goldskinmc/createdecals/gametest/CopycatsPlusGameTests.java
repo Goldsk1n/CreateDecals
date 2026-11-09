@@ -20,10 +20,13 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
@@ -57,7 +60,7 @@ public final class CopycatsPlusGameTests {
     }
 
     /** A right click as the server handles one from a player, events included. */
-    private static void click(GameTestHelper helper, FakePlayer player, ItemStack held, BlockPos pos, Direction face) {
+    private static void click(GameTestHelper helper, ServerPlayer player, ItemStack held, BlockPos pos, Direction face) {
         BlockPos absolute = helper.absolutePos(pos);
         player.setItemInHand(InteractionHand.MAIN_HAND, held);
         player.gameMode.useItemOn(player, helper.getLevel(), held, InteractionHand.MAIN_HAND,
@@ -109,13 +112,16 @@ public final class CopycatsPlusGameTests {
         DecalState dyed = holder.getDecal(Direction.UP, true);
         helper.assertTrue(dyed != null && dyed.rgb() == (DyeColor.LIME.getTextureDiffuseColor() & 0xFFFFFF), "dyed 7: " + dyed);
 
-        // The eraser on the front layer takes the 7; undo puts it back
-        int steps = DecalUndo.steps(player);
-        click(helper, player, stencil(StencilData.EMPTY.withErase(true).withFront(true)), slope, Direction.UP);
+        // The eraser on the front layer takes the 7; undo puts it back. A player's click, not the fake player's above: a
+        // fake player's clicks (a Deployer's) are kept out of undo
+        Player person = helper.makeMockPlayer(GameType.SURVIVAL);
+        person.setItemInHand(InteractionHand.MAIN_HAND, stencil(StencilData.EMPTY.withErase(true).withFront(true)));
+        BlockPos top = helper.absolutePos(slope);
+        helper.useBlock(slope, person, new BlockHitResult(Vec3.atCenterOf(top).relative(Direction.UP, 0.5), Direction.UP, top, false));
         helper.assertTrue(holder.getDecal(Direction.UP, true) == null && holder.getDecal(Direction.UP, false) != null,
                 "the eraser should take the 7 only: " + holder.getDecal(Direction.UP, true) + " / " + holder.getDecal(Direction.UP, false));
-        helper.assertTrue(DecalUndo.steps(player) == steps + 1, "erasing is one undo step");
-        DecalUndo.Result undone = DecalUndo.undo(player, player.getMainHandItem());
+        helper.assertTrue(DecalUndo.steps(person) == 1, "erasing is one undo step");
+        DecalUndo.Result undone = DecalUndo.undo(person, person.getMainHandItem());
         helper.assertTrue(undone != null && undone.restored() == 1 && dyed.equals(holder.getDecal(Direction.UP, true)),
                 "undo: " + undone + ", " + holder.getDecal(Direction.UP, true));
         helper.succeed();

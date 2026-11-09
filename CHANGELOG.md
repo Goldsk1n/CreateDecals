@@ -7,14 +7,15 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
 ### Blocks and items
 
 - **Decal Panel**: Create's Copycat Panel with a decal on its front. It copies any block's look as the Copycat Panel
-  does; crafted from a Copycat Panel (and back). Create's own Copycat Panels already in a build need no swapping: a
+  does; four from a zinc ingot on a Stonecutter, as Create's own, or one from a Copycat Panel there (crafted back into
+  one). Create's own Copycat Panels already in a build need no swapping: a
   stencil click on one's front turns it into a Decal Panel in place, keeping its material, facing and the block used on
   it, then puts the decal on.
 - **Decal Block**: a full copycat block with a decal on each of its faces, for hulls built of whole blocks. Faces against
   a solid block are hidden, decal and all. Two from a zinc ingot on a Stonecutter.
 - **Decal Step**: Create's Copycat Step with a decal on any of its faces, for trims and ledges. Each face shows the part
   of the decal it covers, as if the decal lay on the whole face of the block in that plane, so stripes and patterns run
-  on unbroken from the Decal Blocks beside it. Crafted from a Copycat Step (and back); Create's own Copycat Steps turn
+  on unbroken from the Decal Blocks beside it. Four from a zinc ingot on a Stonecutter, or one from a Copycat Step there (crafted back into one); Create's own Copycat Steps turn
   into Decal Steps in place when a stencil puts a decal on any of their faces.
 - **Decal Stencil**: used in the air it opens a screen to choose a decal or type a word, its colour (the 16 dyes or a
   hex code), how it is turned and flipped, its layer and whether it glows; on a decal block's face it puts the decal
@@ -80,5 +81,6 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
   dye, glow ink, Create's Clipboard (also to and from our blocks) and undo work on them; they keep their decals when
   saved, on contraptions and trains (glowing ones full-bright, also under Sodium), on Sable vehicles, in schematics, and
   when a contraption puts them back, turned with the block. Uses only Copycats+'s public `foundation`
-  package and Create's own API (Copycats+ 2.0 and later; tested with 3.0.9).
+  package and Create's own API (Copycats+ 3.0.1 and later: tested with 3.0.1 on Create 6.0.0, 3.0.9 and 3.0.11 on
+  6.0.10).
 - Every block and the stencil have a Ponder scene, and the stencil a second one for Deployers.

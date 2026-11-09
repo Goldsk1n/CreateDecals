@@ -20,8 +20,9 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   top-left face; a typed word is laid as an N x 1 grid the same way), `DecalFrame` (which way is up and right on each face), `Decals` (ids; the built-in list, read from our
   jar so the server can suggest them). `block/DecalTiles` places a whole decal and changes every tile of one (eraser,
   dye).
-- `client/`: `DecalLibrary` (every `assets/<ns>/decals/<path>.json` in the loaded resource packs: size in tiles and
-  category; sprite `<ns>:decal/<path>` on the block atlas, stitched from `textures/decal/` by our
+- `client/`: `DecalLibrary` (every `assets/<ns>/decals/<path>.json` in the loaded resource packs: size in tiles (at
+  most 4 x 4; a bigger one is listed at that, with a warning) and category, skipped with a warning when it is not JSON
+  or has no picture; sprite `<ns>:decal/<path>` on the block atlas, stitched from `textures/decal/` by our
   `assets/minecraft/atlases/blocks.json`), `DecalQuads` (one quad per decal, coplanar with the material's face, cutout
   layer, colour in the tint index, cached; the front decal is added after the back one, so it wins the same depth tie the
   back one wins over the material; a glowing decal is unshaded, without ambient occlusion and baked at full light,
@@ -101,6 +102,10 @@ runs dev on 6.0.10 with Sable 2.0.6 (no code refers to Sable).
   `./gradlew installShaderpack` puts Complementary Reimagined into `run/shaderpacks/` (personal-use licence: never
   bundle it); shaders on/off is `enableShaders` in `run/config/iris.properties`.
 - Dedicated server: `runServer` uses `run-server/` (superflat, offline mode, EULA accepted by the owner Nov 7, 2026).
+- `-Pdev_conflicts=immediatelyfast,entityculling,sodium-extra` (sodium-extra with `-Pdev_perf`) adds render mods big
+  Create packs ship, the versions Lightworks tests against. `-Pcopycats_version=<Modrinth id>` builds and tests against
+  another Copycats+ (3.0.1 `yJiPTmhu` is the oldest for NeoForge 1.21.1 and needs `-Prun_profile=floor`: it fails on
+  Create 6.0.10); the floor profile loads Copycats+ too with `-Pdev_copycats=true`.
 - `-Pdev_sable=false` leaves Sable and Veil out of `latest` runs (game folder `run-nosable/`), to tell their effects from ours.
 - `-Pdev_tools=true` adds JEI and The One Probe (the same versions as Lightworks') for playing by hand; `latest` only,
   never shipped.

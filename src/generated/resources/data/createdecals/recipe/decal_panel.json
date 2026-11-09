@@ -1,11 +1,8 @@
 {
-  "type": "minecraft:crafting_shapeless",
-  "category": "building",
-  "ingredients": [
-    {
-      "item": "create:copycat_panel"
-    }
-  ],
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "create:copycat_panel"
+  },
   "result": {
     "count": 1,
     "id": "createdecals:decal_panel"

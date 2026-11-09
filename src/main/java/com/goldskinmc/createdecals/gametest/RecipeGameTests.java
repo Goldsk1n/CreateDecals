@@ -35,6 +35,8 @@ public final class RecipeGameTests {
     @GameTest(template = "empty")
     public static void everyRecipeCrafts(GameTestHelper helper) {
         List<String> checked = new ArrayList<>();
+        // Every recipe is tried before failing, so one run names every clash (another mod's recipe for the same items)
+        List<String> failures = new ArrayList<>();
         for (RecipeHolder<?> holder : helper.getLevel().getRecipeManager().getRecipes()) {
             if (!holder.id().getNamespace().equals(CreateDecals.MOD_ID)) {
                 continue;
@@ -75,13 +77,19 @@ public final class RecipeGameTests {
                 helper.fail(holder.id() + ": a recipe type this test does not know: " + recipe.getClass().getSimpleName());
                 return;
             }
-            helper.assertTrue(found.isPresent(), holder.id() + ": its own ingredients craft nothing");
+            if (found.isEmpty()) {
+                failures.add(holder.id() + ": its own ingredients craft nothing");
+                continue;
+            }
             ItemStack made = found.get().value().getResultItem(helper.getLevel().registryAccess());
-            helper.assertTrue(ItemStack.isSameItem(made, expected) && made.getCount() == expected.getCount(),
-                    holder.id() + ": its ingredients make " + made + " (" + found.get().id() + "), not " + expected);
+            if (!ItemStack.isSameItem(made, expected) || made.getCount() != expected.getCount()) {
+                failures.add(holder.id() + ": its ingredients make " + made + " (" + found.get().id() + "), not " + expected);
+                continue;
+            }
             checked.add(holder.id().getPath());
         }
-        helper.assertTrue(checked.size() >= 6, "only these recipes were found: " + checked);
+        helper.assertTrue(failures.isEmpty(), String.join("; ", failures));
+        helper.assertTrue(checked.size() >= 8, "only these recipes were found: " + checked);
         CreateDecals.LOGGER.info("[gametest] recipes craft: {}", checked);
         helper.succeed();
     }
