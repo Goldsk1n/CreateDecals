@@ -1,6 +1,7 @@
 package com.goldskinmc.createdecals.block;
 
 import com.goldskinmc.createdecals.registry.DecalsBlockEntities;
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.decoration.copycat.CopycatBlock;
 import com.simibubi.create.content.decoration.copycat.CopycatBlockEntity;
 import net.minecraft.core.BlockPos;
@@ -56,11 +57,15 @@ public class DecalBlock extends CopycatBlock {
 
     /**
      * Copycats let light and neighbours' faces through (Create gives them no occlusion, since the material may be
-     * glass), so a solid material hides the neighbour's face against it here instead, and glass hides glass.
+     * glass), so a solid material hides the neighbour's face against it here instead, and glass hides glass. A block
+     * with no material yet hides nothing: it shows Create's see-through copycat frame, whose block counts as solid.
      */
     @Override
     public boolean hidesNeighborFace(BlockGetter level, BlockPos pos, BlockState state, BlockState neighborState, Direction dir) {
         BlockState material = getMaterial(level, pos);
+        if (AllBlocks.COPYCAT_BASE.has(material)) {
+            return false;
+        }
         if (material.isSolidRender(level, pos)) {
             return true;
         }

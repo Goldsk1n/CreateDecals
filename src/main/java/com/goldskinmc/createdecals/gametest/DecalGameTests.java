@@ -50,6 +50,27 @@ public final class DecalGameTests {
         helper.succeed();
     }
 
+    /**
+     * A Decal Block hides the face of the block under it once it copies a solid material, but not while it shows
+     * Create's see-through copycat frame (the ground showed the sky through a bare one).
+     */
+    @GameTest(template = EMPTY)
+    public static void bareDecalBlocksHideNothing(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(2, 2, 2);
+        helper.setBlock(pos.below(), Blocks.STONE);
+        helper.setBlock(pos, DecalsBlocks.DECAL_BLOCK.getDefaultState());
+        BlockPos absolute = helper.absolutePos(pos);
+        java.util.function.BooleanSupplier hidesStone = () -> helper.getLevel().getBlockState(absolute)
+                .hidesNeighborFace(helper.getLevel(), absolute, Blocks.STONE.defaultBlockState(), Direction.DOWN);
+        helper.assertFalse(hidesStone.getAsBoolean(), "a bare Decal Block hides the stone's top under it");
+        DecalCopycatBlockEntity block = helper.getBlockEntity(pos);
+        block.setMaterial(Blocks.WHITE_CONCRETE.defaultBlockState());
+        helper.assertTrue(hidesStone.getAsBoolean(), "a white concrete Decal Block does not hide the stone's top under it");
+        block.setMaterial(Blocks.GLASS.defaultBlockState());
+        helper.assertFalse(hidesStone.getAsBoolean(), "a glass Decal Block hides the stone's top under it");
+        helper.succeed();
+    }
+
     /** A panel's decal and a block's decals survive saving and loading the block entity, tiles and turns included. */
     @GameTest(template = EMPTY)
     public static void decalsSurviveSaveAndLoad(GameTestHelper helper) {
