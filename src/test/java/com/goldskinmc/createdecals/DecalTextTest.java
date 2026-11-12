@@ -11,7 +11,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.Test;
 
-/** Typed words: every character that can be typed has a built-in decal, drawn and defined with the mod. */
+/** Typed words: every character that can be typed has a built-in decal. */
 class DecalTextTest {
     private static final Path DECALS = Path.of("src/main/resources/assets/createdecals");
     private static final String TYPEABLE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789&-.#+/!?:'()";

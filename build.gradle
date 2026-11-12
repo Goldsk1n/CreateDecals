@@ -72,10 +72,6 @@ def devPerf = providers.gradleProperty('dev_perf').map { it.toBoolean() }.getOrE
 def devIris = providers.gradleProperty('dev_iris').map { it.toBoolean() }.getOrElse(true)
 // -Pdev_copycats=true adds Copycats+ (the most used copycat add-on) to check both run side by side: dev only, never shipped
 def devCopycats = providers.gradleProperty('dev_copycats').map { it.toBoolean() }.getOrElse(false)
-// -Pdev_lightworks=true adds the released Create: Lightworks jar (the owner's other Create add-on, often in the same packs)
-// from ../lightworks-neoforge-1.21.1/build/libs, to check both run side by side: dev only, never shipped
-def devLightworks = providers.gradleProperty('dev_lightworks').map { it.toBoolean() }.getOrElse(false)
-def lightworksJar = file("../lightworks-neoforge-1.21.1/build/libs/createlightworks-neoforge-1.21.1-${providers.gradleProperty('dev_lightworks_version').getOrElse('1.0.0')}.jar")
 // -Pdev_tools=true adds JEI and The One Probe to `latest` runs, for playing by hand: dev only, never shipped
 def devTools = providers.gradleProperty('dev_tools').map { it.toBoolean() }.getOrElse(false)
 // -Pdev_sable=false leaves Sable and Veil out of `latest` runs (to tell their effects from ours)
@@ -228,9 +224,8 @@ tasks.register('installShaderpack', Copy) {
 }
 
 // Sodium's jar is a launcher service that loads the real mod from inside itself. That only works from a
-// mods folder, not the dev classpath, so -Pdev_perf runs copy it into the profile's mods/ as dev-perf-*.jar, and
-// -Pdev_lightworks runs the Lightworks release jar as dev-lightworks-*.jar. Other runs remove them again; any other file
-// in mods/ is left alone.
+// mods folder, not the dev classpath, so -Pdev_perf runs copy it into the profile's mods/ as dev-perf-*.jar.
+// Other runs remove it again; any other file in mods/ is left alone.
 configurations {
     devPerfMods
 }
@@ -241,21 +236,13 @@ tasks.register('syncDevPerfMods') {
     // Not a Sync: with nothing to copy, a Sync is skipped as NO-SOURCE and never deletes the old jar
     def modsDir = file("${runDir}/mods")
     def jars = devPerf && !floorRun ? configurations.devPerfMods : files()
-    def lightworks = devLightworks ? files(lightworksJar) : files()
     inputs.files(jars)
-    inputs.files(lightworks)
     outputs.upToDateWhen { false }
     doLast {
         modsDir.mkdirs()
-        modsDir.listFiles().findAll { it.name.startsWith('dev-perf-') || it.name.startsWith('dev-lightworks-') }.each { it.delete() }
+        modsDir.listFiles().findAll { it.name.startsWith('dev-perf-') }.each { it.delete() }
         jars.each { jar ->
             java.nio.file.Files.copy(jar.toPath(), new File(modsDir, "dev-perf-${jar.name}").toPath())
-        }
-        lightworks.each { jar ->
-            if (!jar.exists()) {
-                throw new GradleException("-Pdev_lightworks: no Lightworks jar at ${jar}; build it in ../lightworks-neoforge-1.21.1")
-            }
-            java.nio.file.Files.copy(jar.toPath(), new File(modsDir, "dev-lightworks-${jar.name}").toPath())
         }
     }
 }
@@ -294,4 +281,11 @@ idea {
         downloadSources = true
         downloadJavadoc = true
     }
+}
+
+// Optional local additions for development, kept outside this repository: -Pdecals_dev_extras=<path to a Gradle script>
+// (or decals_dev_extras in ~/.gradle/gradle.properties) applies that script last
+def devExtras = providers.gradleProperty('decals_dev_extras').getOrElse('')
+if (!devExtras.isBlank() && file(devExtras).exists()) {
+    apply from: devExtras
 }
