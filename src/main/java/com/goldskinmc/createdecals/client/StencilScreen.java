@@ -136,7 +136,9 @@ public class StencilScreen extends Screen {
     @Override
     protected void init() {
         left = (width - PANEL_WIDTH) / 2;
-        top = (height - PANEL_HEIGHT) / 2;
+        // Shorter than the panel (Force Unicode Font makes the GUI scale even, which left 180 GUI pixels at 1280 x 720): keep
+        // the bottom, the word field and the confirm button, on screen and let the title strip go off the top
+        top = height >= PANEL_HEIGHT ? (height - PANEL_HEIGHT) / 2 : height - PANEL_HEIGHT;
         layoutTabs();
         int bx = left + PREVIEW_X;
         int by = top + BUTTONS_Y;
