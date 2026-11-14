@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.fml.ModList;
 import net.neoforged.neoforgespi.language.IModFileInfo;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Decal ids. A decal is data, not code: its definition is {@code assets/<namespace>/decals/<path>.json} and its sprite
@@ -26,10 +27,13 @@ public final class Decals {
         return ResourceLocation.fromNamespaceAndPath(CreateDecals.MOD_ID, path);
     }
 
-    /** A stored id; bare paths (as the prototype saved them) mean our own decals. */
+    /**
+     * A stored id; bare paths (as the prototype saved them) mean our own decals. Null when it is not an id at all (damaged
+     * or hand-edited data): that face then shows no decal, rather than some other one.
+     */
+    @Nullable
     public static ResourceLocation parse(String id) {
-        ResourceLocation parsed = id.indexOf(':') < 0 ? ResourceLocation.tryBuild(CreateDecals.MOD_ID, id) : ResourceLocation.tryParse(id);
-        return parsed != null ? parsed : id("fill");
+        return id.indexOf(':') < 0 ? ResourceLocation.tryBuild(CreateDecals.MOD_ID, id) : ResourceLocation.tryParse(id);
     }
 
     /**

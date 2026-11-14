@@ -70,7 +70,10 @@ public record AttachedDecals(Map<Direction, DecalState> back, Map<Direction, Dec
         EnumMap<Direction, DecalState> layer = new EnumMap<>(Direction.class);
         for (Direction face : Direction.values()) {
             if (tag.contains(face.getSerializedName())) {
-                layer.put(face, DecalState.load(tag.getCompound(face.getSerializedName())));
+                DecalState decal = DecalState.load(tag.getCompound(face.getSerializedName()));
+                if (decal != null) {
+                    layer.put(face, decal);
+                }
             }
         }
         return layer;

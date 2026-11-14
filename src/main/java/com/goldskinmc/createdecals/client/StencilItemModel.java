@@ -33,6 +33,8 @@ import org.jetbrains.annotations.Nullable;
  */
 public class StencilItemModel extends BakedModelWrapper<BakedModel> {
     private static final Map<StencilData, BakedModel> CACHE = new ConcurrentHashMap<>();
+    /** Every colour and turn chosen is an entry: past this many the cache is emptied and refilled by the stencils in use. */
+    private static final int CACHE_LIMIT = 512;
 
     private final ItemOverrides overrides = new ItemOverrides() {
         @Override
@@ -44,6 +46,9 @@ public class StencilItemModel extends BakedModelWrapper<BakedModel> {
             DecalLibrary.Entry entry = DecalLibrary.INSTANCE.get(data.decal().get());
             if (entry == null) {
                 return StencilItemModel.this.originalModel;
+            }
+            if (CACHE.size() >= CACHE_LIMIT && !CACHE.containsKey(data)) {
+                CACHE.clear();
             }
             return CACHE.computeIfAbsent(data, d -> new WithDecal(StencilItemModel.this.originalModel, quad(entry, d)));
         }

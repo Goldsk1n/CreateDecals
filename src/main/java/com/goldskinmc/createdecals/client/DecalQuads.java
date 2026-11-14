@@ -50,6 +50,11 @@ public final class DecalQuads {
     }
 
     private static final Map<Key, BakedQuad> CACHE = new ConcurrentHashMap<>();
+    /**
+     * The cache's bound: every colour, turn and window of a decal is an entry, so hex colours and long sessions would
+     * grow it without end. Past this it is emptied and refilled by what is in view (a quad is a few hundred bytes).
+     */
+    static final int CACHE_LIMIT = 50_000;
 
     private DecalQuads() {
     }
@@ -117,6 +122,9 @@ public final class DecalQuads {
             return null;
         }
         BakedQuad quad = bake(entry, decal, face, window, key.lift());
+        if (CACHE.size() >= CACHE_LIMIT) {
+            CACHE.clear();
+        }
         CACHE.put(key, quad);
         return quad;
     }

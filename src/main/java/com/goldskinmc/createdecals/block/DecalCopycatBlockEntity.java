@@ -175,7 +175,10 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
         readLayer(tag, "Decals", decals);
         if (!tag.contains("Decals") && tag.contains("Decal") && getBlockState().hasProperty(CopycatPanelBlock.FACING)) {
             // A prototype panel: its one decal was on the front
-            decals.put(getBlockState().getValue(CopycatPanelBlock.FACING), DecalState.load(tag.getCompound("Decal")));
+            DecalState decal = DecalState.load(tag.getCompound("Decal"));
+            if (decal != null) {
+                decals.put(getBlockState().getValue(CopycatPanelBlock.FACING), decal);
+            }
         }
         if (clientPacket && !(before.equals(decals) && frontsBefore.equals(fronts))) {
             redrawDecals();
@@ -187,7 +190,10 @@ public class DecalCopycatBlockEntity extends CopycatBlockEntity implements Clipb
         CompoundTag faces = tag.getCompound(key);
         for (Direction face : Direction.values()) {
             if (faces.contains(face.getName())) {
-                layer.put(face, DecalState.load(faces.getCompound(face.getName())));
+                DecalState decal = DecalState.load(faces.getCompound(face.getName()));
+                if (decal != null) {
+                    layer.put(face, decal);
+                }
             }
         }
     }

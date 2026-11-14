@@ -3,6 +3,7 @@ package com.goldskinmc.createdecals.decal;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * One decal on one face: which decal ({@link Decals}), its colour (0xRRGGBB), how it lies on the face
@@ -76,8 +77,14 @@ public record DecalState(ResourceLocation id, int rgb, int rotation, boolean fli
         return tag;
     }
 
+    /** Null when the stored id is not an id (damaged data); every number is brought into range by the constructor. */
+    @Nullable
     public static DecalState load(CompoundTag tag) {
-        return new DecalState(Decals.parse(tag.getString("Id")), tag.getInt("Rgb"), tag.getByte("Rot"), tag.getBoolean("Flip"),
+        ResourceLocation id = Decals.parse(tag.getString("Id"));
+        if (id == null) {
+            return null;
+        }
+        return new DecalState(id, tag.getInt("Rgb"), tag.getByte("Rot"), tag.getBoolean("Flip"),
                 tag.getByte("TileX"), tag.getByte("TileY"), Math.max(1, tag.getByte("W")), Math.max(1, tag.getByte("H")),
                 tag.getBoolean("Glow"));
     }
