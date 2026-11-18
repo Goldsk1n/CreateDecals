@@ -68,7 +68,7 @@ final class DecalsScenes {
                 .addToIndex()
                 .item(DecalsItems.DECAL_STENCIL.get(), true, false)
                 .title("Decals")
-                .description("Liveries for anything Create builds: decals on copycat blocks")
+                .description("Stripes, numbers and signs on copycat blocks")
                 .register();
         PonderTagRegistrationHelper<ItemProviderEntry<?, ?>> tags = helper.withKeyFunction(RegistryEntry::getId);
         tags.addToTag(DECALS)

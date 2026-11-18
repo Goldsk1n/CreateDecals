@@ -1,8 +1,6 @@
 # Create: Decals
 
-Liveries for anything [Create](https://modrinth.com/mod/create) builds: stripes, numbers, letters, hazard marks and
-emblems on copycat blocks, crisp on any material you copy and still there when the train, contraption or
-[Create Aeronautics](https://modrinth.com/mod/create-aeronautics) airship drives off.
+Decals for [Create](https://modrinth.com/mod/create)'s copycat blocks.
 
 Changes: [CHANGELOG.md](CHANGELOG.md).
 **Community and support:** [Discord](https://discord.gg/HAtMB7UQss). Bugs: [GitHub Issues](https://github.com/Goldsk1n/CreateDecals/issues).
