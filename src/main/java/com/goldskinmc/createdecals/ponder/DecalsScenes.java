@@ -142,7 +142,7 @@ final class DecalsScenes {
                 .text("A full copycat block, for hulls of whole blocks")
                 .placeNearTarget().pointAt(top);
         scene.idle(80);
-        scene.overlay().showControls(north, Pointing.LEFT, 30).rightClick().withItem(stencil("letter_a", DyeColor.BLACK, 0, false, 1, 1));
+        scene.overlay().showControls(north, Pointing.DOWN, 30).rightClick().withItem(stencil("letter_a", DyeColor.BLACK, 0, false, 1, 1));
         scene.idle(7);
         decal(scene, util, block, Direction.NORTH, new DecalState(Decals.id("letter_a"), rgb(DyeColor.BLACK), 0, false));
         scene.idle(20);
@@ -160,7 +160,7 @@ final class DecalsScenes {
 
         ItemStack frontStencil = stencil("frame", DyeColor.RED, 0, false, 1, 1);
         frontStencil.set(DecalsComponents.STENCIL.get(), DecalStencilItem.data(frontStencil).withFront(true));
-        scene.overlay().showControls(north, Pointing.LEFT, 30).rightClick().withItem(frontStencil);
+        scene.overlay().showControls(north, Pointing.DOWN, 30).rightClick().withItem(frontStencil);
         scene.idle(7);
         DecalState frame = new DecalState(Decals.id("frame"), rgb(DyeColor.RED), 0, false);
         decal(scene, util, block, Direction.NORTH, true, frame);
@@ -168,7 +168,7 @@ final class DecalsScenes {
                 .text("Set the stencil to the front layer to put a second decal on top")
                 .placeNearTarget().pointAt(north);
         scene.idle(90);
-        scene.overlay().showControls(north, Pointing.LEFT, 30).rightClick().withItem(new ItemStack(Items.GLOW_INK_SAC));
+        scene.overlay().showControls(north, Pointing.DOWN, 30).rightClick().withItem(new ItemStack(Items.GLOW_INK_SAC));
         scene.idle(7);
         decal(scene, util, block, Direction.NORTH, true, frame.withGlow(true));
         scene.overlay().showText(70)
