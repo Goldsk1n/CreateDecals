@@ -18,12 +18,13 @@ public final class DecalsLang {
         add("itemGroup." + CreateDecals.MOD_ID, "Create: Decals");
         // Ponder scene text, collected from the scenes themselves
         REGISTRATE.addDataGenerator(ProviderType.LANG, provider -> DecalsPonder.provideLang(provider::add));
-        tooltip("item", "decal_stencil", "Puts _decals_ or a typed _word_ on Decal Blocks and Create's Copycat Panels and Steps, behind or in front of the decal already there. Choose in its screen.",
-                action("When used in the air", "Opens the stencil's screen."),
-                action("When R-clicked on a face", "Puts the decal or word there, or erases the decal in the stencil's layer."),
-                action("When R-clicked while sneaking", "Picks up the decal in the stencil's layer on that face."),
-                action("When scrolled holding Ctrl", "Turns the decal or word a quarter."),
-                action("When Z is pressed", "Undoes the last stencil click, up to 10 (the key is in Controls)."));
+        tooltip("item", "decal_stencil", "Puts _decals_ on copycat blocks.",
+                behaviour("When a decal is R-clicked with Dye", "Recolours it. A _Glow Ink Sac_ makes it glow."),
+                action("When used in the air", "Opens its screen."),
+                action("When R-clicked on a face", "Puts the decal on, or erases it."),
+                action("When R-clicked while sneaking", "Picks the decal up."),
+                action("When scrolled holding Ctrl", "Turns the decal."),
+                action("When Undo (Z) is pressed", "Undoes the last click."));
         add("createdecals.stencil.title", "Decal Stencil");
         add("createdecals.stencil.rotate", "Turn");
         add("createdecals.stencil.flip", "Flip");
@@ -68,11 +69,8 @@ public final class DecalsLang {
         for (String category : new String[] {"letters", "digits", "signs", "lines", "markers", "emblems", "misc"}) {
             add("createdecals.category." + category, Character.toUpperCase(category.charAt(0)) + category.substring(1));
         }
-        tooltip("block", "decal_block", "A full _copycat block_ with a _decal_ on any of its faces, for hulls built of whole blocks.",
-                behaviour("When R-clicked with a block", "Copies that block's look."),
-                action("When R-clicked with a Decal Stencil", "Puts the stencil's decal on the clicked face."),
-                action("When R-clicked with Dye", "Recolours the decal on that face."),
-                action("When R-clicked with a Glow Ink Sac", "Makes that decal glow; an Ink Sac stops it."));
+        tooltip("block", "decal_block", "A full _copycat block_ that takes a _decal_ on each face.",
+                behaviour("When R-clicked with a block", "Copies its look."));
     }
 
     /**
