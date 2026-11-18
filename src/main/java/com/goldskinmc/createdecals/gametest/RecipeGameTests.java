@@ -89,7 +89,7 @@ public final class RecipeGameTests {
             checked.add(holder.id().getPath());
         }
         helper.assertTrue(failures.isEmpty(), String.join("; ", failures));
-        helper.assertTrue(checked.size() >= 8, "only these recipes were found: " + checked);
+        helper.assertTrue(checked.containsAll(List.of("decal_stencil", "decal_block")), "only these recipes were found: " + checked);
         CreateDecals.LOGGER.info("[gametest] recipes craft: {}", checked);
         helper.succeed();
     }

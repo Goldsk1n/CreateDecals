@@ -1,7 +1,6 @@
 package com.goldskinmc.createdecals.client;
 
 import com.goldskinmc.createdecals.CreateDecals;
-import com.goldskinmc.createdecals.block.CreateCopycats;
 import com.goldskinmc.createdecals.block.AttachedDecalHolder;
 import com.goldskinmc.createdecals.block.DecalHolder;
 import com.goldskinmc.createdecals.block.DecalTiles;
@@ -88,7 +87,7 @@ public final class StencilOutline {
         MultiBufferSource.BufferSource buffers = mc.renderBuffers().bufferSource();
         BlockState clickedState = level.getBlockState(clickedPos);
         DecalHolder clicked = DecalHolder.at(level, clickedPos);
-        if (clicked == null && !CreateCopycats.isCreateCopycat(clickedState)) {
+        if (clicked == null) {
             // Not a block that takes decals: say so before the click, on the face aimed at
             if (!data.erase()) {
                 VertexConsumer lines = buffers.getBuffer(RenderType.lines());
@@ -150,11 +149,10 @@ public final class StencilOutline {
         buffers.endBatch(RenderType.lines());
     }
 
-    /** Whether a tile would land on that face: a decal block's free face, or Create's copycat that converts. */
+    /** Whether a tile would land on that face: anything that keeps decals there. */
     private static boolean lands(Level level, BlockPos pos, Direction face) {
         DecalHolder holder = DecalHolder.at(level, pos);
-        return holder != null ? holder.acceptsDecalOn(face)
-                : CreateCopycats.convertible(level.getBlockState(pos), face);
+        return holder != null && holder.acceptsDecalOn(face);
     }
 
     /**
@@ -164,7 +162,7 @@ public final class StencilOutline {
     private static void ghost(PoseStack pose, VertexConsumer out, Level level, BlockPos pos, BlockState state, Direction face,
             DecalState decal, Vec3 camera, int rgb, float alpha) {
         if (DecalHolder.at(level, pos) instanceof AttachedDecalHolder) {
-            // Copycats+: the decal projected onto the copycat's own quads, as its model will draw it
+            // An attached copycat: the decal projected onto the copycat's own quads, as its model will draw it
             BakedModel model = Minecraft.getInstance().getBlockRenderer().getBlockModel(state);
             int light = decal.glow() ? LightTexture.FULL_BRIGHT : LevelRenderer.getLightColor(level, pos.relative(face));
             for (BakedQuad quad : AttachedDecalModel.ghostQuads(model, level, pos, state, decal, face)) {
@@ -228,12 +226,12 @@ public final class StencilOutline {
     }
 
     /**
-     * A thin box on the face where the decal lies: a panel's front 3/16 out from its back, a step's face where it is
-     * (DecalFaces), else the block's face. Create's step not yet converted has the same faces as ours.
+     * A thin box on the face where the decal lies: on an attached copycat the face of its outline box, on our Decal Block
+     * the block's face (DecalFaces).
      */
     private static AABB faceBox(Level level, BlockState state, BlockPos pos, Direction face) {
         if (DecalHolder.at(level, pos) instanceof AttachedDecalHolder) {
-            // Copycats+: the face of the copycat's outline box
+            // An attached copycat (Create's or Copycats+'s): the face of its outline box
             VoxelShape shape = state.getShape(level, pos);
             return faceOf(shape.isEmpty() ? new AABB(pos) : shape.bounds().move(pos), face);
         }

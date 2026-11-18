@@ -87,19 +87,11 @@ public final class StencilGameTests {
         helper.succeed();
     }
 
-    /** A panel takes the stencil only on its front; a stencil on a plain block does nothing. */
+    /** A stencil on a plain block does nothing. */
     @GameTest(template = "empty")
     public static void stencilNeedsADecalFace(GameTestHelper helper) {
-        BlockPos panelPos = new BlockPos(1, 1, 2);
-        helper.setBlock(panelPos, DecalsBlocks.DECAL_PANEL.getDefaultState().setValue(CopycatPanelBlock.FACING, Direction.UP));
-        DecalCopycatBlockEntity panel = helper.getBlockEntity(panelPos);
         Player player = helper.makeMockPlayer(GameType.SURVIVAL);
         player.setItemInHand(InteractionHand.MAIN_HAND, stencil(SEVEN));
-        click(helper, player, panelPos, Direction.NORTH);
-        helper.assertTrue(panel.getDecals().isEmpty(), "a panel took a decal on its side: " + panel.getDecals());
-        click(helper, player, panelPos, Direction.UP);
-        helper.assertTrue(panel.getDecal(Direction.UP) != null, "a panel did not take a decal on its front");
-
         BlockPos stone = new BlockPos(3, 1, 2);
         helper.setBlock(stone, Blocks.STONE);
         click(helper, player, stone, Direction.UP);
@@ -107,13 +99,13 @@ public final class StencilGameTests {
         helper.succeed();
     }
 
-    /** Create's Clipboard copies the decal on one face and pastes it onto another (a panel's front only). */
+    /** Create's Clipboard copies the decal on one face and pastes it onto another Decal Block's face. */
     @GameTest(template = "empty")
     public static void clipboardCopiesDecals(GameTestHelper helper) {
         BlockPos from = new BlockPos(1, 1, 2);
         BlockPos to = new BlockPos(3, 1, 2);
         helper.setBlock(from, DecalsBlocks.DECAL_BLOCK.getDefaultState());
-        helper.setBlock(to, DecalsBlocks.DECAL_PANEL.getDefaultState().setValue(CopycatPanelBlock.FACING, Direction.SOUTH));
+        helper.setBlock(to, DecalsBlocks.DECAL_BLOCK.getDefaultState());
         DecalCopycatBlockEntity source = helper.getBlockEntity(from);
         DecalCopycatBlockEntity target = helper.getBlockEntity(to);
         DecalState decal = SEVEN.toDecal().get();
@@ -123,111 +115,8 @@ public final class StencilGameTests {
         helper.assertTrue(source.writeToClipboard(registries, clipboard, Direction.NORTH), "nothing copied");
         helper.assertFalse(source.writeToClipboard(registries, new CompoundTag(), Direction.EAST), "copied a bare face");
         Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-        helper.assertFalse(target.readFromClipboard(registries, clipboard, player, Direction.EAST, false), "pasted onto a panel's side");
         helper.assertTrue(target.readFromClipboard(registries, clipboard, player, Direction.SOUTH, false), "not pasted onto the front");
         helper.assertTrue(decal.equals(target.getDecal(Direction.SOUTH)), "pasted " + target.getDecals());
-        helper.succeed();
-    }
-
-    /**
-     * Create's own Copycat Panel takes a decal by becoming a Decal Panel: a 2x1 decal clicked on the middle one of three
-     * converts the two it covers, keeping facing, waterlogging, material and the consumed item (nothing drops), and leaves
-     * the third Create's. A side of Create's panel, sneaking and the eraser change nothing.
-     */
-    /**
-     * Create's own Copycat Step takes a decal on any face by becoming a Decal Step: its top face on one, its inner back face
-     * on another, keeping facing, half, waterlogging, material and the consumed item (nothing drops). Then a step's decal
-     * turns with it on a contraption, as a block's does.
-     */
-    @GameTest(template = "empty")
-    public static void stencilConvertsCreateSteps(GameTestHelper helper) {
-        BlockState log = Blocks.OAK_LOG.defaultBlockState().setValue(RotatedPillarBlock.AXIS, Direction.Axis.X);
-        BlockState createStep = AllBlocks.COPYCAT_STEP.getDefaultState().setValue(CopycatStepBlock.FACING, Direction.SOUTH)
-                .setValue(CopycatStepBlock.HALF, Half.TOP).setValue(BlockStateProperties.WATERLOGGED, true);
-        BlockPos top = new BlockPos(1, 2, 2);
-        BlockPos back = new BlockPos(3, 2, 2);
-        for (BlockPos pos : new BlockPos[] {top, back}) {
-            helper.setBlock(pos, createStep);
-            CopycatBlockEntity be = helper.getBlockEntity(pos);
-            be.setMaterial(log);
-            be.setConsumedItem(new ItemStack(Items.OAK_LOG));
-        }
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-        player.setItemInHand(InteractionHand.MAIN_HAND, stencil(SEVEN));
-        // Any face takes a decal: the top of one step, the inner back face of the other
-        click(helper, player, top, Direction.UP);
-        click(helper, player, back, Direction.NORTH);
-        for (Object[] check : new Object[][] {{top, Direction.UP}, {back, Direction.NORTH}}) {
-            BlockPos pos = (BlockPos) check[0];
-            Direction face = (Direction) check[1];
-            BlockState state = helper.getBlockState(pos);
-            helper.assertTrue(state.is(DecalsBlocks.DECAL_STEP.get()), "not converted: " + state);
-            helper.assertTrue(state.getValue(CopycatStepBlock.FACING) == Direction.SOUTH && state.getValue(CopycatStepBlock.HALF) == Half.TOP
-                    && state.getValue(BlockStateProperties.WATERLOGGED), "state not kept: " + state);
-            DecalCopycatBlockEntity be = helper.getBlockEntity(pos);
-            helper.assertTrue(log.equals(be.getMaterial()) && be.getConsumedItem().is(Items.OAK_LOG), "material " + be.getMaterial());
-            helper.assertTrue(SEVEN.toDecal().get().equals(be.getDecal(face)), "decal on " + face + ": " + be.getDecals());
-        }
-        AABB area = new AABB(helper.absolutePos(BlockPos.ZERO)).inflate(8);
-        helper.assertTrue(helper.getLevel().getEntitiesOfClass(ItemEntity.class, area).isEmpty(), "an item dropped");
-
-        // Turned on a contraption, a step's decals turn with it like a block's
-        helper.getLevel().setBlock(helper.absolutePos(top), helper.getBlockState(top).rotate(Rotation.CLOCKWISE_90), 2 | 16);
-        DecalCopycatBlockEntity turned = helper.getBlockEntity(top);
-        turned.transform(turned, new StructureTransform(BlockPos.ZERO, Direction.Axis.Y, Rotation.CLOCKWISE_90, Mirror.NONE));
-        helper.assertTrue(turned.getDecal(Direction.UP) != null && turned.getDecal(Direction.UP).rotation() == (SEVEN.rotation() + 1) % 4,
-                "the top decal did not turn: " + turned.getDecals());
-        helper.succeed();
-    }
-
-    @GameTest(template = "empty")
-    public static void stencilConvertsCreatePanels(GameTestHelper helper) {
-        BlockState log = Blocks.OAK_LOG.defaultBlockState().setValue(RotatedPillarBlock.AXIS, Direction.Axis.X);
-        BlockState createPanel = AllBlocks.COPYCAT_PANEL.getDefaultState().setValue(CopycatPanelBlock.FACING, Direction.SOUTH)
-                .setValue(BlockStateProperties.WATERLOGGED, true);
-        for (int x = 1; x <= 3; x++) {
-            BlockPos pos = new BlockPos(x, 2, 2);
-            helper.setBlock(pos, createPanel);
-            CopycatBlockEntity be = helper.getBlockEntity(pos);
-            be.setMaterial(log);
-            be.setConsumedItem(new ItemStack(Items.OAK_LOG));
-        }
-        BlockPos middle = new BlockPos(2, 2, 2);
-        Player player = helper.makeMockPlayer(GameType.SURVIVAL);
-
-        player.setShiftKeyDown(true);
-        click(helper, player, middle, Direction.SOUTH);
-        player.setShiftKeyDown(false);
-        player.setItemInHand(InteractionHand.MAIN_HAND, stencil(StencilData.EMPTY.withErase(true)));
-        click(helper, player, middle, Direction.SOUTH);
-        player.setItemInHand(InteractionHand.MAIN_HAND, stencil(SEVEN));
-        click(helper, player, middle, Direction.EAST);
-        helper.assertBlockPresent(AllBlocks.COPYCAT_PANEL.get(), middle);
-
-        StencilData arrow = new StencilData(Optional.of(Decals.id("arrow_2x1")), 0x3C44AA, 0, false, false, 2, 1);
-        player.setItemInHand(InteractionHand.MAIN_HAND, stencil(arrow));
-        click(helper, player, middle, Direction.SOUTH);
-        int converted = 0;
-        for (int x = 1; x <= 3; x++) {
-            BlockPos pos = new BlockPos(x, 2, 2);
-            BlockState state = helper.getBlockState(pos);
-            if (!state.is(DecalsBlocks.DECAL_PANEL.get())) {
-                helper.assertBlockPresent(AllBlocks.COPYCAT_PANEL.get(), pos);
-                continue;
-            }
-            converted++;
-            helper.assertTrue(state.getValue(CopycatPanelBlock.FACING) == Direction.SOUTH
-                    && state.getValue(BlockStateProperties.WATERLOGGED), "state not kept: " + state);
-            DecalCopycatBlockEntity be = helper.getBlockEntity(pos);
-            helper.assertTrue(log.equals(be.getMaterial()), "material " + be.getMaterial());
-            helper.assertTrue(be.getConsumedItem().is(Items.OAK_LOG), "consumed item " + be.getConsumedItem());
-            DecalState decal = be.getDecal(Direction.SOUTH);
-            helper.assertTrue(decal != null && decal.id().equals(Decals.id("arrow_2x1")) && decal.rgb() == 0x3C44AA, "decal " + decal);
-        }
-        helper.assertTrue(converted == 2, converted + " panels converted, not 2");
-        helper.assertBlockPresent(DecalsBlocks.DECAL_PANEL.get(), middle);
-        AABB area = new AABB(helper.absolutePos(BlockPos.ZERO)).inflate(8);
-        helper.assertTrue(helper.getLevel().getEntitiesOfClass(ItemEntity.class, area).isEmpty(), "an item dropped");
         helper.succeed();
     }
 }

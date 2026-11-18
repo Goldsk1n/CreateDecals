@@ -40,7 +40,7 @@ public class DecalBlockModel extends CopycatModel {
     @Override
     protected ModelData.Builder gatherModelData(ModelData.Builder builder, BlockAndTintGetter world, BlockPos pos, BlockState state,
             ModelData blockEntityData) {
-        blockEntityData = DecalPanelModel.withBlockEntityData(world, pos, blockEntityData);
+        blockEntityData = withBlockEntityData(world, pos, blockEntityData);
         super.gatherModelData(builder, world, pos, state, blockEntityData);
         Map<Direction, DecalState> back = blockEntityData.get(DecalCopycatBlockEntity.DECALS);
         Map<Direction, DecalState> front = blockEntityData.get(DecalCopycatBlockEntity.FRONT_DECALS);
@@ -111,5 +111,16 @@ public class DecalBlockModel extends CopycatModel {
         quads = DecalQuads.addLayers(quads, data, side, 1);
         DecalQuads.decalNanos.addAndGet(System.nanoTime() - start);
         return quads;
+    }
+
+    /**
+     * The block entity's own data when the renderer passed none: Ponder's world gives models no block-entity data, so a
+     * copycat there would show neither its material nor its decals. World meshing always passes it, so never gets here.
+     */
+    static ModelData withBlockEntityData(BlockAndTintGetter world, BlockPos pos, ModelData blockEntityData) {
+        if (blockEntityData.get(CopycatModel.MATERIAL_PROPERTY) == null && world.getBlockEntity(pos) instanceof DecalCopycatBlockEntity be) {
+            return be.getModelData();
+        }
+        return blockEntityData;
     }
 }

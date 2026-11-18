@@ -1,6 +1,5 @@
 package com.goldskinmc.createdecals.block;
 
-import com.goldskinmc.createdecals.compat.CopycatsPlus;
 import com.goldskinmc.createdecals.decal.DecalState;
 import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.equipment.clipboard.ClipboardCloneable;
@@ -53,15 +52,15 @@ public final class DecalClipboard {
         return true;
     }
 
-    /** Gives a Copycats+ copycat our clipboard behaviour if the player holds a Clipboard and it has none yet (either side). */
+    /** Gives an attached copycat our clipboard behaviour if the player holds a Clipboard and it has none yet (either side). */
     public static void attachIfHeld(ItemStack held, BlockEntity be) {
-        if (AllBlocks.CLIPBOARD.isIn(held) && be instanceof SmartBlockEntity smart && CopycatsPlus.takesDecals(be.getBlockState())
+        if (AllBlocks.CLIPBOARD.isIn(held) && be instanceof SmartBlockEntity smart && AttachedCopycats.takesDecals(be.getBlockState())
                 && smart.getBehaviour(Behaviour.TYPE) == null) {
             smart.attachBehaviourLate(new Behaviour(smart));
         }
     }
 
-    /** The Clipboard's way onto a Copycats+ copycat's decals (kept in its attachment, {@link AttachedDecalHolder}). */
+    /** The Clipboard's way onto an attached copycat's decals (kept in its attachment, {@link AttachedDecalHolder}). */
     public static final class Behaviour extends BlockEntityBehaviour implements ClipboardCloneable {
         public static final BehaviourType<Behaviour> TYPE = new BehaviourType<>("createdecals_decals");
 

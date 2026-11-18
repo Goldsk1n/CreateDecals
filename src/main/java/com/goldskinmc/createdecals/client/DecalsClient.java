@@ -23,7 +23,7 @@ import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.TextureAtlasStitchedEvent;
 
-/** Puts the decal models round both blocks' (empty) block models, tints decals and the stencil, loads the decal library. */
+/** Puts the decal model round the Decal Block's (empty) block model, tints decals and the stencil, loads the decal library. */
 @EventBusSubscriber(modid = CreateDecals.MOD_ID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public final class DecalsClient {
     private DecalsClient() {
@@ -36,9 +36,7 @@ public final class DecalsClient {
 
     @SubscribeEvent
     public static void wrapModels(ModelEvent.ModifyBakingResult event) {
-        wrap(event, DecalsBlocks.DECAL_PANEL.get(), DecalPanelModel::new);
         wrap(event, DecalsBlocks.DECAL_BLOCK.get(), DecalBlockModel::new);
-        wrap(event, DecalsBlocks.DECAL_STEP.get(), DecalStepModel::new);
         ModelResourceLocation stencil = ModelResourceLocation.inventory(DecalsItems.DECAL_STENCIL.getId());
         BakedModel stencilModel = event.getModels().get(stencil);
         if (stencilModel != null) {
@@ -91,7 +89,6 @@ public final class DecalsClient {
         BlockColor material = CopycatBlock.wrappedColor();
         event.register((state, level, pos, tintIndex) -> tintIndex >= DecalQuads.TINT_FLAG
                 ? tintIndex & 0xFFFFFF
-                : material.getColor(state, level, pos, tintIndex), DecalsBlocks.DECAL_PANEL.get(), DecalsBlocks.DECAL_BLOCK.get(),
-                DecalsBlocks.DECAL_STEP.get());
+                : material.getColor(state, level, pos, tintIndex), DecalsBlocks.DECAL_BLOCK.get());
     }
 }

@@ -1,6 +1,7 @@
 package com.goldskinmc.createdecals.ponder;
 
 import com.goldskinmc.createdecals.CreateDecals;
+import com.goldskinmc.createdecals.block.AttachedDecals;
 import com.goldskinmc.createdecals.block.DecalCopycatBlockEntity;
 import com.goldskinmc.createdecals.decal.DecalPlacement;
 import com.goldskinmc.createdecals.decal.DecalState;
@@ -11,6 +12,7 @@ import com.goldskinmc.createdecals.registry.DecalsItems;
 import com.goldskinmc.createdecals.stencil.DecalStencilItem;
 import com.goldskinmc.createdecals.stencil.StencilData;
 import com.simibubi.create.AllBlocks;
+import com.simibubi.create.content.decoration.copycat.CopycatBlockEntity;
 import com.simibubi.create.content.kinetics.deployer.DeployerBlockEntity;
 import com.simibubi.create.foundation.ponder.CreateSceneBuilder;
 import com.tterrag.registrate.util.entry.ItemProviderEntry;
@@ -35,6 +37,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.attachment.AttachmentHolder;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -50,9 +53,10 @@ final class DecalsScenes {
 
     static void register(PonderSceneRegistrationHelper<ResourceLocation> helper) {
         PonderSceneRegistrationHelper<ItemProviderEntry<?, ?>> scenes = helper.withKeyFunction(RegistryEntry::getId);
-        scenes.forComponents(DecalsBlocks.DECAL_PANEL).addStoryBoard("decal_panel", DecalsScenes::decalPanel, DECALS);
+        // Create's own Copycat Panel and Step take decals as they are: their scenes sit under Create's items
+        scenes.forComponents(AllBlocks.COPYCAT_PANEL).addStoryBoard("copycat_panel", DecalsScenes::copycatPanel, DECALS);
         scenes.forComponents(DecalsBlocks.DECAL_BLOCK).addStoryBoard("decal_block", DecalsScenes::decalBlock, DECALS);
-        scenes.forComponents(DecalsBlocks.DECAL_STEP).addStoryBoard("decal_step", DecalsScenes::decalStep, DECALS);
+        scenes.forComponents(AllBlocks.COPYCAT_STEP).addStoryBoard("copycat_step", DecalsScenes::copycatStep, DECALS);
         scenes.forComponents(DecalsItems.DECAL_STENCIL).addStoryBoard("decal_stencil", DecalsScenes::stencil, DECALS);
         // Also under Create's Deployer, so players looking up what a Deployer can do find it there
         scenes.forComponents(DecalsItems.DECAL_STENCIL, AllBlocks.DEPLOYER)
@@ -62,21 +66,21 @@ final class DecalsScenes {
     static void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
         helper.registerTag(DECALS)
                 .addToIndex()
-                .item(DecalsBlocks.DECAL_PANEL.get(), true, false)
+                .item(DecalsItems.DECAL_STENCIL.get(), true, false)
                 .title("Decals")
                 .description("Liveries for anything Create builds: decals on copycat blocks")
                 .register();
         PonderTagRegistrationHelper<ItemProviderEntry<?, ?>> tags = helper.withKeyFunction(RegistryEntry::getId);
         tags.addToTag(DECALS)
                 .add(DecalsItems.DECAL_STENCIL)
-                .add(DecalsBlocks.DECAL_PANEL)
                 .add(DecalsBlocks.DECAL_BLOCK)
-                .add(DecalsBlocks.DECAL_STEP);
+                .add(AllBlocks.COPYCAT_PANEL)
+                .add(AllBlocks.COPYCAT_STEP);
     }
 
-    static void decalPanel(SceneBuilder builder, SceneBuildingUtil util) {
+    static void copycatPanel(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        scene.title("decal_panel", "Putting a decal on a Decal Panel");
+        scene.title("copycat_panel", "Putting a decal on a Copycat Panel");
         scene.configureBasePlate(0, 0, Layouts.Panel.SIZE);
         scene.showBasePlate();
         scene.idle(10);
@@ -88,39 +92,39 @@ final class DecalsScenes {
         Vec3 front = util.vector().blockSurface(panel, Direction.NORTH).add(0, 0, 0.3);
 
         scene.overlay().showText(70).attachKeyFrame()
-                .text("A Decal Panel is a Copycat Panel that can show a decal on its front")
+                .text("Create's Copycat Panel takes decals as it is")
                 .placeNearTarget().pointAt(front);
         scene.idle(80);
         scene.overlay().showControls(front, Pointing.DOWN, 40).rightClick().withItem(new ItemStack(Items.WHITE_CONCRETE));
         scene.idle(7);
-        scene.world().modifyBlockEntityNBT(util.select().position(panel), DecalCopycatBlockEntity.class, nbt -> {
+        scene.world().modifyBlockEntityNBT(util.select().position(panel), CopycatBlockEntity.class, nbt -> {
             nbt.put("Material", NbtUtils.writeBlockState(Blocks.WHITE_CONCRETE.defaultBlockState()));
             CompoundTag item = new CompoundTag();
             item.putString("id", "minecraft:white_concrete");
             item.putInt("count", 1);
             nbt.put("Item", item);
         }, true);
-        scene.overlay().showText(60).text("Like any copycat, it takes the look of a block used on it")
+        scene.overlay().showText(60).text("Give it the look of a block first, as usual")
                 .placeNearTarget().pointAt(front);
         scene.idle(70);
 
         scene.overlay().showControls(front, Pointing.DOWN, 40).rightClick().withItem(stencil("digit_7", DyeColor.RED, 0, false, 1, 1));
         scene.idle(7);
-        decal(scene, util, panel, Direction.NORTH, new DecalState(Decals.id("digit_7"), rgb(DyeColor.RED), 0, false));
+        attached(scene, util, panel, Direction.NORTH, new DecalState(Decals.id("digit_7"), rgb(DyeColor.RED), 0, false));
         scene.overlay().showText(70).attachKeyFrame()
-                .text("Right-click it with a Decal Stencil to put the stencil's decal on it. Create's own Copycat Panels turn into Decal Panels the same way")
+                .text("Right-click it with a Decal Stencil to put the stencil's decal on it")
                 .placeNearTarget().pointAt(front);
         scene.idle(80);
 
         scene.overlay().showControls(front, Pointing.DOWN, 40).rightClick().withItem(new ItemStack(Items.BLUE_DYE));
         scene.idle(7);
-        decal(scene, util, panel, Direction.NORTH, new DecalState(Decals.id("digit_7"), rgb(DyeColor.BLUE), 0, false));
+        attached(scene, util, panel, Direction.NORTH, new DecalState(Decals.id("digit_7"), rgb(DyeColor.BLUE), 0, false));
         scene.overlay().showText(60).text("A dye recolours the decal").placeNearTarget().pointAt(front);
         scene.idle(70);
-        scene.overlay().showText(80).attachKeyFrame()
-                .text("The decal is part of the block: it stays on trains, contraptions and Sable vehicles, and under shaders")
+        scene.overlay().showText(90).attachKeyFrame()
+                .text("The decal is part of the block: it stays on trains, contraptions and Sable vehicles, and under shaders. Without Create: Decals the panel is a plain Copycat Panel again")
                 .placeNearTarget().pointAt(front);
-        scene.idle(90);
+        scene.idle(100);
     }
 
     static void decalBlock(SceneBuilder builder, SceneBuildingUtil util) {
@@ -179,9 +183,9 @@ final class DecalsScenes {
         scene.idle(80);
     }
 
-    static void decalStep(SceneBuilder builder, SceneBuildingUtil util) {
+    static void copycatStep(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        scene.title("decal_step", "Decals on Decal Steps");
+        scene.title("copycat_step", "Decals on Copycat Steps");
         scene.configureBasePlate(0, 0, Layouts.Step.SIZE);
         scene.showBasePlate();
         scene.idle(10);
@@ -194,7 +198,7 @@ final class DecalsScenes {
         Vec3 stepTop = util.vector().centerOf(Layouts.Step.STEP).add(0, 0, -0.25);
 
         scene.overlay().showText(70).attachKeyFrame()
-                .text("A Decal Step is a Copycat Step that takes a decal on any of its faces")
+                .text("Create's Copycat Step takes a decal on any of its faces")
                 .placeNearTarget().pointAt(stepFace);
         scene.idle(80);
         scene.overlay().showControls(blockFace, Pointing.DOWN, 30).rightClick().withItem(stencil("hazard", DyeColor.YELLOW, 0, false, 1, 1));
@@ -203,22 +207,18 @@ final class DecalsScenes {
         scene.idle(20);
         scene.overlay().showControls(stepFace, Pointing.DOWN, 30).rightClick().withItem(stencil("hazard", DyeColor.YELLOW, 0, false, 1, 1));
         scene.idle(7);
-        decal(scene, util, Layouts.Step.STEP, Direction.NORTH, new DecalState(Decals.id("hazard"), rgb(DyeColor.YELLOW), 0, false));
+        attached(scene, util, Layouts.Step.STEP, Direction.NORTH, new DecalState(Decals.id("hazard"), rgb(DyeColor.YELLOW), 0, false));
         scene.overlay().showText(90).attachKeyFrame()
                 .text("Each face shows the part of the decal it covers, as if the decal lay on the whole face of the block, so stripes and patterns run on from the Decal Blocks beside it")
                 .placeNearTarget().pointAt(stepFace);
         scene.idle(100);
         scene.overlay().showControls(stepTop, Pointing.DOWN, 30).rightClick().withItem(stencil("stripe_double", DyeColor.BLACK, 1, false, 1, 1));
         scene.idle(7);
-        decal(scene, util, Layouts.Step.STEP, Direction.UP, new DecalState(Decals.id("stripe_double"), rgb(DyeColor.BLACK), 1, false));
+        attached(scene, util, Layouts.Step.STEP, Direction.UP, new DecalState(Decals.id("stripe_double"), rgb(DyeColor.BLACK), 1, false));
         scene.overlay().showText(70)
-                .text("Letters and numbers read best on Decal Blocks and Panels, where the whole decal shows")
+                .text("Letters and numbers read best on Decal Blocks and Copycat Panels, where the whole decal shows")
                 .placeNearTarget().pointAt(stepTop);
         scene.idle(80);
-        scene.overlay().showText(80).attachKeyFrame()
-                .text("Create's own Copycat Steps turn into Decal Steps when a stencil puts a decal on them")
-                .placeNearTarget().pointAt(stepFace);
-        scene.idle(90);
     }
 
     static void stencil(SceneBuilder builder, SceneBuildingUtil util) {
@@ -374,6 +374,20 @@ final class DecalsScenes {
                 faces.put(face.getName(), decal.save());
             }
             nbt.put(key, faces);
+        }, true);
+    }
+
+    /**
+     * Sets (or with null removes) the decal on one face of Create's copycat: kept in our attachment on its block entity,
+     * written where NeoForge saves attachments in the block entity's data, which Ponder loads back and redraws.
+     */
+    private static void attached(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos pos, Direction face, @Nullable DecalState decal) {
+        scene.world().modifyBlockEntityNBT(util.select().position(pos), CopycatBlockEntity.class, nbt -> {
+            CompoundTag attachments = nbt.getCompound(AttachmentHolder.ATTACHMENTS_NBT_KEY);
+            String key = CreateDecals.id("decals").toString();
+            AttachedDecals decals = attachments.contains(key) ? AttachedDecals.load(attachments.getCompound(key)) : AttachedDecals.EMPTY;
+            attachments.put(key, decals.with(face, false, decal).save());
+            nbt.put(AttachmentHolder.ATTACHMENTS_NBT_KEY, attachments);
         }, true);
     }
 

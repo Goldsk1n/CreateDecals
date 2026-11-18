@@ -22,8 +22,8 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 /**
  * Create's Schematicannon: a schematic stores each block entity's {@code writeSafe} data, and the cannon places the
- * block with Create's {@code BlockHelper.placeSchematicBlock}. Both decal blocks must come out with their material and
- * every decal.
+ * block with Create's {@code BlockHelper.placeSchematicBlock}. The Decal Block must come out with its material and every
+ * decal (Create's own copycats: {@code CreateCopycatGameTests}).
  */
 @GameTestHolder(CreateDecals.MOD_ID)
 @PrefixGameTestTemplate(false)
@@ -37,8 +37,6 @@ public final class SchematicGameTests {
         DecalState digit = new DecalState(Decals.id("digit_4"), 0x3C44AA, 0, false);
         check(helper, DecalsBlocks.DECAL_BLOCK.getDefaultState(), new BlockPos(1, 1, 1), new BlockPos(1, 1, 3),
                 Map.of(Direction.NORTH, big, Direction.UP, digit));
-        check(helper, DecalsBlocks.DECAL_PANEL.getDefaultState().setValue(CopycatPanelBlock.FACING, Direction.EAST),
-                new BlockPos(3, 1, 1), new BlockPos(3, 1, 3), Map.of(Direction.EAST, digit));
         helper.succeed();
     }
 

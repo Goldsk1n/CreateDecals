@@ -6,19 +6,15 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
 
 ### Blocks and items
 
-- **Decal Panel**: Create's Copycat Panel with a decal on its front. It copies any block's look as the Copycat Panel
-  does; four from a zinc ingot on a Stonecutter, as Create's own, or one from a Copycat Panel there (crafted back into
-  one). Create's own Copycat Panels already in a build need no swapping: a
-  stencil click on one's front turns it into a Decal Panel in place, keeping its material, facing and the block used on
-  it, then puts the decal on.
+- **Create's Copycat Panel and Copycat Step** take decals as they are, with no blocks to swap: they stay Create's blocks,
+  with their material, shape and the block used on them, and keep their decals beside them. A build shared with a
+  player or server without this mod loads as plain copycats. A step's faces each show the part of the decal they cover,
+  as if the decal lay on the whole face of the block in that plane, so stripes and patterns run on unbroken from the
+  Decal Blocks beside them.
 - **Decal Block**: a full copycat block with a decal on each of its faces, for hulls built of whole blocks. Faces against
   a solid block are hidden, decal and all. Two from a zinc ingot on a Stonecutter.
-- **Decal Step**: Create's Copycat Step with a decal on any of its faces, for trims and ledges. Each face shows the part
-  of the decal it covers, as if the decal lay on the whole face of the block in that plane, so stripes and patterns run
-  on unbroken from the Decal Blocks beside it. Four from a zinc ingot on a Stonecutter, or one from a Copycat Step there (crafted back into one); Create's own Copycat Steps turn
-  into Decal Steps in place when a stencil puts a decal on any of their faces.
 - **Decal Stencil**: used in the air it opens a screen to choose a decal or type a word, its colour (the 16 dyes or a
-  hex code), how it is turned and flipped, its layer and whether it glows; on a decal block's face it puts the decal
+  hex code), how it is turned and flipped, its layer and whether it glows; on a copycat's face it puts the decal
   there. Sneak-clicking a decal picks it up into the stencil; its eraser takes a decal off. Its icon shows the decal it
   holds. Crafted like its icon: an Iron Sheet with a Brass Nugget in each corner and a dye under it.
 - While a stencil is held, a see-through ghost shows its decal or word where a click would put it, in its colour, turn
@@ -48,7 +44,7 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
 - Stripes that join up for liveries: the stripe, the thin stripe and the double stripe each come straight, as a turn, as
   an end and as a rise (2x2, up one block at 45 degrees), all on the same bands; the edge stripe has a corner, and frames
   share its weight. Plus hazard stripes, chequer, halves and wedges.
-- Decals larger than one block spread right and down from the face you click, in one click, over the decal blocks
+- Decals larger than one block spread right and down from the face you click, in one click, over the copycats
   beside it, turned and flipped as a whole. The eraser and dye work on any tile and change the whole decal.
 - Two decals on one face: set the stencil to the front layer to put a second decal over the one already there, a
   number on a stripe or a letter on a hazard band. The stencil's layer also decides which decal it picks up and erases
@@ -75,7 +71,7 @@ First release, for Minecraft 1.21.1 with NeoForge 21.1.125+ and Create 6.0.0 to 
 - They stay on Create contraptions, trains and Sable vehicles (Create Aeronautics), and are put back turned with the
   block when a contraption stops at an angle. Schematics and the Schematicannon keep them.
 - Works with Sodium and Iris shader packs; no measurable frame cost against Create's own copycats, at 1000 blocks.
-- **Copycats+** (optional): its copycats take decals too, without converting: slopes, stairs, slabs, beams, vertical
+- **Copycats+** (optional): its copycats take decals too, the same way: slopes, stairs, slabs, beams, vertical
   steps, slope layers, doors and the rest (not its turning shafts and cogwheels). A decal lies on every part of the shape
   that faces the clicked side, slanted faces included, as if it lay on the block's face in that plane. Stencil, ghost,
   dye, glow ink, Create's Clipboard (also to and from our blocks) and undo work on them; they keep their decals when

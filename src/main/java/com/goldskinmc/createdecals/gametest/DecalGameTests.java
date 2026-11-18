@@ -74,15 +74,6 @@ public final class DecalGameTests {
     /** A panel's decal and a block's decals survive saving and loading the block entity, tiles and turns included. */
     @GameTest(template = EMPTY)
     public static void decalsSurviveSaveAndLoad(GameTestHelper helper) {
-        BlockPos panelPos = new BlockPos(1, 1, 2);
-        helper.setBlock(panelPos, DecalsBlocks.DECAL_PANEL.getDefaultState().setValue(CopycatPanelBlock.FACING, Direction.NORTH));
-        DecalCopycatBlockEntity panel = helper.getBlockEntity(panelPos);
-        panel.setMaterial(Blocks.WHITE_CONCRETE.defaultBlockState());
-        panel.setConsumedItem(new ItemStack(Items.WHITE_CONCRETE));
-        panel.setDecal(Direction.NORTH, R);
-        panel.setDecal(Direction.UP, SEVEN);
-        helper.assertTrue(panel.getDecals().equals(Map.of(Direction.NORTH, R)), "a panel took a decal off its front: " + panel.getDecals());
-
         BlockPos blockPos = new BlockPos(3, 1, 2);
         helper.setBlock(blockPos, DecalsBlocks.DECAL_BLOCK.getDefaultState());
         DecalCopycatBlockEntity block = helper.getBlockEntity(blockPos);
@@ -92,7 +83,7 @@ public final class DecalGameTests {
         block.setDecal(Direction.UP, SEVEN);
 
         HolderLookup.Provider registries = helper.getLevel().registryAccess();
-        for (DecalCopycatBlockEntity be : new DecalCopycatBlockEntity[] {panel, block}) {
+        for (DecalCopycatBlockEntity be : new DecalCopycatBlockEntity[] {block}) {
             CompoundTag saved = be.saveWithFullMetadata(registries);
             BlockEntity loaded = BlockEntity.loadStatic(be.getBlockPos(), be.getBlockState(), saved, registries);
             helper.assertTrue(loaded instanceof DecalCopycatBlockEntity copy && copy.getDecals().equals(be.getDecals())
@@ -118,7 +109,7 @@ public final class DecalGameTests {
     /**
      * A contraption turned a quarter clockwise (seen from above) puts a Decal Block back: its north decal moves to the
      * east face, still upright; its top decal stays on top, its top now pointing east (rotation 1 more). Mirrored, the
-     * decal flips. A panel's decal follows its new front.
+     * decal flips.
      */
     @GameTest(template = EMPTY)
     public static void contraptionsTurnDecalsWithTheBlock(GameTestHelper helper) {
@@ -135,16 +126,6 @@ public final class DecalGameTests {
         block.transform(block, new StructureTransform(BlockPos.ZERO, null, Rotation.NONE, Mirror.FRONT_BACK));
         helper.assertTrue(block.getDecal(Direction.WEST) != null && block.getDecal(Direction.WEST).flip(),
                 "mirrored east to west and flipped: " + block.getDecals());
-
-        BlockPos panelPos = new BlockPos(2, 1, 0);
-        helper.setBlock(panelPos, DecalsBlocks.DECAL_PANEL.getDefaultState().setValue(CopycatPanelBlock.FACING, Direction.NORTH));
-        DecalCopycatBlockEntity panel = helper.getBlockEntity(panelPos);
-        panel.setDecal(Direction.NORTH, upright);
-        // Create places the turned state first (the same block keeps its block entity), then transforms the block entity
-        helper.setBlock(panelPos, DecalsBlocks.DECAL_PANEL.getDefaultState().setValue(CopycatPanelBlock.FACING, Direction.EAST));
-        DecalCopycatBlockEntity turned = helper.getBlockEntity(panelPos);
-        turned.transform(turned, new StructureTransform(BlockPos.ZERO, Direction.Axis.Y, Rotation.CLOCKWISE_90, Mirror.NONE));
-        helper.assertTrue(turned.getDecals().equals(Map.of(Direction.EAST, upright)), "panel decal after turning: " + turned.getDecals());
         helper.succeed();
     }
 

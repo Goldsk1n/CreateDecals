@@ -11,13 +11,13 @@ Changes: [CHANGELOG.md](CHANGELOG.md).
 
 | | What it does |
 | --- | --- |
-| Decal Panel | Create's Copycat Panel with a decal on its front |
 | Decal Block | A full copycat block with a decal on each face |
-| Decal Step | Create's Copycat Step with a decal on each face; each face shows the part of the decal it covers |
+| Create's Copycat Panel and Copycat Step | Take decals as they are; a step's faces each show the part of the decal they cover |
 | Decal Stencil | Picks a decal, a typed word, a colour, a turn and flip, a layer and glow in its screen; puts it on with a click, picks one up with a sneak-click, erases, undoes (Z) |
 
-Decal Panels, Blocks and Steps come off the Stonecutter from zinc, as Create's copycats do; Create's own Copycat Panels
-and Steps turn into decal ones when the stencil puts a decal on them. Putting decals on costs nothing.
+Decal Blocks come off the Stonecutter from zinc, as Create's copycats do. Create's own Copycat Panels and Steps stay
+Create's blocks: their decals are kept beside them, so a build shared with someone without this mod loads as plain
+copycats. Putting decals on costs nothing.
 
 - 101 built-in decals in Create's style, decals up to 3x3 blocks laid in one click, two decals on one face, typed words.
 - Any colour (the 16 dyes or a hex code); a dye on a decal recolours it, a Glow Ink Sac makes it glow at night.

@@ -211,9 +211,9 @@ public final class CopycatsPlusGameTests {
         helper.succeed();
     }
 
-    /** Create's own copycats are still converted to ours, not given an attachment, with Copycats+ installed. */
+    /** Copycats+'s check leaves out Create's own copycats (they take decals as Create's) and ours, and turning copycats. */
     @GameTest(template = "empty")
-    public static void createCopycatsStillConvert(GameTestHelper helper) {
+    public static void copycatsPlusCheckLeavesOthersOut(GameTestHelper helper) {
         if (!CopycatsPlus.loaded()) {
             helper.succeed();
             return;

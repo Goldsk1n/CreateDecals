@@ -28,8 +28,7 @@ public final class DecalTiles {
 
     /**
      * Lays {@code decal} out from {@code anchor} (the top-left face it covers) in the {@code front} or back layer and
-     * returns how many of its tiles found a face to land on; tiles over anything but a decal block's free face are left
-     * out. Create's own Copycat Panels under a tile become Decal Panels ({@link CreateCopycats}).
+     * returns how many of its tiles found a face to land on; tiles over anything that takes no decals are left out.
      */
     public static int place(Level level, BlockPos anchor, Direction face, DecalState decal, boolean front, Predicate<BlockPos> allowed) {
         List<DecalPlacement.Tile> tiles = DecalPlacement.tiles(anchor, face, decal);
@@ -83,9 +82,6 @@ public final class DecalTiles {
                 continue;
             }
             DecalHolder be = DecalHolder.at(level, tile.pos());
-            if (be == null) {
-                be = CreateCopycats.convert(level, tile.pos(), face);
-            }
             if (be != null && be.acceptsDecalOn(face)) {
                 DecalState before = be.getDecal(face, front);
                 be.setDecal(face, front, tile.decal());

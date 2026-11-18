@@ -9,7 +9,7 @@ import com.tterrag.registrate.util.entry.BlockEntityEntry;
 public final class DecalsBlockEntities {
     public static final BlockEntityEntry<DecalCopycatBlockEntity> DECAL_COPYCAT = REGISTRATE
             .blockEntity("decal_copycat", DecalCopycatBlockEntity::new)
-            .validBlocks(DecalsBlocks.DECAL_PANEL, DecalsBlocks.DECAL_BLOCK, DecalsBlocks.DECAL_STEP)
+            .validBlocks(DecalsBlocks.DECAL_BLOCK)
             .register();
 
     private DecalsBlockEntities() {

@@ -18,7 +18,7 @@ public final class DecalsLang {
         add("itemGroup." + CreateDecals.MOD_ID, "Create: Decals");
         // Ponder scene text, collected from the scenes themselves
         REGISTRATE.addDataGenerator(ProviderType.LANG, provider -> DecalsPonder.provideLang(provider::add));
-        tooltip("item", "decal_stencil", "Puts _decals_ or a typed _word_ on Decal Panels, Blocks and Steps, behind or in front of the decal already there; Create's Copycat Panels and Steps become decal ones when they take one. Choose in its screen.",
+        tooltip("item", "decal_stencil", "Puts _decals_ or a typed _word_ on Decal Blocks and Create's Copycat Panels and Steps, behind or in front of the decal already there. Choose in its screen.",
                 action("When used in the air", "Opens the stencil's screen."),
                 action("When R-clicked on a face", "Puts the decal or word there, or erases the decal in the stencil's layer."),
                 action("When R-clicked while sneaking", "Picks up the decal in the stencil's layer on that face."),
@@ -30,8 +30,7 @@ public final class DecalsLang {
         add("createdecals.stencil.erase", "Eraser");
         add("createdecals.stencil.done", "Done");
         add("createdecals.stencil.colour", "Colour");
-        add("createdecals.stencil.front_only", "A Decal Panel takes a decal on its front only");
-        add("createdecals.stencil.wrong_block", "%s takes no decals: use Decal Blocks, Panels or Steps");
+        add("createdecals.stencil.wrong_block", "%s takes no decals: use Decal Blocks or Create's Copycat Panels and Steps");
         add("createdecals.stencil.turned", "Turned to %s°");
         add("createdecals.stencil.undone", "Undone: %s tiles");
         add("createdecals.stencil.undone_partly", "Undone: %s of %s tiles (the rest were changed since, or are protected)");
@@ -69,16 +68,6 @@ public final class DecalsLang {
         for (String category : new String[] {"letters", "digits", "signs", "lines", "markers", "emblems", "misc"}) {
             add("createdecals.category." + category, Character.toUpperCase(category.charAt(0)) + category.substring(1));
         }
-        tooltip("block", "decal_panel", "A _copycat panel_ that shows a _decal_ on its front: stripes, numbers, letters, emblems. Keeps it on contraptions, trains and Sable vehicles.",
-                behaviour("When R-clicked with a block", "Copies that block's look, as Create's Copycat Panel does."),
-                action("When R-clicked with a Decal Stencil", "Puts the stencil's decal on its front."),
-                action("When R-clicked with Dye", "Recolours its decal."),
-                action("When R-clicked with a Glow Ink Sac", "Makes its decal glow; an Ink Sac stops it."));
-        tooltip("block", "decal_step", "A _copycat step_ with a _decal_ on any of its faces, for trims and ledges: each face shows the part of the decal it covers, so it lines up with Decal Blocks beside it.",
-                behaviour("When R-clicked with a block", "Copies that block's look, as Create's Copycat Step does."),
-                action("When R-clicked with a Decal Stencil", "Puts the stencil's decal on the clicked face."),
-                action("When R-clicked with Dye", "Recolours the decal on that face."),
-                action("When R-clicked with a Glow Ink Sac", "Makes that decal glow; an Ink Sac stops it."));
         tooltip("block", "decal_block", "A full _copycat block_ with a _decal_ on any of its faces, for hulls built of whole blocks.",
                 behaviour("When R-clicked with a block", "Copies that block's look."),
                 action("When R-clicked with a Decal Stencil", "Puts the stencil's decal on the clicked face."),

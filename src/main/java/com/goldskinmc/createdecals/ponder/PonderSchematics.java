@@ -56,19 +56,19 @@ public final class PonderSchematics implements DataProvider {
         List<Schematic> all = new ArrayList<>();
         BlockState white = Blocks.WHITE_CONCRETE.defaultBlockState();
 
-        Schematic panel = new Schematic("decal_panel", Layouts.Panel.SIZE, 4);
+        Schematic panel = new Schematic("copycat_panel", Layouts.Panel.SIZE, 4);
         panel.fill(Layouts.Panel.WALL_FROM, Layouts.Panel.WALL_TO, Blocks.STONE_BRICKS.defaultBlockState());
-        panel.copycat(Layouts.Panel.PANEL, DecalsBlocks.DECAL_PANEL.getDefaultState().setValue(CopycatPanelBlock.FACING, Direction.NORTH), null);
+        panel.createCopycat(Layouts.Panel.PANEL, AllBlocks.COPYCAT_PANEL.getDefaultState().setValue(CopycatPanelBlock.FACING, Direction.NORTH), null);
         all.add(panel);
 
         Schematic block = new Schematic("decal_block", Layouts.Block.SIZE, 4);
         block.copycat(Layouts.Block.BLOCK, DecalsBlocks.DECAL_BLOCK.getDefaultState(), white);
         all.add(block);
 
-        Schematic step = new Schematic("decal_step", Layouts.Step.SIZE, 4);
+        Schematic step = new Schematic("copycat_step", Layouts.Step.SIZE, 4);
         step.copycat(Layouts.Step.BLOCK, DecalsBlocks.DECAL_BLOCK.getDefaultState(), white);
-        BlockState stepState = DecalsBlocks.DECAL_STEP.getDefaultState().setValue(CopycatStepBlock.FACING, Direction.NORTH);
-        step.copycat(Layouts.Step.STEP, stepState.setValue(CopycatStepBlock.HALF, Half.BOTTOM), white);
+        BlockState stepState = AllBlocks.COPYCAT_STEP.getDefaultState().setValue(CopycatStepBlock.FACING, Direction.NORTH);
+        step.createCopycat(Layouts.Step.STEP, stepState.setValue(CopycatStepBlock.HALF, Half.BOTTOM), white);
         all.add(step);
 
         Schematic stencil = new Schematic("decal_stencil", Layouts.Stencil.SIZE, 5);
@@ -136,11 +136,20 @@ public final class PonderSchematics implements DataProvider {
             BlockPos.betweenClosed(from, to).forEach(pos -> set(pos.immutable(), state));
         }
 
-        /** A decal copycat, copying {@code material} (null: still the bare copycat). */
+        /** Our Decal Block, copying {@code material} (null: still the bare copycat). */
         void copycat(BlockPos pos, BlockState state, @Nullable BlockState material) {
+            copycat(pos, state, material, CreateDecals.id("decal_copycat").toString());
+        }
+
+        /** Create's own Copycat Panel or Step, copying {@code material} (null: still the bare copycat); scenes add decals. */
+        void createCopycat(BlockPos pos, BlockState state, @Nullable BlockState material) {
+            copycat(pos, state, material, "create:copycat");
+        }
+
+        private void copycat(BlockPos pos, BlockState state, @Nullable BlockState material, String blockEntityId) {
             set(pos, state);
             CompoundTag tag = new CompoundTag();
-            tag.putString("id", CreateDecals.id("decal_copycat").toString());
+            tag.putString("id", blockEntityId);
             if (material != null) {
                 tag.put("Material", NbtUtils.writeBlockState(material));
                 CompoundTag item = new CompoundTag();

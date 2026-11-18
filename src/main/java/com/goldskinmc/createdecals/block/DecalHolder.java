@@ -1,6 +1,5 @@
 package com.goldskinmc.createdecals.block;
 
-import com.goldskinmc.createdecals.compat.CopycatsPlus;
 import com.goldskinmc.createdecals.decal.DecalState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -9,8 +8,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Something that keeps decals, two layers per face: our own decal blocks ({@link DecalCopycatBlockEntity}) and, with
- * Copycats+ installed, its copycats ({@link AttachedDecalHolder}, the decals kept beside its block entity). The stencil,
+ * Something that keeps decals, two layers per face: our Decal Block ({@link DecalCopycatBlockEntity}) and Create's own
+ * Copycat Panel and Step and Copycats+'s copycats ({@link AttachedDecalHolder}, the decals kept beside their block
+ * entity, {@link AttachedCopycats}). The stencil,
  * dye, glow and undo work through this, so they treat both alike.
  */
 public interface DecalHolder {
@@ -41,13 +41,13 @@ public interface DecalHolder {
         return getDecal(face, !front) != null ? !front : null;
     }
 
-    /** The decals at {@code pos}: our decal block's, or a Copycats+ copycat's; null for anything else. */
+    /** The decals at {@code pos}: our Decal Block's, or an attached copycat's; null for anything else. */
     @Nullable
     static DecalHolder at(BlockGetter level, BlockPos pos) {
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof DecalHolder holder) {
             return holder;
         }
-        return be != null && CopycatsPlus.takesDecals(be.getBlockState()) ? new AttachedDecalHolder(be) : null;
+        return be != null && AttachedCopycats.takesDecals(be.getBlockState()) ? new AttachedDecalHolder(be) : null;
     }
 }

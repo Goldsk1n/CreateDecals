@@ -1,10 +1,6 @@
 package com.goldskinmc.createdecals.registry;
 
-import static com.goldskinmc.createdecals.CreateDecals.REGISTRATE;
-
 import com.goldskinmc.createdecals.block.DecalBlock;
-import com.goldskinmc.createdecals.block.DecalPanelBlock;
-import com.goldskinmc.createdecals.block.DecalStepBlock;
 import com.goldskinmc.createdecals.contraption.DecalMovement;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.decoration.copycat.CopycatBlock;
@@ -16,30 +12,18 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
+import static com.goldskinmc.createdecals.CreateDecals.REGISTRATE;
 
 /**
- * The three decal blocks. Both are Create copycats: their block model is empty air and {@code client/DecalsClient} puts
- * the decal models round it; their item models are Create's copycat item models, by resource location.
+ * The Decal Block, a full Create copycat (Create has none): its block model is empty air and {@code client/DecalsClient}
+ * puts the decal model round it; its item model is Create's copycat item model, by resource location. Create's own
+ * Copycat Panel and Step take decals as they are ({@code block/AttachedCopycats}).
  */
 public final class DecalsBlocks {
-    public static final BlockEntry<DecalPanelBlock> DECAL_PANEL = REGISTRATE
-            .block("decal_panel", DecalPanelBlock::new)
-            .transform(copycat("panel"))
-            .lang("Decal Panel")
-            .onRegister(MovementBehaviour.movementBehaviour(new DecalMovement()))
-            .register();
-
     public static final BlockEntry<DecalBlock> DECAL_BLOCK = REGISTRATE
             .block("decal_block", DecalBlock::new)
             .transform(copycat("block"))
             .lang("Decal Block")
-            .onRegister(MovementBehaviour.movementBehaviour(new DecalMovement()))
-            .register();
-
-    public static final BlockEntry<DecalStepBlock> DECAL_STEP = REGISTRATE
-            .block("decal_step", DecalStepBlock::new)
-            .transform(copycat("step"))
-            .lang("Decal Step")
             .onRegister(MovementBehaviour.movementBehaviour(new DecalMovement()))
             .register();
 

@@ -48,7 +48,7 @@ public final class CreateDecals {
         modBus.addListener(UndoPayload::register);
         modBus.addListener(DecalSync::register);
         DecalsAttachments.register(modBus);
-        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(DecalTransforms::registerCopycatsPlus));
+        modBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(DecalTransforms::registerAttached));
         DecalsRecipes.register();
         DecalsCreativeTab.register(modBus);
         DecalsLang.register();

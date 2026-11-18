@@ -9,9 +9,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * The decals on a Copycats+ copycat, kept in an attachment on its block entity ({@link AttachedDecals}). Any face may
- * hold one: the model projects it onto whatever part of the copycat faces that way (a slope's slanted top included), so
- * a face the shape lacks shows nothing.
+ * The decals on Create's Copycat Panel or Step or a Copycats+ copycat ({@link AttachedCopycats}), kept in an attachment
+ * on its block entity ({@link AttachedDecals}). Any face may
+ * hold one: the model projects it onto whatever part of the copycat faces that way (a panel's front, a step's faces, a
+ * slope's slanted top), so a face the shape lacks shows nothing.
  */
 public record AttachedDecalHolder(BlockEntity be) implements DecalHolder {
     public AttachedDecals decals() {

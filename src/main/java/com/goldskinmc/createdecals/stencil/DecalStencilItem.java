@@ -1,6 +1,5 @@
 package com.goldskinmc.createdecals.stencil;
 
-import com.goldskinmc.createdecals.block.CreateCopycats;
 import com.goldskinmc.createdecals.block.DecalEdits;
 import com.goldskinmc.createdecals.block.DecalHolder;
 import com.goldskinmc.createdecals.block.DecalTiles;
@@ -31,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
  * colour, turns and flip are chosen; used on a face of a decal block it puts that decal there, a large one spreading
  * right and down from the clicked face over the faces next to it on the same plane (or erases the whole decal there);
  * used while sneaking it picks the face's decal up. Decals cost nothing to apply (plan Decision 8). Create's own Copycat
- * Panel takes a decal too, turning into a Decal Panel ({@code block/CreateCopycats}).
+ * Panel and Step take decals as they are.
  */
 public class DecalStencilItem extends Item {
     public DecalStencilItem(Properties properties) {
@@ -48,16 +47,10 @@ public class DecalStencilItem extends Item {
         Level level = context.getLevel();
         Player player = context.getPlayer();
         Direction face = DecalEdits.clickedFace(player, context.getClickedFace());
-        // Our decal blocks and Copycats+'s copycats keep decals (DecalHolder); Create's own Copycat Panel and Step are
-        // treated as ours without a decal: placing one converts them (CreateCopycats)
-        BlockState state = level.getBlockState(context.getClickedPos());
+        // Our Decal Block, Create's Copycat Panel and Step and Copycats+'s copycats keep decals (DecalHolder)
         DecalHolder be = DecalHolder.at(level, context.getClickedPos());
-        if (be == null && !CreateCopycats.isCreateCopycat(state)) {
+        if (be == null) {
             return InteractionResult.PASS;
-        }
-        if (be != null ? !be.acceptsDecalOn(face) : !CreateCopycats.convertible(state, face)) {
-            message(player, "front_only");
-            return InteractionResult.sidedSuccess(level.isClientSide());
         }
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;

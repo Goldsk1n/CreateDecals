@@ -21,7 +21,7 @@ public final class DecalsCreativeTab {
     static {
         TABS.register("main", () -> CreativeModeTab.builder()
                 .title(Component.translatable("itemGroup." + CreateDecals.MOD_ID))
-                .icon(DecalsBlocks.DECAL_PANEL::asStack)
+                .icon(DecalsItems.DECAL_STENCIL::asStack)
                 .withTabsBefore(CREATE_PALETTES)
                 .displayItems((parameters, output) -> contents().forEach(output::accept))
                 .build());
@@ -31,7 +31,7 @@ public final class DecalsCreativeTab {
     }
 
     public static List<ItemLike> contents() {
-        return List.of(DecalsItems.DECAL_STENCIL, DecalsBlocks.DECAL_PANEL, DecalsBlocks.DECAL_BLOCK, DecalsBlocks.DECAL_STEP);
+        return List.of(DecalsItems.DECAL_STENCIL, DecalsBlocks.DECAL_BLOCK);
     }
 
     public static void register(IEventBus modBus) {

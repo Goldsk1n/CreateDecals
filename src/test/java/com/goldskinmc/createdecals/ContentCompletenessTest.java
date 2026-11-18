@@ -26,7 +26,7 @@ class ContentCompletenessTest {
         String lang = Files.readString(ASSETS.resolve("lang/en_us.json"));
         List<String> missing = new ArrayList<>();
         List<String> blocks = names(ASSETS.resolve("blockstates"), ".json");
-        assertTrue(blocks.size() >= 2, "expected at least 2 blocks, found " + blocks);
+        assertTrue(!blocks.isEmpty(), "expected the Decal Block, found " + blocks);
         for (String block : blocks) {
             requireKey(lang, "block.createdecals." + block, missing);
             requireKey(lang, "block.createdecals." + block + ".tooltip.summary", missing);
@@ -35,6 +35,18 @@ class ContentCompletenessTest {
             requireFile(ASSETS.resolve("models/item/" + block + ".json"), missing);
             requireKey(lang, "createdecals.ponder." + block + ".header", missing);
             requireFile(ASSETS.resolve("ponder/" + block + ".nbt"), missing);
+        }
+        assertTrue(missing.isEmpty(), "missing: " + missing);
+    }
+
+    /** Create's own Copycat Panel and Step take decals: each has a scene of ours, under Create's item. */
+    @Test
+    void createsCopycatsHaveOurPonderScenes() throws IOException {
+        String lang = Files.readString(ASSETS.resolve("lang/en_us.json"));
+        List<String> missing = new ArrayList<>();
+        for (String scene : List.of("copycat_panel", "copycat_step")) {
+            requireKey(lang, "createdecals.ponder." + scene + ".header", missing);
+            requireFile(ASSETS.resolve("ponder/" + scene + ".nbt"), missing);
         }
         assertTrue(missing.isEmpty(), "missing: " + missing);
     }
