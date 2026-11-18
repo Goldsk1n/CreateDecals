@@ -62,7 +62,7 @@ public final class PonderSchematics implements DataProvider {
         all.add(panel);
 
         Schematic block = new Schematic("decal_block", Layouts.Block.SIZE, 4);
-        block.copycat(Layouts.Block.BLOCK, DecalsBlocks.DECAL_BLOCK.getDefaultState(), white);
+        block.copycat(Layouts.Block.BLOCK, DecalsBlocks.DECAL_BLOCK.getDefaultState(), null);
         all.add(block);
 
         Schematic step = new Schematic("copycat_step", Layouts.Step.SIZE, 4);

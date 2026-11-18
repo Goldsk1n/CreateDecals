@@ -143,6 +143,17 @@ final class DecalsScenes {
                 .text("A full copycat block, for hulls of whole blocks")
                 .placeNearTarget().pointAt(top);
         scene.idle(70);
+        // It starts bare, as a placed one does, and takes a block's look first
+        scene.overlay().showControls(top, Pointing.DOWN, 25).rightClick().withItem(new ItemStack(Items.WHITE_CONCRETE));
+        scene.idle(7);
+        scene.world().modifyBlockEntityNBT(util.select().position(block), DecalCopycatBlockEntity.class, nbt -> {
+            nbt.put("Material", NbtUtils.writeBlockState(Blocks.WHITE_CONCRETE.defaultBlockState()));
+            CompoundTag item = new CompoundTag();
+            item.putString("id", "minecraft:white_concrete");
+            item.putInt("count", 1);
+            nbt.put("Item", item);
+        }, true);
+        scene.idle(30);
         scene.overlay().showControls(north, Pointing.DOWN, 25).rightClick().withItem(stencil("letter_a", DyeColor.BLACK, 0, false, 1, 1));
         scene.idle(7);
         decal(scene, util, block, Direction.NORTH, new DecalState(Decals.id("letter_a"), rgb(DyeColor.BLACK), 0, false));
@@ -150,10 +161,6 @@ final class DecalsScenes {
         scene.overlay().showControls(west, Pointing.RIGHT, 25).rightClick().withItem(stencil("hazard", DyeColor.ORANGE, 0, false, 1, 1));
         scene.idle(7);
         decal(scene, util, block, Direction.WEST, new DecalState(Decals.id("hazard"), rgb(DyeColor.ORANGE), 0, false));
-        scene.idle(30);
-        scene.overlay().showControls(top, Pointing.DOWN, 25).rightClick().withItem(stencil("chevron", DyeColor.BLUE, 1, false, 1, 1));
-        scene.idle(7);
-        decal(scene, util, block, Direction.UP, new DecalState(Decals.id("chevron"), rgb(DyeColor.BLUE), 1, false));
         scene.overlay().showText(50).attachKeyFrame()
                 .text("Each face takes its own decal")
                 .placeNearTarget().pointAt(north);
