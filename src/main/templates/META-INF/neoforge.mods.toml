@@ -9,10 +9,7 @@ displayName = "${mod_name}"
 logoFile = "logo.png"
 authors = "GoldskinMC"
 description = '''
-Liveries for anything Create builds: stripes, numbers, letters and emblems on copycat blocks.
-Decal Panels and Decal Blocks copy any block's look and carry a decal on their faces; the Decal Stencil chooses,
-places, turns, recolours and picks up decals, up to 3x3 blocks in one click. Decals are part of the block's model,
-so they stay crisp on trains, contraptions and Sable vehicles, and under shaders. Resource packs can add decals.
+Decals for Create's copycat blocks.
 '''
 
 [[dependencies.${mod_id}]]
