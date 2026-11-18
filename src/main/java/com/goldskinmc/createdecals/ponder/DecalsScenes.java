@@ -82,6 +82,7 @@ final class DecalsScenes {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
         scene.title("copycat_panel", "Putting a decal on a Copycat Panel");
         scene.configureBasePlate(0, 0, Layouts.Panel.SIZE);
+        scene.setSceneOffsetY(-0.5f);
         scene.showBasePlate();
         scene.idle(10);
         scene.world().showSection(util.select().fromTo(Layouts.Panel.WALL_FROM, Layouts.Panel.WALL_TO), Direction.DOWN);
@@ -95,7 +96,7 @@ final class DecalsScenes {
                 .text("Copycat Panels take decals")
                 .placeNearTarget().pointAt(front);
         scene.idle(80);
-        scene.overlay().showControls(front, Pointing.DOWN, 40).rightClick().withItem(new ItemStack(Items.WHITE_CONCRETE));
+        scene.overlay().showControls(front, Pointing.DOWN, 25).rightClick().withItem(new ItemStack(Items.WHITE_CONCRETE));
         scene.idle(7);
         scene.world().modifyBlockEntityNBT(util.select().position(panel), CopycatBlockEntity.class, nbt -> {
             nbt.put("Material", NbtUtils.writeBlockState(Blocks.WHITE_CONCRETE.defaultBlockState()));
@@ -142,15 +143,15 @@ final class DecalsScenes {
                 .text("A full copycat block, for hulls of whole blocks")
                 .placeNearTarget().pointAt(top);
         scene.idle(80);
-        scene.overlay().showControls(north, Pointing.DOWN, 30).rightClick().withItem(stencil("letter_a", DyeColor.BLACK, 0, false, 1, 1));
+        scene.overlay().showControls(north, Pointing.DOWN, 25).rightClick().withItem(stencil("letter_a", DyeColor.BLACK, 0, false, 1, 1));
         scene.idle(7);
         decal(scene, util, block, Direction.NORTH, new DecalState(Decals.id("letter_a"), rgb(DyeColor.BLACK), 0, false));
-        scene.idle(20);
-        scene.overlay().showControls(west, Pointing.RIGHT, 30).rightClick().withItem(stencil("hazard", DyeColor.ORANGE, 0, false, 1, 1));
+        scene.idle(30);
+        scene.overlay().showControls(west, Pointing.RIGHT, 25).rightClick().withItem(stencil("hazard", DyeColor.ORANGE, 0, false, 1, 1));
         scene.idle(7);
         decal(scene, util, block, Direction.WEST, new DecalState(Decals.id("hazard"), rgb(DyeColor.ORANGE), 0, false));
-        scene.idle(20);
-        scene.overlay().showControls(top, Pointing.DOWN, 30).rightClick().withItem(stencil("chevron", DyeColor.BLUE, 1, false, 1, 1));
+        scene.idle(30);
+        scene.overlay().showControls(top, Pointing.DOWN, 25).rightClick().withItem(stencil("chevron", DyeColor.BLUE, 1, false, 1, 1));
         scene.idle(7);
         decal(scene, util, block, Direction.UP, new DecalState(Decals.id("chevron"), rgb(DyeColor.BLUE), 1, false));
         scene.overlay().showText(70).attachKeyFrame()
@@ -195,10 +196,10 @@ final class DecalsScenes {
                 .text("Copycat Steps take a decal on any face")
                 .placeNearTarget().pointAt(stepFace);
         scene.idle(80);
-        scene.overlay().showControls(blockFace, Pointing.DOWN, 30).rightClick().withItem(stencil("hazard", DyeColor.YELLOW, 0, false, 1, 1));
+        scene.overlay().showControls(blockFace, Pointing.DOWN, 25).rightClick().withItem(stencil("hazard", DyeColor.YELLOW, 0, false, 1, 1));
         scene.idle(7);
         decal(scene, util, Layouts.Step.BLOCK, Direction.NORTH, new DecalState(Decals.id("hazard"), rgb(DyeColor.YELLOW), 0, false));
-        scene.idle(20);
+        scene.idle(30);
         scene.overlay().showControls(stepFace, Pointing.DOWN, 30).rightClick().withItem(stencil("hazard", DyeColor.YELLOW, 0, false, 1, 1));
         scene.idle(7);
         attached(scene, util, Layouts.Step.STEP, Direction.NORTH, new DecalState(Decals.id("hazard"), rgb(DyeColor.YELLOW), 0, false));
@@ -216,6 +217,8 @@ final class DecalsScenes {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
         scene.title("decal_stencil", "Choosing, placing and picking up decals");
         scene.configureBasePlate(0, 0, Layouts.Stencil.SIZE);
+        scene.scaleSceneView(.8f);
+        scene.setSceneOffsetY(-1.5f);
         scene.showBasePlate();
         scene.idle(10);
         scene.world().showSection(util.select().fromTo(Layouts.Stencil.WALL_FROM, Layouts.Stencil.WALL_TO), Direction.DOWN);
@@ -243,9 +246,10 @@ final class DecalsScenes {
                 .placeNearTarget().pointAt(topLeftFace);
         scene.idle(90);
 
-        scene.overlay().showControls(middleFace, Pointing.DOWN, 40).rightClick().whileSneaking()
+        scene.overlay().showControls(middleFace, Pointing.DOWN, 18).rightClick().whileSneaking()
                 .withItem(new ItemStack(DecalsItems.DECAL_STENCIL.get()));
-        scene.idle(20);
+        // A hint fades for about 10 ticks after its time: the next one waits for that
+        scene.idle(30);
         scene.overlay().showControls(sideFace, Pointing.DOWN, 40).rightClick().withItem(stencil("cog", DyeColor.ORANGE, 0, false, 1, 1));
         scene.idle(7);
         decal(scene, util, Layouts.Stencil.SIDE, Direction.NORTH, new DecalState(Decals.id("cog"), rgb(DyeColor.ORANGE), 0, false));
@@ -271,6 +275,8 @@ final class DecalsScenes {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
         scene.title("decal_stencil_deployer", "Stamping decals with Deployers");
         scene.configureBasePlate(0, 0, Layouts.Deployer.SIZE);
+        scene.scaleSceneView(.9f);
+        scene.setSceneOffsetY(-1);
         scene.showBasePlate();
         scene.idle(10);
         BlockPos deployerPos = Layouts.Deployer.DEPLOYER;
@@ -288,7 +294,7 @@ final class DecalsScenes {
         scene.world().setKineticSpeed(kinetics, 32);
         scene.overlay().showText(80).attachKeyFrame()
                 .text("A Deployer with a stencil stamps the block in front of it")
-                .placeNearTarget().pointAt(util.vector().topOf(deployerPos));
+                .placeNearTarget().pointAt(util.vector().blockSurface(deployerPos, Direction.WEST));
         scene.idle(30);
         stamp(scene, util, deployerPos, middle, new DecalState(Decals.id("cog"), rgb(DyeColor.ORANGE), 0, false));
         scene.idle(40);
@@ -317,7 +323,7 @@ final class DecalsScenes {
         scene.idle(15);
         scene.overlay().showText(90).attachKeyFrame()
                 .text("On a contraption, it stamps every block it passes")
-                .placeNearTarget().pointAt(util.vector().topOf(middle.east()));
+                .placeNearTarget().pointAt(util.vector().blockSurface(Layouts.Deployer.ROW_TO, Direction.NORTH).add(0, -0.3, 0));
         DecalState stripe = new DecalState(Decals.id("stripe"), rgb(DyeColor.RED), 0, false);
         for (int x = Layouts.Deployer.ROW_TO.getX(); x >= Layouts.Deployer.ROW_FROM.getX(); x--) {
             // A moving Deployer reaches out at each block it works on, as Create's does on a contraption
