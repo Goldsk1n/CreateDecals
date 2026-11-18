@@ -90,7 +90,8 @@ final class DecalsScenes {
         BlockPos panel = Layouts.Panel.PANEL;
         scene.world().showSection(util.select().position(panel), Direction.SOUTH);
         scene.idle(20);
-        Vec3 front = util.vector().blockSurface(panel, Direction.NORTH).add(0, 0, 0.3);
+        // A panel facing north lies at the back of its block: its face is 13/16 in from the block's north side
+        Vec3 front = util.vector().blockSurface(panel, Direction.NORTH).add(0, 0, 13 / 16.0);
 
         scene.overlay().showText(50).attachKeyFrame()
                 .text("Copycat Panels take decals")
