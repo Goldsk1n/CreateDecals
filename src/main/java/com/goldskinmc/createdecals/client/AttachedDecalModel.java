@@ -43,6 +43,9 @@ public class AttachedDecalModel extends BakedModelWrapper<BakedModel> {
         }
         ModelData inner = super.getModelData(level, pos, state, data);
         AttachedDecals decals = be != null ? be.getExistingData(DecalsAttachments.DECALS.get()).orElse(null) : null;
+        if (decals != null && PonderGlow.inPonder(level)) {
+            decals = new AttachedDecals(PonderGlow.unlit(decals.back()), PonderGlow.unlit(decals.front()));
+        }
         return decals == null || decals.isEmpty() ? inner : inner.derive().with(DECALS, decals).build();
     }
 

@@ -44,6 +44,10 @@ public class DecalBlockModel extends CopycatModel {
         super.gatherModelData(builder, world, pos, state, blockEntityData);
         Map<Direction, DecalState> back = blockEntityData.get(DecalCopycatBlockEntity.DECALS);
         Map<Direction, DecalState> front = blockEntityData.get(DecalCopycatBlockEntity.FRONT_DECALS);
+        if (PonderGlow.inPonder(world)) {
+            back = PonderGlow.unlit(back);
+            front = PonderGlow.unlit(front);
+        }
         if (back == null && front == null) {
             return builder;
         }
