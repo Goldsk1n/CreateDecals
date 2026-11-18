@@ -320,7 +320,12 @@ final class DecalsScenes {
                 .placeNearTarget().pointAt(util.vector().topOf(middle.east()));
         DecalState stripe = new DecalState(Decals.id("stripe"), rgb(DyeColor.RED), 0, false);
         for (int x = Layouts.Deployer.ROW_TO.getX(); x >= Layouts.Deployer.ROW_FROM.getX(); x--) {
+            // A moving Deployer reaches out at each block it works on, as Create's does on a contraption
+            scene.world().moveDeployer(deployerPos, 1, 9);
+            scene.idle(10);
             decal(scene, util, new BlockPos(x, 1, 2), Direction.UP, stripe);
+            scene.world().moveDeployer(deployerPos, -1, 9);
+            scene.idle(10);
             if (x > Layouts.Deployer.ROW_FROM.getX()) {
                 scene.world().moveSection(deployer, new Vec3(-1, 0, 0), 15);
                 scene.idle(15);
