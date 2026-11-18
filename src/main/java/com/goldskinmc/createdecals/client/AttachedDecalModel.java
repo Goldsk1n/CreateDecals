@@ -36,8 +36,12 @@ public class AttachedDecalModel extends BakedModelWrapper<BakedModel> {
 
     @Override
     public ModelData getModelData(BlockAndTintGetter level, BlockPos pos, BlockState state, ModelData data) {
-        ModelData inner = super.getModelData(level, pos, state, data);
         BlockEntity be = level.getBlockEntity(pos);
+        // Ponder's world hands models no block-entity data: take the block entity's own, or its material is lost
+        if (be != null && data.getProperties().isEmpty()) {
+            data = be.getModelData();
+        }
+        ModelData inner = super.getModelData(level, pos, state, data);
         AttachedDecals decals = be != null ? be.getExistingData(DecalsAttachments.DECALS.get()).orElse(null) : null;
         return decals == null || decals.isEmpty() ? inner : inner.derive().with(DECALS, decals).build();
     }
