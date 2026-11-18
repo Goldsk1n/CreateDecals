@@ -92,7 +92,7 @@ final class DecalsScenes {
         Vec3 front = util.vector().blockSurface(panel, Direction.NORTH).add(0, 0, 0.3);
 
         scene.overlay().showText(70).attachKeyFrame()
-                .text("Create's Copycat Panel takes decals as it is")
+                .text("Copycat Panels take decals")
                 .placeNearTarget().pointAt(front);
         scene.idle(80);
         scene.overlay().showControls(front, Pointing.DOWN, 40).rightClick().withItem(new ItemStack(Items.WHITE_CONCRETE));
@@ -104,25 +104,23 @@ final class DecalsScenes {
             item.putInt("count", 1);
             nbt.put("Item", item);
         }, true);
-        scene.overlay().showText(60).text("Give it the look of a block first, as usual")
-                .placeNearTarget().pointAt(front);
-        scene.idle(70);
+        scene.idle(30);
 
         scene.overlay().showControls(front, Pointing.DOWN, 40).rightClick().withItem(stencil("digit_7", DyeColor.RED, 0, false, 1, 1));
         scene.idle(7);
         attached(scene, util, panel, Direction.NORTH, new DecalState(Decals.id("digit_7"), rgb(DyeColor.RED), 0, false));
         scene.overlay().showText(70).attachKeyFrame()
-                .text("Right-click it with a Decal Stencil to put the stencil's decal on it")
+                .text("Right-click with a Decal Stencil to put one on")
                 .placeNearTarget().pointAt(front);
         scene.idle(80);
 
         scene.overlay().showControls(front, Pointing.DOWN, 40).rightClick().withItem(new ItemStack(Items.BLUE_DYE));
         scene.idle(7);
         attached(scene, util, panel, Direction.NORTH, new DecalState(Decals.id("digit_7"), rgb(DyeColor.BLUE), 0, false));
-        scene.overlay().showText(60).text("A dye recolours the decal").placeNearTarget().pointAt(front);
+        scene.overlay().showText(60).text("Dye recolours it").placeNearTarget().pointAt(front);
         scene.idle(70);
         scene.overlay().showText(90).attachKeyFrame()
-                .text("The decal is part of the block: it stays on trains, contraptions and Sable vehicles, and under shaders. Without Create: Decals the panel is a plain Copycat Panel again")
+                .text("Without Create: Decals, it is a plain Copycat Panel again")
                 .placeNearTarget().pointAt(front);
         scene.idle(100);
     }
@@ -141,7 +139,7 @@ final class DecalsScenes {
         Vec3 top = util.vector().topOf(block);
 
         scene.overlay().showText(70).attachKeyFrame()
-                .text("A Decal Block is a full copycat block, for hulls built of whole blocks")
+                .text("A full copycat block, for hulls of whole blocks")
                 .placeNearTarget().pointAt(top);
         scene.idle(80);
         scene.overlay().showControls(north, Pointing.LEFT, 30).rightClick().withItem(stencil("letter_a", DyeColor.BLACK, 0, false, 1, 1));
@@ -156,12 +154,8 @@ final class DecalsScenes {
         scene.idle(7);
         decal(scene, util, block, Direction.UP, new DecalState(Decals.id("chevron"), rgb(DyeColor.BLUE), 1, false));
         scene.overlay().showText(70).attachKeyFrame()
-                .text("Each of its faces takes a decal of its own: the stencil puts it on the face you click")
+                .text("Each face takes its own decal")
                 .placeNearTarget().pointAt(north);
-        scene.idle(80);
-        scene.overlay().showText(70)
-                .text("Faces against a solid block are hidden, decal and all, as on any block")
-                .placeNearTarget().pointAt(west);
         scene.idle(80);
 
         ItemStack frontStencil = stencil("frame", DyeColor.RED, 0, false, 1, 1);
@@ -171,14 +165,14 @@ final class DecalsScenes {
         DecalState frame = new DecalState(Decals.id("frame"), rgb(DyeColor.RED), 0, false);
         decal(scene, util, block, Direction.NORTH, true, frame);
         scene.overlay().showText(80).attachKeyFrame()
-                .text("Set the stencil to the front layer to put a second decal over the first, such as a number on a stripe")
+                .text("Set the stencil to the front layer to put a second decal on top")
                 .placeNearTarget().pointAt(north);
         scene.idle(90);
         scene.overlay().showControls(north, Pointing.LEFT, 30).rightClick().withItem(new ItemStack(Items.GLOW_INK_SAC));
         scene.idle(7);
         decal(scene, util, block, Direction.NORTH, true, frame.withGlow(true));
         scene.overlay().showText(70)
-                .text("A Glow Ink Sac makes a decal glow in the dark; an Ink Sac stops it")
+                .text("A Glow Ink Sac makes a decal glow; an Ink Sac stops it")
                 .placeNearTarget().pointAt(north);
         scene.idle(80);
     }
@@ -198,7 +192,7 @@ final class DecalsScenes {
         Vec3 stepTop = util.vector().centerOf(Layouts.Step.STEP).add(0, 0, -0.25);
 
         scene.overlay().showText(70).attachKeyFrame()
-                .text("Create's Copycat Step takes a decal on any of its faces")
+                .text("Copycat Steps take a decal on any face")
                 .placeNearTarget().pointAt(stepFace);
         scene.idle(80);
         scene.overlay().showControls(blockFace, Pointing.DOWN, 30).rightClick().withItem(stencil("hazard", DyeColor.YELLOW, 0, false, 1, 1));
@@ -209,16 +203,13 @@ final class DecalsScenes {
         scene.idle(7);
         attached(scene, util, Layouts.Step.STEP, Direction.NORTH, new DecalState(Decals.id("hazard"), rgb(DyeColor.YELLOW), 0, false));
         scene.overlay().showText(90).attachKeyFrame()
-                .text("Each face shows the part of the decal it covers, as if the decal lay on the whole face of the block, so stripes and patterns run on from the Decal Blocks beside it")
+                .text("Each face shows its part of the decal, so stripes run on from the blocks beside it")
                 .placeNearTarget().pointAt(stepFace);
         scene.idle(100);
         scene.overlay().showControls(stepTop, Pointing.DOWN, 30).rightClick().withItem(stencil("stripe_double", DyeColor.BLACK, 1, false, 1, 1));
         scene.idle(7);
         attached(scene, util, Layouts.Step.STEP, Direction.UP, new DecalState(Decals.id("stripe_double"), rgb(DyeColor.BLACK), 1, false));
-        scene.overlay().showText(70)
-                .text("Letters and numbers read best on Decal Blocks and Copycat Panels, where the whole decal shows")
-                .placeNearTarget().pointAt(stepTop);
-        scene.idle(80);
+        scene.idle(40);
     }
 
     static void stencil(SceneBuilder builder, SceneBuildingUtil util) {
@@ -236,7 +227,7 @@ final class DecalsScenes {
         Vec3 sideFace = util.vector().blockSurface(Layouts.Stencil.SIDE, Direction.NORTH);
 
         scene.overlay().showText(80).attachKeyFrame()
-                .text("Use the Decal Stencil in the air to choose a decal or type a word, its colour, and how it is turned and flipped")
+                .text("Use it in the air to pick a decal, a word or a colour")
                 .placeNearTarget().pointAt(middleFace);
         scene.idle(90);
 
@@ -248,7 +239,7 @@ final class DecalsScenes {
             decal(scene, util, tile.pos(), Direction.NORTH, tile.decal());
         }
         scene.overlay().showText(80).attachKeyFrame()
-                .text("Decals larger than one block spread right and down from the face you click, over the decal blocks beside it")
+                .text("Big decals spread right and down from the face you click")
                 .placeNearTarget().pointAt(topLeftFace);
         scene.idle(90);
 
@@ -259,7 +250,7 @@ final class DecalsScenes {
         scene.idle(7);
         decal(scene, util, Layouts.Stencil.SIDE, Direction.NORTH, new DecalState(Decals.id("cog"), rgb(DyeColor.ORANGE), 0, false));
         scene.overlay().showText(80).attachKeyFrame()
-                .text("Sneak and right-click a decal to pick it up into the stencil, then use it elsewhere")
+                .text("Sneak-click a decal to copy it into the stencil")
                 .placeNearTarget().pointAt(sideFace);
         scene.idle(90);
 
@@ -271,7 +262,7 @@ final class DecalsScenes {
             decal(scene, util, tile.pos(), Direction.NORTH, null);
         }
         scene.overlay().showText(80).attachKeyFrame()
-                .text("The stencil's eraser takes a whole decal off, clicked on any of its tiles. Create's Clipboard copies decals too")
+                .text("The eraser takes a decal off. Create's Clipboard copies them")
                 .placeNearTarget().pointAt(middleFace);
         scene.idle(90);
     }
@@ -296,7 +287,7 @@ final class DecalsScenes {
         held(scene, util, deployerPos, stencil("cog", DyeColor.ORANGE, 0, false, 1, 1));
         scene.world().setKineticSpeed(kinetics, 32);
         scene.overlay().showText(80).attachKeyFrame()
-                .text("A Deployer holding a Decal Stencil stamps its decal on the block in front of it, as a player's click does")
+                .text("A Deployer with a stencil stamps the block in front of it")
                 .placeNearTarget().pointAt(util.vector().topOf(deployerPos));
         scene.idle(30);
         stamp(scene, util, deployerPos, middle, new DecalState(Decals.id("cog"), rgb(DyeColor.ORANGE), 0, false));
@@ -304,7 +295,7 @@ final class DecalsScenes {
 
         held(scene, util, deployerPos, new ItemStack(Items.BLUE_DYE));
         scene.overlay().showText(70).attachKeyFrame()
-                .text("With a dye it recolours the decal; with the stencil's eraser it takes the decal off")
+                .text("With dye it recolours; with the eraser it erases")
                 .placeNearTarget().pointAt(top);
         scene.idle(20);
         stamp(scene, util, deployerPos, middle, new DecalState(Decals.id("cog"), rgb(DyeColor.BLUE), 0, false));
@@ -325,7 +316,7 @@ final class DecalsScenes {
         scene.world().moveSection(deployer, new Vec3(1, 0, 0), 15);
         scene.idle(15);
         scene.overlay().showText(90).attachKeyFrame()
-                .text("Carried on a contraption, a Deployer stamps every block it passes: lay a stripe along a hull as it goes by")
+                .text("On a contraption, it stamps every block it passes")
                 .placeNearTarget().pointAt(util.vector().topOf(middle.east()));
         DecalState stripe = new DecalState(Decals.id("stripe"), rgb(DyeColor.RED), 0, false);
         for (int x = Layouts.Deployer.ROW_TO.getX(); x >= Layouts.Deployer.ROW_FROM.getX(); x--) {
