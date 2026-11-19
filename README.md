@@ -2,7 +2,7 @@
 
 Decals for [Create](https://modrinth.com/mod/create)'s copycat blocks.
 
-Changes: [CHANGELOG.md](CHANGELOG.md).
+**Download:** [CurseForge](https://www.curseforge.com/minecraft/mc-mods/create-decals). Changes: [CHANGELOG.md](CHANGELOG.md).
 **Community and support:** [Discord](https://discord.gg/HAtMB7UQss). Bugs: [GitHub Issues](https://github.com/Goldsk1n/CreateDecals/issues).
 
 ## Blocks and items

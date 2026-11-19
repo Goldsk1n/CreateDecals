@@ -8,6 +8,7 @@ modId = "${mod_id}"
 version = "${mod_version}"
 displayName = "${mod_name}"
 logoFile = "logo.png"
+displayURL = "https://www.curseforge.com/minecraft/mc-mods/create-decals"
 authors = "GoldskinMC"
 description = '''
 Decals for Create's copycat blocks.
