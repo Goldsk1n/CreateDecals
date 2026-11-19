@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The Decal Stencil's icon with its chosen decal on the plate: the whole picture (every tile of a large one), tinted,
- * flipped and turned as it will lie on a face, over the plate's middle. Without a decal it is the plain icon; as the
+ * flipped and turned as it will lie on a face, over the plate's middle. Without a decal it is the bare plate; as the
  * eraser, the plate with a rubber eraser over its corner, where no decal reaches, so no decal can look like it. One model
  * per choice, cached.
  */
@@ -103,7 +103,7 @@ public class StencilItemModel extends BakedModelWrapper<BakedModel> {
         return builder.bakeQuad();
     }
 
-    /** The plate with the decal on it instead of the chevron. */
+    /** The plate with the decal on it. */
     private static final class WithDecal extends BakedModelWrapper<BakedModel> {
         private final BakedQuad decal;
 
@@ -127,13 +127,8 @@ public class StencilItemModel extends BakedModelWrapper<BakedModel> {
             if (side != null) {
                 return quads;
             }
-            // The plate stays; the chevron layer (tint index 1) gives way to the decal
             List<BakedQuad> all = new ArrayList<>(quads.size() + 1);
-            for (BakedQuad quad : quads) {
-                if (quad.getTintIndex() != 1) {
-                    all.add(quad);
-                }
-            }
+            all.addAll(quads);
             all.add(decal);
             return all;
         }

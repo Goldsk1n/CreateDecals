@@ -1,9 +1,9 @@
-// 1.21.1	2026-11-19T18:26:10.5805344	Registrate Provider for createdecals [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
+// 1.21.1	2026-11-19T19:41:46.3084044	Registrate Provider for createdecals [Registries, Data Maps, Recipes, Advancements, Loot Tables, Tags (blocks), Tags (enchantments), Tags (items), Tags (fluids), Tags (entity_types), generic_server_provider, Blockstates, Item models, Lang (en_us/en_ud), generic_client_provider]
 3dff9e1ec59415779195d2abfa9f07bc17b428a1 assets/createdecals/blockstates/decal_block.json
 aae4147265a7cf7acd2c6b9574940a02f8ca830e assets/createdecals/lang/en_ud.json
 285f4e23ca13169d26fb7053e9a5d11584b6b370 assets/createdecals/lang/en_us.json
 7b32b8c815654d278ae7cf966d57f95e4edcffad assets/createdecals/models/item/decal_block.json
-819ef9a76900f9b621a37cf0863b21594b337114 assets/createdecals/models/item/decal_stencil.json
+cd5de33150115bee7485d636a270b971bfefd73b assets/createdecals/models/item/decal_stencil.json
 af18b8cd9561da8d58a12430e795b5ab5b4d63b1 assets/createdecals/models/item/decal_stencil_eraser.json
 08c8350706787a534900e8b2d46d1d28c4747bd0 data/createdecals/advancement/recipes/building_blocks/decal_block.json
 92d99bde7ee2b5059f9473b135d53af88427b6c8 data/createdecals/advancement/recipes/tools/decal_stencil.json

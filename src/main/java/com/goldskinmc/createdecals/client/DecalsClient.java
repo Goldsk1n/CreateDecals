@@ -69,20 +69,11 @@ public final class DecalsClient {
         StencilItemModel.clearCache();
     }
 
-    /**
-     * The stencil's icon: its chevron layer is dark like a cut-out; a chosen decal replaces it ({@link StencilItemModel})
-     * and carries its colour in the tint index, as on blocks. The eraser's look is drawn, not tinted.
-     */
+    /** The stencil's icon: a chosen decal ({@link StencilItemModel}) carries its colour in the tint index, as on blocks. */
     @SubscribeEvent
     public static void registerItemColours(RegisterColorHandlersEvent.Item event) {
         event.register((stack, layer) -> {
-            if (layer >= DecalQuads.TINT_FLAG) {
-                return 0xFF000000 | layer & 0xFFFFFF;
-            }
-            if (layer != 1) {
-                return -1;
-            }
-            return 0xFF282B30;
+            return layer >= DecalQuads.TINT_FLAG ? 0xFF000000 | layer & 0xFFFFFF : -1;
         }, DecalsItems.DECAL_STENCIL.get());
     }
 

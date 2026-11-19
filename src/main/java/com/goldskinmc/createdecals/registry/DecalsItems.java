@@ -11,7 +11,8 @@ public final class DecalsItems {
             .item("decal_stencil", DecalStencilItem::new)
             .properties(p -> p.stacksTo(1))
             .model((c, p) -> {
-                p.generated(c, p.modLoc("item/decal_stencil"), p.modLoc("item/decal_stencil_mark"));
+                // A bare plate with nothing chosen: a mark there would look like a decal (client/StencilItemModel)
+                p.generated(c, p.modLoc("item/decal_stencil"));
                 // Shown instead while the stencil is the eraser (client/StencilItemModel)
                 p.withExistingParent("decal_stencil_eraser", p.mcLoc("item/generated"))
                         .texture("layer0", p.modLoc("item/decal_stencil_eraser"));
