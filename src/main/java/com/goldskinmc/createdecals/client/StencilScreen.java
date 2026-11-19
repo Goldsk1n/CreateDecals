@@ -75,6 +75,9 @@ public class StencilScreen extends Screen {
     private static final int FACE_X = PREVIEW_X + 3;
     private static final int FACE_Y = PREVIEW_Y + 3;
     private static final int FACE = 64;
+    private static final ResourceLocation ERASER_ICON = CreateDecals.id("textures/item/decal_stencil_eraser.png");
+    /** Where the rubber eraser lies on that icon: x, y, width, height. */
+    private static final int[] ERASER_RUBBER = {9, 11, 7, 5};
     private static final int BUTTONS_Y = 114;
     private static final int SWATCH = 13;
     private static final int SWATCH_X = 6;
@@ -337,7 +340,12 @@ public class StencilScreen extends Screen {
         int fx = left + FACE_X;
         int fy = top + FACE_Y;
         if (data.erase()) {
-            graphics.drawCenteredString(font, Component.translatable("createdecals.stencil.erase"), fx + FACE / 2, fy + FACE / 2 - 4, 0xFFFFFF);
+            // The rubber eraser from the stencil's eraser icon, seven times over, and its name under it. Two colours: no
+            // decal or word, always one colour, can look like it (a word typed ERASER would look like the name alone)
+            int w = ERASER_RUBBER[2] * 7;
+            int h = ERASER_RUBBER[3] * 7;
+            graphics.blit(ERASER_ICON, fx + (FACE - w) / 2, fy + 8, w, h, ERASER_RUBBER[0], ERASER_RUBBER[1], ERASER_RUBBER[2], ERASER_RUBBER[3], 16, 16);
+            graphics.drawCenteredString(font, Component.translatable("createdecals.stencil.erase"), fx + FACE / 2, fy + 8 + h + 5, 0xFFFFFF);
         } else if (data.writes()) {
             // The word's letters in a row (the first few if it is long), turned as a whole, as it will lie (never mirrored)
             String word = data.text();

@@ -4,8 +4,6 @@ import com.goldskinmc.createdecals.CreateDecals;
 import com.goldskinmc.createdecals.ponder.DecalsPonder;
 import com.goldskinmc.createdecals.registry.DecalsBlocks;
 import com.goldskinmc.createdecals.registry.DecalsItems;
-import com.goldskinmc.createdecals.stencil.DecalStencilItem;
-import com.goldskinmc.createdecals.stencil.StencilData;
 import com.simibubi.create.content.decoration.copycat.CopycatBlock;
 import java.util.function.Function;
 import net.minecraft.client.color.block.BlockColor;
@@ -40,8 +38,14 @@ public final class DecalsClient {
         ModelResourceLocation stencil = ModelResourceLocation.inventory(DecalsItems.DECAL_STENCIL.getId());
         BakedModel stencilModel = event.getModels().get(stencil);
         if (stencilModel != null) {
-            event.getModels().put(stencil, new StencilItemModel(stencilModel));
+            event.getModels().put(stencil, new StencilItemModel(stencilModel, event.getModels().get(StencilItemModel.ERASER)));
         }
+    }
+
+    /** The stencil's eraser look, baked with the other models though no item names it. */
+    @SubscribeEvent
+    public static void registerAdditionalModels(ModelEvent.RegisterAdditional event) {
+        event.register(StencilItemModel.ERASER);
     }
 
     private static void wrap(ModelEvent.ModifyBakingResult event, Block block, Function<BakedModel, BakedModel> wrapper) {
@@ -66,8 +70,8 @@ public final class DecalsClient {
     }
 
     /**
-     * The stencil's icon: its chevron layer is dark like a cut-out (red as the eraser); a chosen decal replaces it
-     * ({@link StencilItemModel}) and carries its colour in the tint index, as on blocks.
+     * The stencil's icon: its chevron layer is dark like a cut-out; a chosen decal replaces it ({@link StencilItemModel})
+     * and carries its colour in the tint index, as on blocks. The eraser's look is drawn, not tinted.
      */
     @SubscribeEvent
     public static void registerItemColours(RegisterColorHandlersEvent.Item event) {
@@ -78,8 +82,7 @@ public final class DecalsClient {
             if (layer != 1) {
                 return -1;
             }
-            StencilData data = DecalStencilItem.data(stack);
-            return 0xFF000000 | (data.erase() ? 0xD03030 : 0x282B30);
+            return 0xFF282B30;
         }, DecalsItems.DECAL_STENCIL.get());
     }
 

@@ -1,5 +1,6 @@
 package com.goldskinmc.createdecals.client;
 
+import com.goldskinmc.createdecals.CreateDecals;
 import com.goldskinmc.createdecals.stencil.DecalStencilItem;
 import com.goldskinmc.createdecals.stencil.StencilData;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -28,10 +30,13 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * The Decal Stencil's icon with its chosen decal on the plate: the whole picture (every tile of a large one), tinted,
- * flipped and turned as it will lie on a face, over the plate's middle. Without a decal (or as the eraser) it is the
- * plain icon. One model per choice, cached.
+ * flipped and turned as it will lie on a face, over the plate's middle. Without a decal it is the plain icon; as the
+ * eraser, the plate with a rubber eraser over its corner, where no decal reaches, so no decal can look like it. One model
+ * per choice, cached.
  */
 public class StencilItemModel extends BakedModelWrapper<BakedModel> {
+    /** The eraser's look: models/item/decal_stencil_eraser. */
+    public static final ModelResourceLocation ERASER = ModelResourceLocation.standalone(CreateDecals.id("item/decal_stencil_eraser"));
     private static final Map<StencilData, BakedModel> CACHE = new ConcurrentHashMap<>();
     /** Every colour and turn chosen is an entry: past this many the cache is emptied and refilled by the stencils in use. */
     private static final int CACHE_LIMIT = 512;
@@ -40,7 +45,10 @@ public class StencilItemModel extends BakedModelWrapper<BakedModel> {
         @Override
         public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
             StencilData data = DecalStencilItem.data(stack);
-            if (data.erase() || data.decal().isEmpty()) {
+            if (data.erase()) {
+                return eraser != null ? eraser : StencilItemModel.this.originalModel;
+            }
+            if (data.decal().isEmpty()) {
                 return StencilItemModel.this.originalModel;
             }
             DecalLibrary.Entry entry = DecalLibrary.INSTANCE.get(data.decal().get());
@@ -54,8 +62,12 @@ public class StencilItemModel extends BakedModelWrapper<BakedModel> {
         }
     };
 
-    public StencilItemModel(BakedModel originalModel) {
+    @Nullable
+    private final BakedModel eraser;
+
+    public StencilItemModel(BakedModel originalModel, @Nullable BakedModel eraser) {
         super(originalModel);
+        this.eraser = eraser;
     }
 
     public static void clearCache() {
