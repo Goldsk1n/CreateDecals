@@ -107,6 +107,7 @@ public class StencilScreen extends Screen {
     private IconButton layer;
     private IconButton glow;
     private IconButton flip;
+    private IconButton erase;
     private int left;
     private int top;
 
@@ -147,7 +148,7 @@ public class StencilScreen extends Screen {
         int by = top + BUTTONS_Y;
         button(bx, by, AllIcons.I_TOOL_ROTATE, "rotate", () -> data = data.withTurn(data.rotation() + 1, data.flip()));
         flip = button(bx + 20, by, AllIcons.I_TOOL_MIRROR, "flip", () -> data = data.withTurn(data.rotation(), !data.flip()));
-        button(bx + 40, by, AllIcons.I_TRASH, "erase", () -> data = data.withErase(!data.erase()));
+        erase = button(bx + 40, by, AllIcons.I_TRASH, "erase", () -> data = data.withErase(!data.erase()));
         button(left + PANEL_WIDTH - 25, top + TRAY_Y + 5, AllIcons.I_CONFIRM, "done", this::onClose);
         layer = new IconButton(bx, by + 20, icon(0));
         layer.withCallback(() -> {
@@ -300,6 +301,9 @@ public class StencilScreen extends Screen {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         flip.active = !data.writes();
         flip.setToolTip(Component.translatable(data.writes() ? "createdecals.stencil.flip_words" : "createdecals.stencil.flip"));
+        // On/off buttons turn green while on, as glow does; each frame, since choosing a decal also ends the eraser
+        flip.green = data.flip() && !data.writes();
+        erase.green = data.erase();
         super.render(graphics, mouseX, mouseY, partialTick);
         graphics.drawString(font, title, left + (PANEL_WIDTH - font.width(title)) / 2, top + 4, TITLE_COLOUR, false);
         String hoveredCategory = renderTabs(graphics, mouseX, mouseY);
