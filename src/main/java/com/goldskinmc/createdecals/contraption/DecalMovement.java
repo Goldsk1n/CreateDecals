@@ -1,5 +1,6 @@
 package com.goldskinmc.createdecals.contraption;
 
+import com.goldskinmc.createdecals.client.ClientSafety;
 import com.goldskinmc.createdecals.client.ContraptionGlow;
 import com.simibubi.create.api.behaviour.movement.MovementBehaviour;
 import com.simibubi.create.content.contraptions.behaviour.MovementContext;
@@ -29,6 +30,6 @@ public class DecalMovement implements MovementBehaviour {
     @OnlyIn(Dist.CLIENT)
     public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld, ContraptionMatrices matrices,
             MultiBufferSource buffer) {
-        ContraptionGlow.render(context, renderWorld, matrices, buffer);
+        ClientSafety.run(ClientSafety.GLOW, () -> ContraptionGlow.render(context, renderWorld, matrices, buffer));
     }
 }

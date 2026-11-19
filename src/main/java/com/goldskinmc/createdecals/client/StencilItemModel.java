@@ -44,6 +44,10 @@ public class StencilItemModel extends BakedModelWrapper<BakedModel> {
     private final ItemOverrides overrides = new ItemOverrides() {
         @Override
         public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed) {
+            return ClientSafety.run(ClientSafety.ICON, () -> look(stack), StencilItemModel.this.originalModel);
+        }
+
+        private BakedModel look(ItemStack stack) {
             StencilData data = DecalStencilItem.data(stack);
             if (data.erase()) {
                 return eraser != null ? eraser : StencilItemModel.this.originalModel;

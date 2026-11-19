@@ -112,7 +112,8 @@ public class DecalBlockModel extends CopycatModel {
             return quads;
         }
         long start = System.nanoTime();
-        quads = DecalQuads.addLayers(quads, data, side, 1);
+        List<BakedQuad> material = quads;
+        quads = ClientSafety.run(ClientSafety.DECALS, () -> DecalQuads.addLayers(material, data, side, 1), material);
         DecalQuads.decalNanos.addAndGet(System.nanoTime() - start);
         return quads;
     }

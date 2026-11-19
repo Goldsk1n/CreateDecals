@@ -66,6 +66,10 @@ public final class StencilOutline {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) {
             return;
         }
+        ClientSafety.run(ClientSafety.PREVIEW, () -> render(event));
+    }
+
+    private static void render(RenderLevelStageEvent event) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         Level level = mc.level;

@@ -42,6 +42,10 @@ public class AttachedDecalModel extends BakedModelWrapper<BakedModel> {
             data = be.getModelData();
         }
         ModelData inner = super.getModelData(level, pos, state, data);
+        return ClientSafety.run(ClientSafety.DECALS, () -> withDecals(inner, level, be), inner);
+    }
+
+    private static ModelData withDecals(ModelData inner, BlockAndTintGetter level, @Nullable BlockEntity be) {
         AttachedDecals decals = be != null ? be.getExistingData(DecalsAttachments.DECALS.get()).orElse(null) : null;
         if (decals != null && PonderGlow.inPonder(level)) {
             decals = new AttachedDecals(PonderGlow.unlit(decals.back()), PonderGlow.unlit(decals.front()));
@@ -64,10 +68,13 @@ public class AttachedDecalModel extends BakedModelWrapper<BakedModel> {
             return quads;
         }
         long start = System.nanoTime();
-        List<BakedQuad> out = new ArrayList<>(quads);
-        for (BakedQuad material : materialQuads(state, side, rand, data)) {
-            addProjected(out, decals, material);
-        }
+        List<BakedQuad> out = ClientSafety.run(ClientSafety.DECALS, () -> {
+            List<BakedQuad> all = new ArrayList<>(quads);
+            for (BakedQuad material : materialQuads(state, side, rand, data)) {
+                addProjected(all, decals, material);
+            }
+            return all;
+        }, quads);
         DecalQuads.decalNanos.addAndGet(System.nanoTime() - start);
         return out;
     }
