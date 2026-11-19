@@ -29,15 +29,18 @@ final class Layouts {
         static final BlockPos STEP = new BlockPos(2, 1, 2);
     }
 
-    /** 7x7 plate: a 3x3 wall of Decal Blocks facing north, and one more block to the side. */
+    /**
+     * 7x7 plate: one Decal Block on the left as Ponder shows it, where the scene starts, and a 3x3 wall of Decal Blocks
+     * on the right, both facing north and one block in from the plate's edges.
+     */
     static final class Stencil {
         static final int SIZE = 7;
-        static final BlockPos WALL_FROM = new BlockPos(2, 1, 3);
-        static final BlockPos WALL_TO = new BlockPos(4, 3, 3);
+        static final BlockPos WALL_FROM = new BlockPos(1, 1, 3);
+        static final BlockPos WALL_TO = new BlockPos(3, 3, 3);
         /** Seen from the north, the wall's top-left face: where a 3x3 decal is clicked on. */
-        static final BlockPos TOP_LEFT = new BlockPos(4, 3, 3);
-        static final BlockPos MIDDLE = new BlockPos(3, 2, 3);
-        static final BlockPos SIDE = new BlockPos(0, 1, 3);
+        static final BlockPos TOP_LEFT = new BlockPos(3, 3, 3);
+        static final BlockPos MIDDLE = new BlockPos(2, 2, 3);
+        static final BlockPos SIDE = new BlockPos(5, 1, 3);
     }
 
     /**

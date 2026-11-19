@@ -72,9 +72,10 @@ public final class PonderSchematics implements DataProvider {
         all.add(step);
 
         Schematic stencil = new Schematic("decal_stencil", Layouts.Stencil.SIZE, 5);
+        // Bare: the scene gives them their look, so they read as copycats first
         BlockPos.betweenClosed(Layouts.Stencil.WALL_FROM, Layouts.Stencil.WALL_TO)
-                .forEach(pos -> stencil.copycat(pos.immutable(), DecalsBlocks.DECAL_BLOCK.getDefaultState(), white));
-        stencil.copycat(Layouts.Stencil.SIDE, DecalsBlocks.DECAL_BLOCK.getDefaultState(), Blocks.BLACK_CONCRETE.defaultBlockState());
+                .forEach(pos -> stencil.copycat(pos.immutable(), DecalsBlocks.DECAL_BLOCK.getDefaultState(), null));
+        stencil.copycat(Layouts.Stencil.SIDE, DecalsBlocks.DECAL_BLOCK.getDefaultState(), null);
         all.add(stencil);
 
         Schematic deployer = new Schematic("decal_stencil_deployer", Layouts.Deployer.SIZE, 5);

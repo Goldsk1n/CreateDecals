@@ -29,12 +29,14 @@ import net.createmod.ponder.api.scene.SceneBuildingUtil;
 import net.createmod.ponder.api.scene.Selection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.attachment.AttachmentHolder;
@@ -223,7 +225,7 @@ final class DecalsScenes {
 
     static void stencil(SceneBuilder builder, SceneBuildingUtil util) {
         CreateSceneBuilder scene = new CreateSceneBuilder(builder);
-        scene.title("decal_stencil", "Choosing, placing and picking up decals");
+        scene.title("decal_stencil", "Using the Decal Stencil");
         scene.configureBasePlate(0, 0, Layouts.Stencil.SIZE);
         scene.scaleSceneView(.8f);
         scene.setSceneOffsetY(-1.5f);
@@ -236,13 +238,37 @@ final class DecalsScenes {
         Vec3 topLeftFace = util.vector().blockSurface(topLeft, Direction.NORTH);
         Vec3 middleFace = util.vector().blockSurface(Layouts.Stencil.MIDDLE, Direction.NORTH);
         Vec3 sideFace = util.vector().blockSurface(Layouts.Stencil.SIDE, Direction.NORTH);
-
-        scene.overlay().showText(80).attachKeyFrame()
-                .text("Use it in the air to pick a decal, a word or a colour")
-                .placeNearTarget().pointAt(middleFace);
-        scene.idle(90);
-
+        // High above the small block, aimed at nothing: there a click opens the interface instead of putting a
+        // decal on
+        Vec3 air = sideFace.add(0, 1.9, 0);
+        DecalState arrow = new DecalState(Decals.id("arrow"), rgb(DyeColor.ORANGE), 0, false);
         DecalState cog = new DecalState(Decals.id("cog_3x3"), rgb(DyeColor.ORANGE), 0, false, 0, 0, 3, 3);
+        // A hint fades for about 10 ticks after its time: the next one waits for that
+
+        // The blocks start bare, so they read as copycats, and take their look on their own: materials are the Decal
+        // Block scene's subject
+        for (BlockPos pos : BlockPos.betweenClosed(Layouts.Stencil.WALL_FROM, Layouts.Stencil.WALL_TO)) {
+            material(scene, util, pos.immutable(), Blocks.WHITE_CONCRETE);
+            scene.idle(2);
+        }
+        material(scene, util, Layouts.Stencil.SIDE, Blocks.GRAY_CONCRETE);
+        scene.idle(15);
+
+        scene.overlay().showControls(air, Pointing.DOWN, 60).rightClick().withItem(new ItemStack(DecalsItems.DECAL_STENCIL.get()));
+        scene.idle(7);
+        scene.overlay().showText(70).attachKeyFrame()
+                .text("Right-click while holding the Decal Stencil to open its interface")
+                .placeNearTarget().pointAt(air);
+        scene.idle(80);
+
+        scene.overlay().showControls(sideFace, Pointing.DOWN, 40).rightClick().withItem(stencil("arrow", DyeColor.ORANGE, 0, false, 1, 1));
+        scene.idle(7);
+        decal(scene, util, Layouts.Stencil.SIDE, Direction.NORTH, arrow);
+        scene.overlay().showText(60).attachKeyFrame()
+                .text("Right-click a copycat's face to put the decal on")
+                .placeNearTarget().pointAt(sideFace);
+        scene.idle(70);
+
         scene.overlay().showControls(topLeftFace, Pointing.DOWN, 40).rightClick().withItem(stencil("cog_3x3", DyeColor.ORANGE, 0, false, 3, 3));
         scene.overlay().showOutline(PonderPalette.GREEN, "wall", util.select().fromTo(Layouts.Stencil.WALL_FROM, Layouts.Stencil.WALL_TO), 40);
         scene.idle(7);
@@ -254,18 +280,6 @@ final class DecalsScenes {
                 .placeNearTarget().pointAt(topLeftFace);
         scene.idle(80);
 
-        scene.overlay().showControls(middleFace, Pointing.DOWN, 18).rightClick().whileSneaking()
-                .withItem(new ItemStack(DecalsItems.DECAL_STENCIL.get()));
-        // A hint fades for about 10 ticks after its time: the next one waits for that
-        scene.idle(30);
-        scene.overlay().showControls(sideFace, Pointing.DOWN, 40).rightClick().withItem(stencil("cog", DyeColor.ORANGE, 0, false, 1, 1));
-        scene.idle(7);
-        decal(scene, util, Layouts.Stencil.SIDE, Direction.NORTH, new DecalState(Decals.id("cog"), rgb(DyeColor.ORANGE), 0, false));
-        scene.overlay().showText(60).attachKeyFrame()
-                .text("Sneak-click a decal to copy it into the stencil")
-                .placeNearTarget().pointAt(sideFace);
-        scene.idle(70);
-
         ItemStack eraser = new ItemStack(DecalsItems.DECAL_STENCIL.get());
         eraser.set(DecalsComponents.STENCIL.get(), StencilData.EMPTY.withErase(true));
         scene.overlay().showControls(middleFace, Pointing.DOWN, 40).rightClick().withItem(eraser);
@@ -274,9 +288,36 @@ final class DecalsScenes {
             decal(scene, util, tile.pos(), Direction.NORTH, null);
         }
         scene.overlay().showText(70).attachKeyFrame()
-                .text("The eraser takes a decal off. Create's Clipboard copies them")
+                .text("Choose the eraser in its interface to take decals off")
                 .placeNearTarget().pointAt(middleFace);
         scene.idle(80);
+
+        // Copying last, both ways alike: the arrow copied from the small block and put on the wall the eraser cleared,
+        // by the stencil on its left, by Create's Clipboard on its right. Text alone for the sneak-click: a click hint
+        // beside it said the same thing twice
+        BlockPos wallLeft = Layouts.Stencil.MIDDLE.east();
+        BlockPos wallRight = Layouts.Stencil.MIDDLE.west();
+        Vec3 wallLeftFace = util.vector().blockSurface(wallLeft, Direction.NORTH);
+        Vec3 wallRightFace = util.vector().blockSurface(wallRight, Direction.NORTH);
+        scene.overlay().showText(60).attachKeyFrame()
+                .text("Sneak + right-click a decal to copy it")
+                .placeNearTarget().pointAt(sideFace);
+        scene.idle(70);
+        scene.overlay().showControls(wallLeftFace, Pointing.DOWN, 40).rightClick().withItem(stencil("arrow", DyeColor.ORANGE, 0, false, 1, 1));
+        scene.idle(7);
+        decal(scene, util, wallLeft, Direction.NORTH, arrow);
+        scene.idle(43);
+
+        ItemStack clipboard = AllBlocks.CLIPBOARD.asStack();
+        scene.overlay().showControls(sideFace, Pointing.DOWN, 25).rightClick().withItem(clipboard);
+        scene.idle(35);
+        scene.overlay().showControls(wallRightFace, Pointing.DOWN, 25).leftClick().withItem(clipboard);
+        scene.idle(7);
+        decal(scene, util, wallRight, Direction.NORTH, arrow);
+        scene.overlay().showText(50).attachKeyFrame()
+                .text("Create's Clipboard copies decals too")
+                .placeNearTarget().pointAt(wallRightFace);
+        scene.idle(60);
     }
 
     static void deployer(SceneBuilder builder, SceneBuildingUtil util) {
@@ -398,6 +439,17 @@ final class DecalsScenes {
             AttachedDecals decals = attachments.contains(key) ? AttachedDecals.load(attachments.getCompound(key)) : AttachedDecals.EMPTY;
             attachments.put(key, decals.with(face, false, decal).save());
             nbt.put(AttachmentHolder.ATTACHMENTS_NBT_KEY, attachments);
+        }, true);
+    }
+
+    /** Gives the Decal Block at {@code pos} the look of {@code material}, as a click with that block does. */
+    private static void material(CreateSceneBuilder scene, SceneBuildingUtil util, BlockPos pos, Block material) {
+        scene.world().modifyBlockEntityNBT(util.select().position(pos), DecalCopycatBlockEntity.class, nbt -> {
+            nbt.put("Material", NbtUtils.writeBlockState(material.defaultBlockState()));
+            CompoundTag item = new CompoundTag();
+            item.putString("id", BuiltInRegistries.ITEM.getKey(material.asItem()).toString());
+            item.putInt("count", 1);
+            nbt.put("Item", item);
         }, true);
     }
 
