@@ -90,13 +90,16 @@ public final class AttachedDecalModels {
         }
     }
 
-    /** Says in the log when a copycat's finished model is not ours outside, so its decals cannot show. */
+    /**
+     * Says in the log when a copycat's finished model is not ours outside, so its decals cannot show. Read from the baked
+     * models themselves: the block model shaper still holds the last load's models (on the first, the missing model) here.
+     */
     @SubscribeEvent
     public static void checkModels(ModelEvent.BakingCompleted event) {
         List<String> lost = new ArrayList<>();
         for (Block block : copycats()) {
-            BakedModel model = event.getModelManager().getBlockModelShaper().getBlockModel(block.defaultBlockState());
-            if (!(model instanceof AttachedDecalModel)) {
+            BakedModel model = event.getModels().get(BlockModelShaper.stateToModelLocation(block.defaultBlockState()));
+            if (model != null && !(model instanceof AttachedDecalModel)) {
                 lost.add(BuiltInRegistries.BLOCK.getKey(block) + " (" + model.getClass().getName() + ")");
             }
         }
