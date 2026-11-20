@@ -76,6 +76,9 @@ def devCopycats = providers.gradleProperty('dev_copycats').map { it.toBoolean() 
 def devTools = providers.gradleProperty('dev_tools').map { it.toBoolean() }.getOrElse(false)
 // -Pdev_sable=false leaves Sable and Veil out of `latest` runs (to tell their effects from ours)
 def devSable = providers.gradleProperty('dev_sable').map { it.toBoolean() }.getOrElse(true)
+// -Pdev_player=<name> plays under that name, for a second client on the dedicated server (the same name kicks the first
+// one off); its game folder is run-<name>, so two clients never share logs or options
+def devPlayer = providers.gradleProperty('dev_player').getOrNull()
 
 neoForge {
     version = floorRun ? project.neo_floor_version : project.neo_version
@@ -98,6 +101,9 @@ neoForge {
             if (quickPlayServer != null) {
                 programArguments.addAll '--quickPlayMultiplayer', quickPlayServer
             }
+            if (devPlayer != null) {
+                programArguments.addAll '--username', devPlayer
+            }
         }
         // A dedicated server in run-server/ (superflat, offline mode, EULA accepted by the owner)
         server {
@@ -117,7 +123,8 @@ neoForge {
         }
         configureEach {
             // The dedicated server gets its own folder, so its log and world never clash with a client's
-            gameDirectory = file(name == 'server' ? "${runDir}-server" : runDir)
+            gameDirectory = file(name == 'server' ? "${runDir}-server"
+                    : name == 'client' && devPlayer != null ? "run-${devPlayer}" : runDir)
             logLevel = org.slf4j.event.Level.INFO
         }
     }
