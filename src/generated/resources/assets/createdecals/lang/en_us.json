@@ -64,7 +64,7 @@
   "createdecals.stencil.undo_none": "Nothing to undo",
   "createdecals.stencil.undone": "Undone: %s tiles",
   "createdecals.stencil.undone_partly": "Undone: %s of %s tiles",
-  "createdecals.stencil.wrong_block": "%s takes no decals",
+  "createdecals.stencil.wrong_block": "Decals only go on copycat blocks",
   "decal.createdecals.drop": "Water Drop",
   "decal.createdecals.no_entry": "No Entry",
   "decal.createdecals.sign_and": "Ampersand",

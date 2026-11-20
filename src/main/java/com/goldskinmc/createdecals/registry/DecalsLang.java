@@ -31,7 +31,7 @@ public final class DecalsLang {
         add("createdecals.stencil.erase", "Eraser");
         add("createdecals.stencil.done", "Done");
         add("createdecals.stencil.colour", "Colour");
-        add("createdecals.stencil.wrong_block", "%s takes no decals");
+        add("createdecals.stencil.wrong_block", "Decals only go on copycat blocks");
         add("createdecals.stencil.turned", "Turned to %s°");
         add("createdecals.stencil.undone", "Undone: %s tiles");
         add("createdecals.stencil.undone_partly", "Undone: %s of %s tiles");

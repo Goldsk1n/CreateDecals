@@ -115,7 +115,8 @@ public class StencilScreen extends Screen {
         this(hand, stack, null);
     }
 
-    /** {@code wrongBlock}: the name of a block that takes no decals, when the screen opened from a click on one. */
+    /** {@code wrongBlock}: the name of a block that takes no decals, when the screen opened from a click on one (the note
+     * above the panel then says where decals go). */
     public StencilScreen(InteractionHand hand, ItemStack stack, @Nullable Component wrongBlock) {
         super(Component.translatable("createdecals.stencil.title"));
         this.hand = hand;
@@ -458,7 +459,7 @@ public class StencilScreen extends Screen {
      * title bar if the window leaves no room above it).
      */
     private void wrongBlockNote(GuiGraphics graphics) {
-        Component note = Component.translatable("createdecals.stencil.wrong_block", wrongBlock);
+        Component note = Component.translatable("createdecals.stencil.wrong_block");
         List<net.minecraft.util.FormattedCharSequence> lines = font.split(note, Math.max(PANEL_WIDTH - 12, width - 20));
         int textWidth = lines.stream().mapToInt(font::width).max().orElse(0);
         int boxWidth = textWidth + 12;
